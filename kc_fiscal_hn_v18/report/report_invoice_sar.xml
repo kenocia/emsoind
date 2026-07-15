@@ -48,40 +48,50 @@
                                         <t t-foreach="page_lines" t-as="line">
                                             <tr t-att-style="'border-bottom:1px solid #eef0f3;' + (' background-color:#f8fafc; -webkit-print-color-adjust:exact;' if line_counter % 2 == 0 and line.display_type == 'product' else '')">
                                                 <t t-if="line.display_type == 'product'">
-                                                    <td name="account_invoice_line_name" style="padding:7px 6px; vertical-align:top;">
-                                                        <div style="font-weight:600; color:#111827; line-height:1.35; white-space:pre-line;">
-                                                            <t t-esc="o._sar_invoice_line_display_name(line)"/>
+                                                    <t t-set="display_name" t-value="o._sar_invoice_line_display_name(line)"/>
+                                                    <t t-set="display_lines" t-value="(display_name or '').splitlines()"/>
+                                                    <t t-set="tech_desc"
+                                                       t-value="(line.technical_description or '').strip() if 'technical_description' in line._fields else ''"/>
+                                                    <td name="account_invoice_line_name" style="padding:3px 6px; vertical-align:top; line-height:1.25;">
+                                                        <div style="font-weight:600; color:#111827; line-height:1.25;">
+                                                            <t t-esc="display_lines[0] if display_lines else ''"/>
                                                         </div>
-                                                        <t t-if="'technical_description' in line._fields and line.technical_description">
-                                                            <div style="font-size:9px; color:#4b5563; margin-top:2px; white-space:pre-line;">
-                                                                <span t-field="line.technical_description"/>
+                                                        <t t-if="len(display_lines) &gt; 1">
+                                                            <div style="font-size:9px; color:#4b5563; margin-top:1px; line-height:1.25; white-space:pre-line;">
+                                                                <t t-esc="'\n'.join(display_lines[1:])"/>
+                                                            </div>
+                                                        </t>
+                                                        <!-- Solo si no viene ya embebido en line.name (evita doble altura). -->
+                                                        <t t-if="tech_desc and tech_desc not in (line.name or '')">
+                                                            <div style="font-size:9px; color:#4b5563; margin-top:1px; line-height:1.25; white-space:pre-line;">
+                                                                <t t-esc="tech_desc"/>
                                                             </div>
                                                         </t>
                                                     </td>
-                                                    <td class="text-end" style="padding:7px 6px; white-space:nowrap; vertical-align:top;">
+                                                    <td class="text-end" style="padding:3px 6px; white-space:nowrap; vertical-align:top; line-height:1.25;">
                                                         <span t-field="line.quantity"/>
                                                         <span t-if="line.product_uom_id" style="font-size:9px; color:#6b7280;">
                                                             <span t-field="line.product_uom_id"/>
                                                         </span>
                                                     </td>
-                                                    <td class="text-end" style="padding:7px 6px; vertical-align:top;">
+                                                    <td class="text-end" style="padding:3px 6px; vertical-align:top; line-height:1.25;">
                                                         <span t-field="line.price_unit"
                                                               t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
                                                     </td>
-                                                    <td t-if="show_discount" class="text-end" style="padding:7px 6px; vertical-align:top;">
+                                                    <td t-if="show_discount" class="text-end" style="padding:3px 6px; vertical-align:top; line-height:1.25;">
                                                         <t t-set="line_discount_amount"
                                                            t-value="line.price_unit * line.quantity * (line.discount or 0.0) / 100.0"/>
                                                         <span t-esc="line_discount_amount"
                                                               t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
                                                     </td>
-                                                    <td class="text-end" style="padding:7px 6px; font-weight:700; color:#0c2d5e; vertical-align:top;">
+                                                    <td class="text-end" style="padding:3px 6px; font-weight:700; color:#0c2d5e; vertical-align:top; line-height:1.25;">
                                                         <span t-field="line.price_subtotal"
                                                               t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
                                                     </td>
                                                 </t>
                                                 <t t-if="line.display_type == 'line_note'">
                                                     <td t-att-colspan="col_count"
-                                                        style="padding:7px 6px; color:#4b5563; font-style:italic; border-bottom:1px solid #eef0f3;">
+                                                        style="padding:3px 6px; color:#4b5563; font-style:italic; border-bottom:1px solid #eef0f3; line-height:1.25;">
                                                         <span t-field="line.name" t-options="{'widget': 'text'}"/>
                                                     </td>
                                                 </t>

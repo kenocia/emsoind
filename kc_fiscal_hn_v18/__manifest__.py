@@ -21,7 +21,7 @@
     'website': 'https://kenocia.com/',
     'license': 'LGPL-3',
     'category': 'Accounting/Localizations',
-    'version': '18.0.1.4.20',
+    'version': '18.0.1.4.21',
     'depends': [
         'base',
         'web',

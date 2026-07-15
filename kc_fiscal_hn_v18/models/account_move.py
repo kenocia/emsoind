@@ -1527,26 +1527,56 @@ class AccountMove(models.Model):
         lines = self.invoice_line_ids.filtered(
             lambda line: line.display_type in ('product', 'line_note')
         ).sorted(key=lambda line: (-line.sequence, line.date, line.move_name, -line.id), reverse=True)
+        # Filas más compactas (sin tech duplicada) permiten cupos algo más altos.
         return self._split_printable_report_pages(
             list(lines),
             lines,
-            first_cap=9,
-            middle_cap=10,
-            last_cap=7,
-            single_cap=7,
+            first_cap=12,
+            middle_cap=14,
+            last_cap=9,
+            single_cap=10,
         )
 
     @api.model
-    def _sar_invoice_line_display_name(self, line):
-        """Descripción comercial sin código interno [DEFAULT_CODE]."""
+    def _sar_invoice_line_display_parts(self, line):
+        """Partes de descripción para la factura SAR.
+
+        - ``title``: primera línea (producto / descripción comercial).
+        - ``detail``: resto del nombre (specs/lote ya embebidos) + tech solo si no
+          está ya en el nombre (evita duplicar altura de fila y saltos de página).
+        """
         name = (line.name or '').strip()
         if name.startswith('['):
             end = name.find(']')
             if end > 1:
                 name = name[end + 1:]
-        return '\n'.join(
-            part.strip() for part in name.splitlines() if part.strip()
-        )
+        parts = [part.strip() for part in name.splitlines() if part.strip()]
+        title = parts[0] if parts else ''
+        detail_parts = list(parts[1:]) if len(parts) > 1 else []
+
+        tech = ''
+        if 'technical_description' in line._fields and line.technical_description:
+            tech = (line.technical_description or '').strip()
+        if tech:
+            name_flat = ' '.join(parts)
+            tech_flat = ' '.join(
+                part.strip() for part in tech.splitlines() if part.strip()
+            )
+            if tech_flat and tech_flat not in name_flat and tech not in '\n'.join(parts):
+                detail_parts.append(tech)
+
+        return {
+            'title': title,
+            'detail': '\n'.join(detail_parts),
+        }
+
+    @api.model
+    def _sar_invoice_line_display_name(self, line):
+        """Descripción comercial sin código interno [DEFAULT_CODE]."""
+        parts = self._sar_invoice_line_display_parts(line)
+        if parts['detail']:
+            return '%s\n%s' % (parts['title'], parts['detail'])
+        return parts['title']
 
     @api.depends_context('uid')
     def _compute_fiscal_can_manage_cancel(self):
