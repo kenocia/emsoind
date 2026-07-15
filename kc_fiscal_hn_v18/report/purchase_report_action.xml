@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Formato carta para PDF de compras (evita márgenes/header que recortan el diseño) -->
+        <record id="purchase.action_report_purchase_order" model="ir.actions.report">
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+        </record>
+        <record id="purchase.report_purchase_quotation" model="ir.actions.report">
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+        </record>
+    </data>
+</odoo>

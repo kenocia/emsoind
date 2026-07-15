@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="kc_purchase_request_line_view_tree_emsoind" model="ir.ui.view">
+        <field name="name">kc.purchase.request.line.list.emsoind</field>
+        <field name="model">kc.purchase.request.line</field>
+        <field name="inherit_id" ref="kc_purchase_request_v18.kc_purchase_request_line_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vendor_id']" position="attributes">
+                <attribute name="domain">['|', ('supplier_rank', '&gt;', 0), ('emsoind_use_in_purchases', '=', True)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="kc_purchase_request_line_view_form_emsoind" model="ir.ui.view">
+        <field name="name">kc.purchase.request.line.form.emsoind</field>
+        <field name="model">kc.purchase.request.line</field>
+        <field name="inherit_id" ref="kc_purchase_request_v18.kc_purchase_request_line_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vendor_id']" position="attributes">
+                <attribute name="domain">['|', ('supplier_rank', '&gt;', 0), ('emsoind_use_in_purchases', '=', True)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="kc_purchase_request_view_form_emsoind_vendor" model="ir.ui.view">
+        <field name="name">kc.purchase.request.form.emsoind.vendor</field>
+        <field name="model">kc.purchase.request</field>
+        <field name="inherit_id" ref="kc_purchase_request_v18.kc_purchase_request_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']//field[@name='vendor_id']" position="attributes">
+                <attribute name="domain">['|', ('supplier_rank', '&gt;', 0), ('emsoind_use_in_purchases', '=', True)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="kc_purchase_request_line_make_po_view_form_emsoind" model="ir.ui.view">
+        <field name="name">kc.purchase.request.line.make.po.form.emsoind</field>
+        <field name="model">kc.purchase.request.line.make.po</field>
+        <field name="inherit_id" ref="kc_purchase_request_v18.kc_purchase_request_line_make_po_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="domain">['|', ('supplier_rank', '&gt;', 0), ('emsoind_use_in_purchases', '=', True)]</attribute>
+            </xpath>
+            <xpath expr="//field[@name='line_ids']//field[@name='vendor_id']" position="attributes">
+                <attribute name="domain">['|', ('supplier_rank', '&gt;', 0), ('emsoind_use_in_purchases', '=', True)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="kc_purchase_request_merge_rfq_view_form_emsoind" model="ir.ui.view">
+        <field name="name">kc.purchase.request.merge.rfq.form.emsoind</field>
+        <field name="model">kc.purchase.request.merge.rfq</field>
+        <field name="inherit_id" ref="kc_purchase_request_v18.kc_purchase_request_merge_rfq_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="domain">['|', ('supplier_rank', '&gt;', 0), ('emsoind_use_in_purchases', '=', True)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="res_config_settings_view_form_emsoind_pr" model="ir.ui.view">
+        <field name="name">res.config.settings.form.emsoind.pr</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="kc_purchase_request_v18.res_config_settings_view_form_kc_purchase_request"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='generic_vendor_id']" position="attributes">
+                <attribute name="domain">['|', ('supplier_rank', '&gt;', 0), ('emsoind_use_in_purchases', '=', True)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

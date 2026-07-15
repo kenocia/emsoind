@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_kenocia_advance_payment_form" model="ir.ui.view">
+        <field name="name">kenocia.advance.payment.form</field>
+        <field name="model">kenocia.advance.payment</field>
+        <field name="arch" type="xml">
+            <form string="Adelanto de Pago">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,partially_applied,fully_applied"/>
+                    <button name="action_confirm_advance"
+                            string="Confirmar Adelanto"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_cxp"/>
+                    <button name="action_set_to_draft"
+                            string="Pasar a borrador"
+                            type="object"
+                            class="btn-secondary"
+                            confirm="Se cancelará el pago de anticipo. ¿Continuar?"
+                            invisible="state != 'confirmed'"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor"/>
+                    <button name="action_cancel_advance"
+                            string="Cancelar"
+                            type="object"
+                            class="btn-danger"
+                            confirm="¿Confirma la cancelación del adelanto?"
+                            invisible="state in ('fully_applied', 'cancelled')"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_supervisor"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="APLICADO"
+                            bg_color="text-bg-success"
+                            invisible="state != 'fully_applied'"/>
+                    <widget name="web_ribbon" title="PARCIAL"
+                            bg_color="text-bg-warning"
+                            invisible="state != 'partially_applied'"/>
+                    <widget name="web_ribbon" title="CANCELADO"
+                            bg_color="text-bg-danger"
+                            invisible="state != 'cancelled'"/>
+                    <div name="button_box" class="oe_button_box">
+                        <button type="object" name="action_view_sale_order"
+                                class="oe_stat_button kt_advance_btn" icon="fa-shopping-cart"
+                                invisible="not sale_order_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="sale_order_id" readonly="1"/>
+                                </span>
+                                <span class="o_stat_text">Orden de venta</span>
+                            </div>
+                        </button>
+                        <button type="object" name="action_view_purchase_order"
+                                class="oe_stat_button kt_advance_btn" icon="fa-dolly"
+                                invisible="not purchase_order_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="purchase_order_id" readonly="1"/>
+                                </span>
+                                <span class="o_stat_text">Orden de compra</span>
+                            </div>
+                        </button>
+                        <button type="object" name="action_view_payment"
+                                class="oe_stat_button kt_advance_btn" icon="fa-university"
+                                invisible="not payment_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="payment_id" readonly="1"/>
+                                </span>
+                                <span class="o_stat_text">Pago</span>
+                            </div>
+                        </button>
+                        <button type="object" name="action_view_invoices"
+                                class="oe_stat_button kt_advance_btn" icon="fa-file-invoice"
+                                invisible="applied_invoice_count == 0">
+                            <field name="applied_invoice_count" widget="statinfo"
+                                   string="Facturas"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group string="Información del adelanto">
+                            <field name="name" readonly="1"/>
+                            <field name="advance_type" readonly="state != 'draft'"/>
+                            <field name="partner_id"
+                                   string="Cliente"
+                                   invisible="advance_type != 'customer'"
+                                   readonly="state != 'draft'"
+                                   domain="[('customer_rank', '&gt;', 0)]"/>
+                            <field name="partner_id"
+                                   string="Proveedor"
+                                   invisible="advance_type != 'supplier'"
+                                   readonly="state != 'draft'"
+                                   domain="[('supplier_rank', '&gt;', 0)]"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="currency_id" groups="base.group_multi_currency"
+                                   readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   readonly="state != 'draft'"/>
+                            <field name="invoice_count" invisible="1"/>
+                            <field name="applied_invoice_count" invisible="1"/>
+                            <field name="advance_invoice_id" invisible="1"/>
+                        </group>
+                        <group string="Contabilidad del anticipo">
+                            <field name="advance_account_id" readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
+                            <field name="journal_id" readonly="state != 'draft'"
+                                   domain="[('type', 'in', ('bank', 'cash'))]"/>
+                            <field name="sale_order_id"
+                                   string="Orden de venta"
+                                   invisible="advance_type != 'customer'"
+                                   readonly="state != 'draft'"
+                                   domain="[
+                                       ('partner_id', 'child_of', partner_id),
+                                       ('company_id', '=', company_id),
+                                       ('state', 'in', ('sale', 'done')),
+                                       ('invoice_status', '!=', 'invoiced'),
+                                   ]"/>
+                            <field name="purchase_order_id"
+                                   string="Orden de compra"
+                                   invisible="advance_type != 'supplier'"
+                                   readonly="state != 'draft'"
+                                   domain="[
+                                       ('partner_id', 'child_of', partner_id),
+                                       ('company_id', '=', company_id),
+                                       ('state', 'in', ('purchase', 'done')),
+                                       ('invoice_status', '!=', 'invoiced'),
+                                   ]"/>
+                        </group>
+                    </group>
+                    <group string="Montos">
+                        <field name="amount" readonly="state != 'draft'"/>
+                        <field name="amount_applied" readonly="1"/>
+                        <field name="amount_residual" readonly="1"
+                               decoration-danger="amount_residual &gt; 0 and state == 'fully_applied'"
+                               decoration-success="amount_residual == 0"/>
+                    </group>
+                    <group string="Documentos generados" invisible="state == 'draft'">
+                        <field name="payment_id" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Notas internas">
+                            <field name="notes" readonly="state != 'draft'"/>
+                        </page>
+                        <page string="Facturas finales aplicadas"
+                              invisible="applied_invoice_count == 0">
+                            <field name="invoice_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="invoice_date"/>
+                                    <field name="amount_total"/>
+                                    <field name="amount_residual"/>
+                                    <field name="payment_state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Detalle aplicaciones" invisible="not application_ids">
+                            <field name="application_ids" readonly="1">
+                                <list>
+                                    <field name="invoice_id"/>
+                                    <field name="amount"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_kenocia_sequence_list" model="ir.ui.view">
+        <field name="name">kenocia.sequence.list</field>
+        <field name="model">kenocia.sequence</field>
+        <field name="arch" type="xml">
+            <list string="Secuencias Bancarias"
+                  decoration-muted="not active">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="transaction_type"/>
+                <field name="prefix"/>
+                <field name="next_number"/>
+                <field name="padding"/>
+                <field name="preview"/>
+                <field name="last_generated"/>
+                <field name="void_count" optional="show"/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kenocia_sequence_form" model="ir.ui.view">
+        <field name="name">kenocia.sequence.form</field>
+        <field name="model">kenocia.sequence</field>
+        <field name="arch" type="xml">
+            <form string="Secuencia Bancaria">
+                <sheet>
+                    <widget name="web_ribbon"
+                            title="Inactiva"
+                            bg_color="text-bg-secondary"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Ej. CHEQUES BANCO ATLÁNTIDA"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Configuración">
+                            <field name="journal_id"/>
+                            <field name="transaction_type"/>
+                            <field name="prefix"/>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                        </group>
+                        <group string="Numeración">
+                            <field name="next_number"/>
+                            <field name="padding"/>
+                            <field name="preview" readonly="1"/>
+                            <field name="last_generated" readonly="1"/>
+                            <field name="void_count" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kenocia_sequence_search" model="ir.ui.view">
+        <field name="name">kenocia.sequence.search</field>
+        <field name="model">kenocia.sequence</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Secuencias">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="prefix"/>
+                <field name="transaction_type"/>
+                <filter name="active" string="Activas" domain="[('active', '=', True)]"/>
+                <filter name="inactive" string="Inactivas" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_journal" string="Diario" context="{'group_by': 'journal_id'}"/>
+                    <filter name="group_type" string="Tipo" context="{'group_by': 'transaction_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

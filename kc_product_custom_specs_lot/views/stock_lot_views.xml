@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_lot_form_technical" model="ir.ui.view">
+        <field name="name">stock.lot.form.technical</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='main_group']" position="after">
+                <group string="Resumen técnico">
+                    <group>
+                        <field name="technical_key" readonly="1"/>
+                        <field name="technical_description" readonly="1" nolabel="1"/>
+                        <field name="kc_technical_configuration_id" readonly="1"/>
+                        <field name="kc_config_standard_price" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="source_type"/>
+                        <field name="kc_authorized_employee_id" readonly="1"/>
+                        <field name="sale_order_id" readonly="1"/>
+                        <field name="partner_id"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Especificaciones Técnicas" name="technical_specs">
+                    <field name="technical_value_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="attribute_id"/>
+                            <field name="display_type" column_invisible="1"/>
+                            <field name="value_id"
+                                   invisible="display_type not in ('selection', 'radio')"/>
+                            <field name="value_number"
+                                   invisible="display_type != 'numeric'"/>
+                            <field name="uom_id"
+                                   invisible="display_type != 'numeric'"/>
+                            <field name="value_text"
+                                   invisible="display_type != 'text'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_stock_lot_tree_technical" model="ir.ui.view">
+        <field name="name">stock.lot.tree.technical</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_tree"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="technical_key" optional="hide"/>
+                <field name="technical_description" optional="show"/>
+                <field name="kc_config_standard_price" optional="show" string="Costo catálogo"/>
+                <field name="standard_price" optional="show" string="Costo lote"/>
+                <field name="avg_cost" optional="hide" string="Costo prom."/>
+                <field name="product_qty" optional="show" string="Cantidad"/>
+            </field>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_employee_form_kc_credencial" model="ir.ui.view">
+            <field name="name">hr.employee.form.kc.credencial</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='department_id']" position="after">
+                    <label for="id_credencial"/>
+                    <div class="o_row">
+                        <field name="id_credencial" readonly="1"
+                               placeholder="Se asigna automáticamente"/>
+                        <button name="action_generar_credencial" type="object"
+                                string="Generar ID" class="btn-link"
+                                icon="fa-id-card-o"
+                                invisible="id_credencial"/>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_employee_filter_kc_credencial" model="ir.ui.view">
+            <field name="name">hr.employee.search.kc.credencial</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <separator/>
+                    <filter string="Sin ID de credencial"
+                            name="sin_id_credencial"
+                            domain="[('id_credencial', '=', False)]"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

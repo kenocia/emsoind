@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="report_invoice_sar" model="ir.actions.report">
+            <field name="name">Factura SAR</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kc_fiscal_hn_v18.id_report_invoice_sar</field>
+            <field name="report_file">kc_fiscal_hn_v18.id_report_invoice_sar</field>
+            <field name="print_report_name">'Factura No - %s' % object.name</field>
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+            <field name="is_invoice_report" eval="True"/>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!--        <record id="paperformat_without_payment_receipt" model="report.paperformat">-->
+        <!--            <field name="name">Invoice Without Receipt</field>-->
+        <!--            <field name="default" eval="True"/>-->
+        <!--            <field name="format">custom</field>-->
+        <!--            <field name="page_height">220</field>-->
+        <!--            <field name="page_width">70</field>-->
+        <!--            <field name="orientation">Portrait</field>-->
+        <!--            <field name="margin_top">5</field>-->
+        <!--            <field name="margin_bottom">6</field>-->
+        <!--            <field name="margin_left">0</field>-->
+        <!--            <field name="margin_right">0</field>-->
+        <!--            <field name="header_line" eval="False"/>-->
+        <!--            <field name="header_spacing">130</field>-->
+        <!--            <field name="dpi">50</field>-->
+        <!--        </record>-->
+
+        <!--        <record id="account.account_invoices" model="ir.actions.report">-->
+        <!--            <field name="name">Factura SAR Receipt</field>-->
+        <!--            <field name="model">account.move</field>-->
+        <!--            <field name="report_type">qweb-pdf</field>-->
+        <!--            <field name="report_name">kc_fiscal_hn_v18.report_invoice_template</field>-->
+        <!--            <field name="report_file">kc_fiscal_hn_v18.report_invoice_template</field>-->
+        <!--            <field name="paperformat_id" ref="paperformat_without_payment_receipt"/>-->
+        <!--            <field name="print_report_name">(object._get_report_base_filename())</field>-->
+        <!--            <field name="attachment"/>-->
+        <!--            <field name="binding_model_id" ref="model_account_move"/>-->
+        <!--            <field name="binding_type">report</field>-->
+        <!--        </record>-->
+
+        <record id="report_credit_note" model="ir.actions.report">
+            <field name="name">Nota Credito SAR</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kc_fiscal_hn_v18.id_report_credit_note</field>
+            <field name="report_file">kc_fiscal_hn_v18.id_report_credit_note</field>
+            <field name="print_report_name">'Nota Credito No - %s' % object.name</field>
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+            <field name="is_invoice_report" eval="True"/>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+        </record>
+        <record id="report_guia_remision" model="ir.actions.report">
+            <field name="name">Guia Remisión</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kc_fiscal_hn_v18.id_report_guia_remision</field>
+            <field name="report_file">kc_fiscal_hn_v18.id_report_guia_remision</field>
+            <field name="print_report_name">'Guia de Remisión No - %s' % object.name</field>
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+        <record id="report_salida_inventario" model="ir.actions.report">
+            <field name="name">Comprobante de entrega</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kc_fiscal_hn_v18.id_report_salida_inventario</field>
+            <field name="report_file">kc_fiscal_hn_v18.id_report_salida_inventario</field>
+            <field name="print_report_name">'Comprobante de entrega - %s' % object.name</field>
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- Ocultar recibo de entrega estándar del menú Imprimir -->
+        <record id="stock.action_report_delivery" model="ir.actions.report">
+            <field name="binding_model_id" eval="False"/>
+        </record>
+        <record id="report_comprobante" model="ir.actions.report">
+            <field name="name">Comprobante Ret. SAR</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kc_fiscal_hn_v18.id_report_comprobante</field>
+            <field name="report_file">kc_fiscal_hn_v18.id_report_comprobante</field>
+            <field name="print_report_name">'Comp. Rentención No - %s' % object.name</field>
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+            <field name="is_invoice_report" eval="True"/>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+        </record>
+        <record id="report_boleta_compra" model="ir.actions.report">
+            <field name="name">Boleta de Compra SAR</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kc_fiscal_hn_v18.id_report_boleta_compra</field>
+            <field name="report_file">kc_fiscal_hn_v18.id_report_boleta_compra</field>
+            <field name="print_report_name">'Boleta de Compra No - %s' % object.name</field>
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+            <field name="is_invoice_report" eval="True"/>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="report_debit_note" model="ir.actions.report">
+            <field name="name">Nota Debito SAR</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kc_fiscal_hn_v18.id_report_debit_note</field>
+            <field name="report_file">kc_fiscal_hn_v18.id_report_debit_note</field>
+            <field name="print_report_name">'Nota Debito No - %s' % object.name</field>
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+            <field name="is_invoice_report" eval="True"/>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="account_journal" model="ir.actions.report">
+            <field name="name">Asiento Contable SAR</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kc_fiscal_hn_v18.report_journal</field>
+            <field name="report_file">kc_fiscal_hn_v18.report_journal</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

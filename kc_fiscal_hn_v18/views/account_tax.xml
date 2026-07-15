@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista formulario impuesto con sección SAR -->
+        <record id="view_tax_form_fiscal_hn"
+                model="ir.ui.view">
+            <field name="name">
+                account.tax.form.fiscal.hn
+            </field>
+            <field name="model">account.tax</field>
+            <field name="inherit_id"
+                   ref="account.view_tax_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook"
+                       position="before">
+                    <group string="🇭🇳 Configuración SAR Honduras"
+                           name="grupo_sar_hn">
+                        <group name="sar_col1">
+                            <field name="codigo_sar_id"
+                                   string="Código SAR"/>
+                            <field name="tipo_impuesto"
+                                   string="Tipo Impuesto"/>
+                            <field name="codigo_sar"
+                                   string="Código Numérico"
+                         invisible="not codigo_sar_id"
+                         readonly="1"/>
+                        </group>
+                        <group name="sar_col2">
+                            <field name="es_deducible"
+                                   string="Es Deducible"/>
+                            <field name="is_retention"
+                                   string="Es Retención ISV"/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vista lista dedicada Impuestos SAR (primary) -->
+        <record id="view_tax_list_sar_hn"
+                model="ir.ui.view">
+            <field name="name">account.tax.list.sar.hn</field>
+            <field name="model">account.tax</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <list string="Impuestos SAR Honduras"
+                      decoration-muted="not active">
+                    <field name="name" string="Nombre"/>
+                    <field name="type_tax_use"
+                           string="Tax Type"
+                           widget="badge"
+                           decoration-success=
+                           "type_tax_use == 'sale'"
+                           decoration-info=
+                           "type_tax_use == 'purchase'"
+                           decoration-warning=
+                           "type_tax_use == 'none'"/>
+                    <field name="amount" string="Tasa %"/>
+                    <field name="codigo_sar"
+                           string="Cód. SAR"/>
+                    <field name="tipo_impuesto"
+                           string="Tipo SAR"
+                           widget="badge"
+                           decoration-warning=
+                           "tipo_impuesto == 'isv'"
+                           decoration-info=
+                           "tipo_impuesto == 'exento'"
+                           decoration-success=
+                           "tipo_impuesto == 'exonerado'"
+                           decoration-danger=
+                           "tipo_impuesto == 'retencion'"/>
+                    <field name="is_retention"
+                           string="Retención"
+                           widget="boolean_toggle"/>
+                    <field name="country_id" optional="hide"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Herencia vista lista estándar (Contabilidad → Impuestos) -->
+        <record id="view_tax_list_fiscal_hn"
+                model="ir.ui.view">
+            <field name="name">
+                account.tax.list.fiscal.hn
+            </field>
+            <field name="model">account.tax</field>
+            <field name="inherit_id"
+                   ref="account.view_tax_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='type_tax_use']"
+                       position="attributes">
+                    <attribute name="string">Tax Type</attribute>
+                    <attribute name="widget">badge</attribute>
+                    <attribute name="optional">show</attribute>
+                    <attribute name="decoration-success">
+                        type_tax_use == 'sale'
+                    </attribute>
+                    <attribute name="decoration-info">
+                        type_tax_use == 'purchase'
+                    </attribute>
+                    <attribute name="decoration-warning">
+                        type_tax_use == 'none'
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='type_tax_use']"
+                       position="after">
+                    <field name="codigo_sar"
+                           string="Cód. SAR"
+                           optional="show"/>
+                    <field name="tipo_impuesto"
+                           string="Tipo SAR"
+                           optional="show"
+                           widget="badge"
+                           decoration-warning=
+                           "tipo_impuesto == 'isv'"
+                           decoration-info=
+                           "tipo_impuesto == 'exento'"
+                           decoration-success=
+                           "tipo_impuesto == 'exonerado'"
+                           decoration-danger=
+                           "tipo_impuesto == 'retencion'"/>
+                    <field name="is_retention"
+                           string="Retención"
+                           optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Buscador con filtros para Impuestos SAR -->
+        <record id="view_tax_search_sar_hn" model="ir.ui.view">
+            <field name="name">account.tax.search.sar.hn</field>
+            <field name="model">account.tax</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <search string="Impuestos SAR Honduras">
+                    <field name="name"/>
+                    <field name="codigo_sar_id"/>
+                    <field name="tipo_impuesto"/>
+                    <filter name="filtro_con_codigo"
+                            string="Con código SAR"
+                            domain="[('codigo_sar_id', '!=', False)]"/>
+                    <filter name="filtro_sin_codigo"
+                            string="Sin código SAR (pendientes)"
+                            domain="[('codigo_sar_id', '=', False)]"/>
+                    <separator/>
+                    <filter name="filtro_ventas"
+                            string="Ventas"
+                            domain="[('type_tax_use', '=', 'sale')]"/>
+                    <filter name="filtro_compras"
+                            string="Compras"
+                            domain="[('type_tax_use', '=', 'purchase')]"/>
+                    <separator/>
+                    <filter name="filtro_activos"
+                            string="Activos"
+                            domain="[('active', '=', True)]"/>
+                    <filter name="filtro_archivados"
+                            string="Archivados"
+                            domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter name="group_tipo_sar"
+                            string="Tipo SAR"
+                            context="{'group_by': 'tipo_impuesto'}"/>
+                    <filter name="group_tax_use"
+                            string="Tipo de uso"
+                            context="{'group_by': 'type_tax_use'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción menú Fiscal HN → Impuestos SAR -->
+        <record id="action_impuestos_sar"
+                model="ir.actions.act_window">
+            <field name="name">
+                Impuestos SAR Honduras
+            </field>
+            <field name="res_model">account.tax</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_tax_list_sar_hn"/>
+            <field name="search_view_id" ref="view_tax_search_sar_hn"/>
+            <field name="domain">
+                [('type_tax_use', 'in', ['sale', 'purchase'])]
+            </field>
+            <field name="context"
+                   eval="{'search_default_filtro_activos': 1}"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Configure los impuestos SAR Honduras
+                </p>
+                <p>
+                    Abra cada impuesto y asigne su <strong>Código SAR</strong>
+                    en la sección "Configuración SAR Honduras".
+                    Use el filtro <strong>Sin código SAR (pendientes)</strong>
+                    para encontrar los que faltan por configurar.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

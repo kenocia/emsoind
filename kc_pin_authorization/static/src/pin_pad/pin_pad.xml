@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="kc_pin_authorization.PinPad">
+        <div class="kc_pinpad">
+            <div class="kc_pinpad_header">
+                <div class="kc_pinpad_icon">
+                    <i class="fa fa-lock"/>
+                </div>
+                <h3 class="kc_pinpad_title">Autorización requerida</h3>
+                <p t-if="reason" class="kc_pinpad_reason" t-esc="reason"/>
+            </div>
+
+            <div t-if="state.mode === 'self'" class="kc_pinpad_field">
+                <label class="kc_pinpad_label">Autorizando como</label>
+                <div class="kc_pinpad_current">
+                    <i class="fa fa-user-circle"/>
+                    <span t-esc="state.currentEmployeeName"/>
+                </div>
+                <button type="button" class="btn btn-link btn-sm kc_pinpad_other"
+                        t-on-click="useOtherEmployee">
+                    Usar otro empleado
+                </button>
+            </div>
+
+            <div t-else="" class="kc_pinpad_field">
+                <label class="kc_pinpad_label">Empleado</label>
+                <select class="form-select kc_pinpad_select"
+                        t-on-change="onSelectEmployee">
+                    <option value="">Seleccione...</option>
+                    <option t-foreach="state.employees" t-as="emp" t-key="emp.id"
+                            t-att-value="emp.id"
+                            t-att-selected="emp.id === state.employeeId">
+                        <t t-esc="emp.name"/>
+                    </option>
+                </select>
+            </div>
+
+            <div class="kc_pinpad_display">
+                <span t-if="state.pin" class="kc_pinpad_dots" t-esc="maskedPin"/>
+                <span t-else="" class="kc_pinpad_placeholder">Ingrese su PIN</span>
+            </div>
+
+            <div t-if="state.error" class="kc_pinpad_error" role="alert">
+                <i class="fa fa-exclamation-triangle"/>
+                <span t-esc="state.error"/>
+            </div>
+
+            <div class="kc_pinpad_keys">
+                <t t-foreach="[1, 2, 3, 4, 5, 6, 7, 8, 9]" t-as="d" t-key="d">
+                    <button type="button" class="kc_pinpad_key"
+                            t-on-click="() => this.press(d)">
+                        <t t-esc="d"/>
+                    </button>
+                </t>
+                <button type="button" class="kc_pinpad_key kc_pinpad_aux"
+                        t-on-click="clearPin" title="Limpiar">C</button>
+                <button type="button" class="kc_pinpad_key"
+                        t-on-click="() => this.press(0)">0</button>
+                <button type="button" class="kc_pinpad_key kc_pinpad_aux"
+                        t-on-click="backspace" title="Borrar">
+                    <i class="fa fa-backspace"/>
+                </button>
+            </div>
+
+            <div class="kc_pinpad_actions">
+                <button type="button" class="btn btn-secondary"
+                        t-on-click="cancel">Cancelar</button>
+                <button type="button" class="btn btn-primary kc_pinpad_confirm"
+                        t-on-click="confirm" t-att-disabled="state.loading">
+                    <i t-if="state.loading" class="fa fa-spinner fa-spin me-1"/>
+                    <i t-else="" class="fa fa-check me-1"/>
+                    Autorizar
+                </button>
+            </div>
+        </div>
+    </t>
+
+</templates>

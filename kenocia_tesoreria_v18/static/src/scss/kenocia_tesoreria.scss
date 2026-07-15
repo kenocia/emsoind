@@ -1,0 +1,130 @@
+// kenocia_tesoreria_v18 — Design Tokens y componentes Odoo 18 Style
+
+:root {
+    --kt-purple-900: #3B1F6B;
+    --kt-purple-700: #5C2D91;
+    --kt-purple-500: #7B3FB5;
+    --kt-purple-200: #D6C5F0;
+    --kt-purple-50: #F3EFFE;
+    --kt-surface-0: #FFFFFF;
+    --kt-surface-1: #F9F9FB;
+    --kt-surface-2: #F0F0F6;
+    --kt-success: #0F7B55;
+    --kt-warning: #C8760A;
+    --kt-danger: #C0392B;
+    --kt-info: #1565C0;
+    --kt-font-base: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --kt-radius-sm: 6px;
+    --kt-radius-md: 10px;
+    --kt-radius-lg: 16px;
+    --kt-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+    --kt-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10), 0 2px 4px rgba(0, 0, 0, 0.06);
+    --kt-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.o_form_view .oe_stat_button.kt_advance_btn {
+    background: linear-gradient(135deg, var(--kt-purple-50) 0%, #EDE7F6 100%);
+    border: 1.5px solid var(--kt-purple-200);
+    border-radius: var(--kt-radius-md);
+    transition: var(--kt-transition);
+    box-shadow: var(--kt-shadow-sm);
+
+    &:hover {
+        background: var(--kt-purple-200);
+        border-color: var(--kt-purple-500);
+        box-shadow: var(--kt-shadow-md);
+        transform: translateY(-1px);
+    }
+
+    .o_stat_value {
+        color: var(--kt-purple-700);
+        font-weight: 700;
+    }
+
+    .o_stat_text {
+        color: var(--kt-purple-500);
+        font-size: 0.75rem;
+    }
+}
+
+.o_list_view .o_data_row .o_field_badge {
+    border-radius: var(--kt-radius-sm);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 3px 10px;
+    transition: var(--kt-transition);
+}
+
+.o_form_view .o_ribbon {
+    border-radius: 0 var(--kt-radius-sm) 0 var(--kt-radius-sm);
+    font-family: var(--kt-font-base);
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    box-shadow: var(--kt-shadow-sm);
+}
+
+.o_form_view .o_statusbar_status .btn {
+    border-radius: 20px;
+    font-size: 0.75rem;
+    padding: 4px 14px;
+    margin: 0 2px;
+    border: 1.5px solid transparent;
+    transition: var(--kt-transition);
+
+    &.o_arrow_button_current {
+        background: var(--kt-purple-700);
+        color: white;
+        border-color: var(--kt-purple-700);
+        box-shadow: 0 2px 8px rgba(92, 45, 145, 0.35);
+    }
+}
+
+.o_form_view .kt_amount_panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 1rem 1.25rem;
+    background: var(--kt-surface-1);
+    border-radius: var(--kt-radius-md);
+    border: 1px solid var(--kt-surface-2);
+    box-shadow: var(--kt-shadow-sm);
+
+    .kt_amount_item {
+        flex: 1 1 140px;
+        min-width: 120px;
+
+        .kt_amount_label {
+            display: block;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--kt-purple-700);
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        &.kt_residual .kt_amount_label {
+            color: var(--kt-warning);
+        }
+    }
+}
+
+.o_Message.kt-tracking-msg .o_Message_body {
+    border-left: 3px solid var(--kt-purple-500);
+    padding-left: 12px;
+    background: var(--kt-purple-50);
+    border-radius: 0 var(--kt-radius-sm) var(--kt-radius-sm) 0;
+}
+
+.o_form_view .kt_advance_total_line,
+.o_form_view .kt_advance_due_line {
+    font-size: 0.9rem;
+    margin-top: 0.35rem;
+}
+
+.o_form_view .kt_advance_due_line {
+    color: var(--kt-purple-900);
+}

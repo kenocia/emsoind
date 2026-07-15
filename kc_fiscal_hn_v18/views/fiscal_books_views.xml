@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Libro Ventas y Compras: ver book_sales_views.xml y book_purchases_views.xml -->
+    <!-- Libro Retenciones: ver book_retentions_views.xml -->
+
+    <!-- Libro Exoneraciones -->
+    <record id="view_book_exemptions_list" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn.book.exemptions.list</field>
+        <field name="model">kc_fiscal_hn.book.exemptions</field>
+        <field name="arch" type="xml">
+            <list string="Libro de Exoneraciones" create="0" delete="0">
+                <header>
+                    <button name="action_marcar_declarado" type="object" string="Marcar declarado" class="btn-primary"/>
+                    <button name="action_marcar_rectificado" type="object" string="Marcar rectificado"/>
+                    <button name="action_exportar_excel" type="object" string="Exportar Excel"/>
+                </header>
+                <field name="is_fiscal_locked"
+                         column_invisible="True"/>
+                <field name="fecha"
+                         readonly="1"/>
+                <field name="numero_factura"
+                         readonly="1"/>
+                <field name="rtn_cliente"
+                         readonly="1"/>
+                <field name="cliente"
+                         readonly="1"/>
+                <field name="numero_constancia_exonerado"
+                         readonly="1"/>
+                <field name="numero_oc_exenta"
+                         readonly="1"/>
+                <field name="monto_exonerado" sum="Total"
+                         readonly="1"/>
+                <field name="total_factura" sum="Total"
+                         readonly="1"/>
+                <field name="estado" widget="badge"
+                         readonly="1"/>
+                <field name="fecha_declaracion"/>
+                <field name="declarado_por"/>
+                <field name="notas_rectificacion"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_book_exemptions_form" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn.book.exemptions.form</field>
+        <field name="model">kc_fiscal_hn.book.exemptions</field>
+        <field name="arch" type="xml">
+            <form string="Línea Libro Exoneraciones">
+                <sheet>
+                    <div class="alert alert-warning mb-3" role="alert"
+                         invisible="estado != 'declarado'">
+                        Esta línea ya fue declarada ante el SAR. Los montos y RTN están bloqueados.
+                        Solo puede editar las notas de rectificación o marcar como rectificado.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="fecha"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="numero_factura"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="rtn_cliente"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="cliente"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="estado"
+                         readonly="bool(is_fiscal_locked)"/>
+                        </group>
+                        <group>
+                            <field name="numero_constancia_exonerado"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="numero_oc_exenta"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="monto_exonerado"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="total_factura"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="fecha_declaracion"/>
+                            <field name="declarado_por"/>
+                            <field name="is_fiscal_locked"
+                         invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Rectificación">
+                        <field name="notas_rectificacion"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_book_exemptions" model="ir.actions.act_window">
+        <field name="name">Libro de Exoneraciones SAR</field>
+        <field name="res_model">kc_fiscal_hn.book.exemptions</field>
+        <field name="view_mode">list,form,pivot,graph</field>
+    </record>
+
+    <!-- Auditoría libros -->
+    <record id="view_book_audit_list" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn.book.audit.list</field>
+        <field name="model">kc_fiscal_hn.book.audit</field>
+        <field name="arch" type="xml">
+            <list string="Auditoría libros SAR" create="0" edit="0" delete="0">
+                <field name="create_date"/>
+                <field name="book_line_display"/>
+                <field name="field_name"/>
+                <field name="old_value"/>
+                <field name="new_value"/>
+                <field name="action"/>
+                <field name="user_id"/>
+                <field name="reason"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_book_audit" model="ir.actions.act_window">
+        <field name="name">Auditoría Libros SAR</field>
+        <field name="res_model">kc_fiscal_hn.book.audit</field>
+        <field name="view_mode">list</field>
+    </record>
+
+</odoo>

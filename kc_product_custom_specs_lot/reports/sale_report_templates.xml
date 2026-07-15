@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_saleorder_document_technical" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//span[@t-field='line.name']" position="after">
+            <t t-if="line.product_id.product_tmpl_id.kc_invoice_detail_mode == 'technical' and line.technical_description">
+                <br/>
+                <small class="text-muted">
+                    <span t-field="line.technical_description"/>
+                </small>
+            </t>
+            <t t-if="line.product_id.product_tmpl_id.kc_invoice_detail_mode == 'technical' and line.lot_id">
+                <br/>
+                <small>
+                    Lote: <span t-esc="line.lot_id.name"/>
+                </small>
+            </t>
+        </xpath>
+    </template>
+</odoo>

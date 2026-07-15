@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_report_sales_sar_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn.wizard.sales_sar.form</field>
+            <field name="model">kc_fiscal_hn.wizard.sales_sar</field>
+            <field name="arch" type="xml">
+                <form string="Reporte de Ventas SAR">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_generate_report"
+                                    string="Generar Reporte"
+                                    type="object"
+                                    class="btn-primary"/>
+                            <button name="action_download_excel"
+                                    string="Descargar Excel"
+                                    type="object"
+                                    class="btn-secondary"
+                         invisible="not excel_file"/>
+                        </div>
+                        <group>
+                            <group string="Período">
+                                <field name="company_id"/>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                                <field name="has_book_available"
+                         invisible="1"/>
+                                <field name="available_book_sales_ids"
+                         invisible="1"/>
+                            </group>
+                            <group string="Opciones">
+                                <field name="group_by_tax_rate"/>
+                                <field name="group_by_customer_type"/>
+                            </group>
+                        </group>
+                        <group string="Fuente de datos"
+                         invisible="not has_book_available">
+                            <field name="data_source" widget="radio"/>
+                        </group>
+                        <group string="Facturas en vivo"
+                         invisible="data_source != 'live'">
+                            <field name="live_document_state"/>
+                        </group>
+                        <group string="Libro SAR / Declaración"
+                         invisible="(data_source != 'book' or not has_book_available)">
+                            <field name="book_sales_id"
+                                   string="Libro / Declaración"
+                                   domain="[('id', 'in', available_book_sales_ids)]"
+                                   options="{'no_create': True, 'no_open': False}"
+                         required="data_source == 'book'"/>
+                            <field name="book_period_label"
+                         readonly="1"/>
+                            <field name="book_state_display"
+                         readonly="1"/>
+                            <field name="book_declaration_date"
+                         readonly="1"/>
+                            <field name="book_declared_by"
+                         readonly="1"/>
+                        </group>
+                        <group string="Facturas en vivo"
+                         invisible="bool(has_book_available)">
+                            <field name="data_source"
+                         invisible="1"/>
+                            <field name="live_document_state"/>
+                        </group>
+                        <group string="Resultados"
+                         invisible="not excel_file">
+                            <group>
+                                <field name="total_invoices"/>
+                                <field name="total_amount"/>
+                            </group>
+                            <group>
+                                <field name="total_isv"/>
+                                <field name="total_exempt"/>
+                                <field name="total_exonerated"/>
+                            </group>
+                        </group>
+                        <group string="Archivo Generado"
+                         invisible="not excel_file">
+                            <field name="excel_filename"
+                         readonly="1"/>
+                            <field name="excel_file" filename="excel_filename"
+                         readonly="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_report_sales_sar" model="ir.actions.act_window">
+            <field name="name">Reporte de Ventas SAR</field>
+            <field name="res_model">kc_fiscal_hn.wizard.sales_sar</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_report_sales_sar_form"/>
+        </record>
+
+        <record id="view_report_sales_sar_excel_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn.sales_sar.excel.form</field>
+            <field name="model">kc_fiscal_hn.sales_sar.excel</field>
+            <field name="arch" type="xml">
+                <form string="Reporte de Ventas SAR - Excel">
+                    <sheet>
+                        <group>
+                            <field name="file_name"
+                         readonly="1"/>
+                            <field name="excel_file" filename="file_name"
+                         readonly="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

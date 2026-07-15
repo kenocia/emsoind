@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_hr_employee_credencial" model="ir.sequence">
+            <field name="name">Credencial de Empleado</field>
+            <field name="code">kc_hr.employee.credencial</field>
+            <field name="prefix">EMP-</field>
+            <field name="padding">4</field>
+            <field name="implementation">no_gap</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

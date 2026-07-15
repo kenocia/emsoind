@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_form_emsoind_sale" model="ir.ui.view">
+        <field name="name">res.partner.form.emsoind.sale</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority" eval="40"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <field name="emsoind_require_sales_fields" invisible="1"/>
+                <field name="emsoind_use_in_sales" invisible="1"/>
+                <field name="emsoind_use_in_purchases" invisible="1"/>
+            </xpath>
+            <xpath expr="//div[@class='o_address_format']/field[@name='country_id']" position="attributes">
+                <attribute name="required">emsoind_require_sales_fields and emsoind_use_in_sales</attribute>
+            </xpath>
+            <xpath expr="//div[@class='o_address_format']/field[@name='street']" position="attributes">
+                <attribute name="required">emsoind_require_sales_fields and emsoind_use_in_sales</attribute>
+            </xpath>
+            <xpath expr="//div[@class='o_address_format']/field[@name='city']" position="attributes">
+                <attribute name="required">emsoind_require_sales_fields and emsoind_use_in_sales</attribute>
+            </xpath>
+            <xpath expr="//group/group/field[@name='vat']" position="attributes">
+                <attribute name="required">emsoind_require_sales_fields and emsoind_use_in_sales</attribute>
+            </xpath>
+            <xpath expr="//group/group/field[@name='phone']" position="attributes">
+                <attribute name="required">emsoind_require_sales_fields and emsoind_use_in_sales and not mobile</attribute>
+            </xpath>
+            <xpath expr="//group/group/field[@name='mobile']" position="attributes">
+                <attribute name="required">emsoind_require_sales_fields and emsoind_use_in_sales and not phone</attribute>
+            </xpath>
+            <xpath expr="//page[@name='sales_purchases']//field[@name='user_id']" position="attributes">
+                <attribute name="required">emsoind_require_sales_fields and emsoind_use_in_sales</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_property_form_emsoind_sale" model="ir.ui.view">
+        <field name="name">res.partner.property.form.emsoind.sale</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <field name="emsoind_require_sales_fields" invisible="1"/>
+                <field name="emsoind_use_in_sales" invisible="1"/>
+            </xpath>
+            <xpath expr="//group[@name='sale']//field[@name='property_payment_term_id']" position="attributes">
+                <attribute name="required">emsoind_require_sales_fields and emsoind_use_in_sales</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_tree_emsoind_sale" model="ir.ui.view">
+        <field name="name">res.partner.list.emsoind.sale</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="emsoind_use_in_sales" optional="hide"/>
+                <field name="emsoind_use_in_purchases" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

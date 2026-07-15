@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_partner_form_fiscal" model="ir.ui.view">
+            <field name="name">res.partner.form.fiscal</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="priority" eval="50"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@class='o_address_format']/field[@name='country_id']" position="attributes">
+                    <attribute name="required">not parent_id</attribute>
+                </xpath>
+                <xpath expr="//field[@name='vat']" position="attributes">
+                    <attribute name="placeholder">RTN: 14 o 13 dígitos numéricos</attribute>
+                    <attribute name="string">RTN / NIF</attribute>
+                </xpath>
+                <xpath expr="//field[@name='vat']" position="after">
+                    <div class="text-muted small fst-italic"
+                         invisible="country_id.code != 'HN'">
+                        Empresa/Persona jurídica: RTN de 14 dígitos.
+                        Persona natural: RTN de 13 dígitos.
+                        Comerciante individual (nombre natural): RTN de 14 dígitos.
+                        Solo números, sin guiones.
+                        Debe ser único por contribuyente.
+                    </div>
+                    <div class="text-muted small fst-italic"
+                         invisible="country_id.code != 'GT'">
+                        NIT Guatemala: Formato 0000000-K
+                    </div>
+                    <div class="text-muted small fst-italic"
+                         invisible="country_id.code != 'SV'">
+                        NIT El Salvador: Formato 0000-000000-000-0
+                    </div>
+                    <div class="text-muted small fst-italic"
+                         invisible="country_id.code != 'NI'">
+                        RUC Nicaragua: Formato J000-000000-0000X
+                    </div>
+                    <div class="text-muted small fst-italic"
+                         invisible="country_id.code != 'CR'">
+                        Cédula Jurídica Costa Rica: 0-0000-0000
+                    </div>
+                    <div class="text-muted small fst-italic"
+                         invisible="country_id.code != 'MX'">
+                        RFC México: AAAA000000XXX (13 caracteres)
+                    </div>
+                </xpath>
+                <xpath expr="//page[@name='sales_purchases']" position="after">
+                    <page string="🇭🇳 Fiscal Honduras"
+                          name="fiscal_hn_partner">
+                        <group string="Clasificación Fiscal SAR"
+                               name="clasificacion_fiscal">
+                            <group>
+                                <field name="ref" string="Referencia interna"
+                                       readonly="1"/>
+                                <field name="tipo_fiscal_proveedor"
+                                      
+                                       widget="badge"
+                                       decoration-success="tipo_fiscal_proveedor in ['nacional_empresa', 'nacional_persona']"
+                                       decoration-warning="tipo_fiscal_proveedor == 'nacional_sin_rtn'"
+                                       decoration-info="tipo_fiscal_proveedor in ['extranjero_ca','extranjero']"
+                         readonly="1"/>
+                                <field name="diario_compra_sugerido_id"
+                         readonly="1"/>
+                                <field name="es_proveedor_materia_prima"
+                                       widget="boolean_toggle"
+                         invisible="tipo_fiscal_proveedor not in ['extranjero_ca', 'extranjero']"/>
+                            </group>
+                            <group>
+                                <div class="alert alert-info small py-1"
+                         invisible="tipo_fiscal_proveedor not in ['nacional_empresa', 'nacional_persona']">
+                                    Factura con CAI requerida.
+                                    Diario: Compras Nacionales (FA).
+                                    Puede generar retención ISR.
+                                </div>
+                                <div class="alert alert-warning small py-1"
+                         invisible="tipo_fiscal_proveedor != 'nacional_sin_rtn'">
+                                    Sin RTN. Se emite Boleta de Compra.
+                                    Sin retención ISR.
+                                    Sección DMC: B (Eventuales).
+                                </div>
+                                <div class="alert alert-info small py-1"
+                         invisible="tipo_fiscal_proveedor not in ['extranjero_ca', 'extranjero'] or es_proveedor_materia_prima">
+                                    Proveedor extranjero.
+                                    Diario: Compras Extranjera (FE).
+                                    Sección DMC: C. Requiere N° DUA.
+                                    ISV se paga en aduana. Sin retención ISR.
+                                </div>
+                                <div class="alert alert-warning small py-1"
+                         invisible="tipo_fiscal_proveedor not in ['extranjero_ca', 'extranjero'] or not es_proveedor_materia_prima">
+                                    Proveedor de materia prima (Zona Libre).
+                                    Diario: Importaciones (DUA/FYDUCA) con
+                                    control DUCA. Sección DMC: C. Requiere N° DUA.
+                                </div>
+                            </group>
+                        </group>
+
+                        <group string="Constancia de Pago a Cuenta SAR"
+                               name="constancia_grupo"
+                         invisible="tipo_fiscal_proveedor in ['extranjero_ca', 'extranjero', 'nacional_sin_rtn', False]">
+                            <div class="col-12">
+                                <div class="alert alert-success py-1"
+                         invisible="alerta_constancia != 'ok'">
+                                    Constancia vigente hasta
+                                    <field name="fecha_vencimiento_constancia"
+                                           nolabel="1"
+                         readonly="1"/>
+                                    —
+                                    <field name="dias_vencimiento_constancia"
+                                           nolabel="1"
+                         readonly="1"/>
+                                    días restantes.
+                                    Sin retención ISR en compras.
+                                </div>
+                                <div class="alert alert-warning py-1"
+                         invisible="alerta_constancia != 'proximo'">
+                                    Constancia vence en
+                                    <field name="dias_vencimiento_constancia"
+                                           nolabel="1"
+                         readonly="1"/>
+                                    días
+                                    (<field name="fecha_vencimiento_constancia"
+                                            nolabel="1"
+                         readonly="1"/>).
+                                    Solicite renovación al proveedor.
+                                </div>
+                                <div class="alert alert-danger py-1"
+                         invisible="alerta_constancia != 'vencida'">
+                                    Constancia VENCIDA. Se aplicará
+                                    retención ISR en nuevas facturas.
+                                    Solicite renovación urgente.
+                                </div>
+                                <div class="alert alert-secondary py-1"
+                         invisible="alerta_constancia != 'sin_constancia'">
+                                    Sin constancia registrada.
+                                    Se aplicará retención ISR según
+                                    tipo de compra si el producto aplica.
+                                </div>
+                            </div>
+                            <group>
+                                <field name="tiene_constancia_pago_cuenta"
+                                       widget="boolean_toggle"/>
+                                <field name="numero_constancia_pago_cuenta"
+                         invisible="not tiene_constancia_pago_cuenta"
+                         required="bool(tiene_constancia_pago_cuenta)"/>
+                                <field name="fecha_vencimiento_constancia"
+                         invisible="not tiene_constancia_pago_cuenta"
+                         required="bool(tiene_constancia_pago_cuenta)"/>
+                            </group>
+                            <group>
+                                <field name="constancia_vigente"
+                                      
+                                       widget="boolean_toggle"
+                         invisible="not tiene_constancia_pago_cuenta"
+                         readonly="1"/>
+                                <field name="imagen_constancia"
+                                       widget="image"
+                                      
+                                       options="{'size': [200, 200]}"
+                         invisible="not tiene_constancia_pago_cuenta"/>
+                                <div class="mt-2"
+                         invisible="not tiene_constancia_pago_cuenta">
+                                    <a href="https://www.sar.gob.hn/ovi/"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        Oficina Virtual SAR
+                                    </a>
+                                </div>
+                            </group>
+                        </group>
+
+                        <group string="Exoneración SAR (Clientes)"
+                               name="exoneracion_grupo"
+                         invisible="(tipo_fiscal_proveedor in ['extranjero_ca', 'extranjero'] or not customer_rank)">
+                            <div class="col-12">
+                                <div class="alert alert-success py-1"
+                         invisible="alerta_exoneracion != 'ok'">
+                                    Exoneración vigente hasta
+                                    <field name="fecha_vencimiento_exoneracion"
+                                           nolabel="1"
+                         readonly="1"/>.
+                                    Se aplica impuesto exonerado.
+                                </div>
+                                <div class="alert alert-warning py-1"
+                         invisible="alerta_exoneracion != 'proximo'">
+                                    Exoneración vence en
+                                    <field name="dias_vencimiento_exoneracion"
+                                           nolabel="1"
+                         readonly="1"/>
+                                    días. Solicite renovación OCE al SAR.
+                                </div>
+                                <div class="alert alert-danger py-1"
+                         invisible="alerta_exoneracion != 'vencida'">
+                                    Exoneración VENCIDA. Solicite
+                                    nueva OCE al SAR antes de facturar.
+                                </div>
+                            </div>
+                            <group>
+                                <field name="tiene_exoneracion_sar"
+                                       widget="boolean_toggle"/>
+                                <field name="numero_exoneracion_sar"
+                                      
+                                      
+                                       string="N° Constancia OCE"
+                         invisible="not tiene_exoneracion_sar"
+                         required="bool(tiene_exoneracion_sar)"/>
+                                <field name="fecha_vencimiento_exoneracion"
+                         invisible="not tiene_exoneracion_sar"
+                         required="bool(tiene_exoneracion_sar)"/>
+                            </group>
+                            <group>
+                                <field name="exoneracion_vigente"
+                                      
+                                       widget="boolean_toggle"
+                         invisible="not tiene_exoneracion_sar"
+                         readonly="1"/>
+                                <field name="imagen_exoneracion"
+                                       widget="image"
+                                      
+                                       options="{'size': [200, 200]}"
+                         invisible="not tiene_exoneracion_sar"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Validación Fiscal" name="fiscal_validation"
+                         invisible="country_id.code != 'HN'">
+                        <group>
+                            <group string="Validación RTN">
+                                <button name="validate_rtn_manual"
+                                        string="Validar RTN"
+                                        type="object"
+                                        class="btn-primary"
+                         invisible="not vat"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_res_partner_filter_rtn_valid" model="ir.ui.view">
+            <field name="name">res.partner.select.rtn.valid</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Contactos">
+                    <field name="name"/>
+                    <field name="vat"/>
+                    <filter string="Sin RTN" name="no_rtn" domain="[('vat', '=', False)]"/>
+                    <filter string="Empresa HN sin RTN"
+                            name="company_no_rtn"
+                            domain="[('country_id.code', '=', 'HN'), ('is_company', '=', True), ('vat', '=', False)]"/>
+                    <separator/>
+                    <filter string="Honduras" name="honduras" domain="[('country_id.code', '=', 'HN')]"/>
+                    <filter string="Empresas HN" name="hn_companies"
+                            domain="[('country_id.code', '=', 'HN'), ('is_company', '=', True)]"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_partner_validation" model="ir.actions.act_window">
+            <field name="name">Validación de Contactos</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_res_partner_filter_rtn_valid"/>
+            <field name="domain">[('country_id.code', '=', 'HN')]</field>
+            <field name="context">{'search_default_honduras': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No hay contactos de Honduras para validar
+                </p>
+                <p>
+                    Valide los RTN de contactos de Honduras: 14 dígitos para empresas,
+                    13 para personas naturales (14 para comerciantes individuales),
+                    únicos y solo numéricos.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

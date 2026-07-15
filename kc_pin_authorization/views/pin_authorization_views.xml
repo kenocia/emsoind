@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Diálogo de autorización por PIN: solo hospeda el widget OWL. El modal
+         (target='new') bloquea el fondo de forma nativa. -->
+    <record id="view_kc_pin_authorization_form" model="ir.ui.view">
+        <field name="name">kc.pin.authorization.form</field>
+        <field name="model">kc.pin.authorization</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="res_model" invisible="1"/>
+                <field name="res_ids" invisible="1"/>
+                <field name="callback_method" invisible="1"/>
+                <field name="reason" invisible="1"/>
+                <field name="pin" widget="kc_pin_pad" nolabel="1"/>
+                <footer/>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_kenocia_mass_payment_wizard_form" model="ir.ui.view">
+        <field name="name">kenocia.mass.payment.wizard.form</field>
+        <field name="model">kenocia.mass.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Pago/Cobro masivo">
+                <group>
+                    <group>
+                        <field name="operation"/>
+                        <field name="partner_id"
+                               options="{'no_create': True}"/>
+                        <field name="journal_id"/>
+                        <field name="tesoreria_type"/>
+                    </group>
+                    <group>
+                        <field name="payment_date"/>
+                        <field name="memo"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="company_id" invisible="1"/>
+                        <field name="payment_type" invisible="1"/>
+                        <field name="partner_type" invisible="1"/>
+                        <field name="amount_total" widget="monetary"/>
+                    </group>
+                </group>
+                <field name="line_ids">
+                    <list editable="bottom" create="false">
+                        <field name="move_line_id" column_invisible="True"/>
+                        <field name="include" widget="boolean_toggle"/>
+                        <field name="move_id" readonly="1"/>
+                        <field name="date_maturity" readonly="1"/>
+                        <field name="currency_id" column_invisible="True"/>
+                        <field name="amount_residual" readonly="1"/>
+                        <field name="amount_to_pay"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm"
+                            string="Confirmar pago"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_kenocia_mass_payment_cxc" model="ir.actions.act_window">
+        <field name="name">Cobro masivo</field>
+        <field name="res_model">kenocia.mass.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_operation': 'cxc'}</field>
+    </record>
+
+    <record id="action_kenocia_mass_payment_cxp" model="ir.actions.act_window">
+        <field name="name">Pago masivo</field>
+        <field name="res_model">kenocia.mass.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_operation': 'cxp'}</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,4 @@
+id,name,parent_id
+cat_servicios,Servicios,
+cat_productos,Productos Gravados,
+cat_productos_exentos,Productos Exentos,

@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Vista Formulario: Registro de Producción (RP)                -->
+    <!-- ============================================================ -->
+    <record id="kc_production_entry_view_form" model="ir.ui.view">
+        <field name="name">kc.production.entry.form</field>
+        <field name="model">kc.production.entry</field>
+        <field name="arch" type="xml">
+            <form string="Registro de Producción">
+                <header>
+                    <button name="action_confirm" string="Confirmar" type="object"
+                            class="oe_highlight" invisible="state != 'draft'"
+                            groups="kc_manual_production.kc_production_group_user,kc_manual_production.kc_production_group_manager,stock.group_stock_manager"/>
+                    <button name="action_validate" string="Validar" type="object"
+                            class="oe_highlight" invisible="state != 'confirmed'"
+                            groups="kc_manual_production.kc_production_group_bodega,kc_manual_production.kc_production_group_manager,stock.group_stock_manager"/>
+                    <button name="action_cancel" string="Cancelar" type="object"
+                            invisible="state != 'draft'"
+                            groups="kc_manual_production.kc_production_group_planner,kc_manual_production.kc_production_group_user,kc_manual_production.kc_production_group_manager,stock.group_stock_manager"/>
+                    <button name="action_cancel" string="Cancelar" type="object"
+                            invisible="state != 'confirmed'"
+                            groups="kc_manual_production.kc_production_group_user,kc_manual_production.kc_production_group_manager,stock.group_stock_manager"/>
+                    <button name="action_draft" string="Volver a Borrador" type="object"
+                            invisible="state != 'cancel'"
+                            groups="kc_manual_production.kc_production_group_planner,kc_manual_production.kc_production_group_user,kc_manual_production.kc_production_group_manager,stock.group_stock_manager"/>
+                    <button name="action_open_reversal_wizard" string="Revertir" type="object"
+                            invisible="state != 'done' or is_reversal or reversed_by_id"
+                            groups="kc_manual_production.kc_production_group_manager,stock.group_stock_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,done"/>
+                </header>
+                <sheet>
+                    <!-- Campos técnicos para condiciones de visibilidad -->
+                    <field name="is_reversal" invisible="1"/>
+                    <field name="reversed_by_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="kc_has_cost_above_sale" invisible="1"/>
+                    <!-- Banner: este registro fue revertido -->
+                    <div class="alert alert-warning" role="alert" invisible="not reversed_by_id">
+                        Este registro fue revertido por:
+                        <field name="reversed_by_id" readonly="1" nolabel="1" class="oe_inline"/>
+                    </div>
+                    <!-- Banner: este registro ES una reversión -->
+                    <div class="alert alert-info" role="alert" invisible="not is_reversal">
+                        Este registro es una <strong>reversión</strong> de:
+                        <field name="reversal_of_id" readonly="1" nolabel="1" class="oe_inline"/>
+                    </div>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_sale_order" type="object"
+                                class="oe_stat_button" icon="fa-shopping-cart"
+                                invisible="not sale_order_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Orden de Venta</span>
+                            </div>
+                        </button>
+                        <button name="action_view_picking" type="object"
+                                class="oe_stat_button" icon="fa-truck"
+                                invisible="not picking_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Albarán</span>
+                            </div>
+                        </button>
+                        <button name="action_view_stock_moves" type="object"
+                                class="oe_stat_button" icon="fa-exchange"
+                                invisible="not picking_id">
+                            <field name="move_line_count" widget="statinfo"
+                                   string="Movimientos"/>
+                        </button>
+                        <button name="action_view_consumptions" type="object"
+                                class="oe_stat_button" icon="fa-arrow-right"
+                                invisible="consumption_count == 0">
+                            <field name="consumption_count" widget="statinfo"
+                                   string="Consumos MP"/>
+                        </button>
+                        <button name="action_view_account_moves" type="object"
+                                class="oe_stat_button" icon="fa-book"
+                                invisible="account_move_count == 0"
+                                groups="kc_manual_production.kc_production_group_manager,stock.group_stock_manager">
+                            <field name="account_move_count" widget="statinfo"
+                                   string="Asiento Contable"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="origin_type" readonly="1"/>
+                            <field name="available_production_line_ids" invisible="1"/>
+                            <field name="production_line_id"
+                                   domain="[('id', 'in', available_production_line_ids)]"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
+                            <field name="work_center_id"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
+                            <field name="plan_line_id" readonly="1"
+                                   invisible="not plan_line_id"/>
+                            <field name="available_sale_order_ids" invisible="1"/>
+                            <field name="sale_order_id"
+                                   domain="[('id', 'in', available_sale_order_ids)]"
+                                   invisible="origin_type == 'replenishment'"
+                                   readonly="state != 'draft'"/>
+                            <field name="partner_id"
+                                   invisible="origin_type == 'replenishment'"
+                                   readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="date_production"
+                                   readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   readonly="state != 'draft'"/>
+                            <field name="warehouse_id"
+                                   readonly="state != 'draft'"/>
+                            <field name="picking_type_id"/>
+                            <field name="location_id"/>
+                            <field name="analytic_distribution"
+                                   widget="analytic_distribution"
+                                   readonly="1"
+                                   invisible="not sale_order_id"
+                                   groups="kc_manual_production.kc_production_group_manager,stock.group_stock_manager"/>
+                        </group>
+                    </group>
+                    <group string="Comparativo de Costo (PT vs. Consumo Real)"
+                           invisible="state != 'done'">
+                        <group>
+                            <field name="registered_pt_cost"/>
+                            <field name="real_consumption_cost"/>
+                        </group>
+                        <group>
+                            <field name="cost_difference"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="state != 'done' or cost_difference &lt;= 0">
+                        El <strong>costo real consumido</strong> supera el costo
+                        registrado del PT (diferencia positiva). Indicador informativo:
+                        considere revisar manualmente el costo estándar del Producto Terminado.
+                    </div>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="not kc_has_cost_above_sale or state not in ('draft', 'confirmed')">
+                        El <strong>costo unitario</strong> de una o más líneas supera el
+                        precio de venta de la Orden de Venta. Corrija el costo antes de validar.
+                    </div>
+                    <notebook>
+                        <page string="Productos Terminados" name="lines">
+                            <!-- Sin plan: se pueden agregar líneas -->
+                            <field name="line_ids"
+                                   invisible="plan_line_id"
+                                   readonly="state in ('done', 'cancel')">
+                                <list editable="bottom"
+                                      decoration-danger="kc_cost_exceeds_sale">
+                                    <field name="kc_cost_exceeds_sale" column_invisible="1"/>
+                                    <field name="kc_sale_unit_price" column_invisible="1"/>
+                                    <field name="product_id" widget="many2one"
+                                           readonly="parent.state != 'draft'"
+                                           force_save="1"/>
+                                    <field name="sale_order_line_id" column_invisible="1"
+                                           force_save="1"/>
+                                    <field name="kc_technical_description" readonly="1"
+                                           force_save="1" optional="show"/>
+                                    <field name="kc_technical_key" readonly="1"
+                                           force_save="1" optional="hide"/>
+                                    <field name="kc_ov_qty" readonly="1" force_save="1" optional="show"/>
+                                    <field name="kc_stock_qty" readonly="1" force_save="1" optional="show"/>
+                                    <field name="kc_produced_qty" readonly="1" force_save="1" optional="show"/>
+                                    <field name="kc_ov_qty_remaining" readonly="1" optional="show"/>
+                                    <field name="kc_qty_to_produce"
+                                           readonly="parent.state != 'draft'"
+                                           force_save="1"/>
+                                    <field name="qty"
+                                           readonly="parent.state != 'draft'"
+                                           force_save="1"/>
+                                    <field name="uom_id"
+                                           readonly="parent.state != 'draft'"
+                                           force_save="1"/>
+                                    <field name="lot_id" readonly="1" force_save="1"
+                                           placeholder="(se genera al confirmar)"/>
+                                    <field name="kc_unit_weight" readonly="1" force_save="1"
+                                           optional="show"/>
+                                    <field name="kc_total_weight" optional="show"/>
+                                    <field name="kc_unit_area_sqft" readonly="1" force_save="1"
+                                           optional="show"/>
+                                    <field name="kc_total_area_sqft" optional="show"/>
+                                    <field name="kc_unit_cost"
+                                           readonly="parent.state not in ('draft', 'confirmed')"
+                                           force_save="1"
+                                           optional="show"/>
+                                    <field name="kc_line_cost" readonly="1" optional="show"/>
+                                </list>
+                            </field>
+                            <!-- Con plan: una sola línea, sin agregar/borrar; qty parcial editable -->
+                            <field name="line_ids"
+                                   invisible="not plan_line_id"
+                                   readonly="state in ('done', 'cancel')">
+                                <list editable="bottom"
+                                      create="false"
+                                      delete="false"
+                                      decoration-danger="kc_cost_exceeds_sale">
+                                    <field name="kc_cost_exceeds_sale" column_invisible="1"/>
+                                    <field name="kc_sale_unit_price" column_invisible="1"/>
+                                    <field name="product_id" widget="many2one"
+                                           readonly="1"
+                                           force_save="1"/>
+                                    <field name="sale_order_line_id" column_invisible="1"
+                                           force_save="1"/>
+                                    <field name="kc_technical_description" readonly="1"
+                                           force_save="1" optional="show"/>
+                                    <field name="kc_technical_key" readonly="1"
+                                           force_save="1" optional="hide"/>
+                                    <field name="kc_ov_qty" readonly="1" force_save="1" optional="show"/>
+                                    <field name="kc_stock_qty" readonly="1" force_save="1" optional="show"/>
+                                    <field name="kc_produced_qty" readonly="1" force_save="1" optional="show"/>
+                                    <field name="kc_ov_qty_remaining" readonly="1" optional="show"
+                                           string="Saldo plan"/>
+                                    <field name="kc_qty_to_produce"
+                                           readonly="parent.state != 'draft'"
+                                           force_save="1"/>
+                                    <field name="qty"
+                                           readonly="parent.state != 'draft'"
+                                           force_save="1"/>
+                                    <field name="uom_id" readonly="1" force_save="1"/>
+                                    <field name="lot_id" readonly="1" force_save="1"
+                                           placeholder="(se genera al confirmar)"/>
+                                    <field name="kc_unit_weight" readonly="1" force_save="1"
+                                           optional="show"/>
+                                    <field name="kc_total_weight" optional="show"/>
+                                    <field name="kc_unit_area_sqft" readonly="1" force_save="1"
+                                           optional="show"/>
+                                    <field name="kc_total_area_sqft" optional="show"/>
+                                    <field name="kc_unit_cost"
+                                           readonly="parent.state not in ('draft', 'confirmed')"
+                                           force_save="1"
+                                           optional="show"/>
+                                    <field name="kc_line_cost" readonly="1" optional="show"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer" colspan="2">
+                                <field name="kc_total_weight"/>
+                                <field name="kc_total_area_sqft"/>
+                            </group>
+                        </page>
+                        <page string="Notas" name="notes">
+                            <field name="notes" placeholder="Notas internas..."/>
+                            <group invisible="not is_reversal">
+                                <field name="notes_reversal" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Vista Lista: Registro de Producción (RP)                     -->
+    <!-- ============================================================ -->
+    <record id="kc_production_entry_view_list" model="ir.ui.view">
+        <field name="name">kc.production.entry.list</field>
+        <field name="model">kc.production.entry</field>
+        <field name="arch" type="xml">
+            <list string="Registros de Producción"
+                  decoration-success="state == 'done'"
+                  decoration-muted="state == 'cancel'"
+                  decoration-info="state == 'confirmed'">
+                <field name="name"/>
+                <field name="production_line_id"/>
+                <field name="origin_type"/>
+                <field name="sale_order_id"/>
+                <field name="partner_id"/>
+                <field name="date_production"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-info="state == 'confirmed'"
+                       decoration-muted="state == 'cancel'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Vista Búsqueda: Registro de Producción (RP)                  -->
+    <!-- ============================================================ -->
+    <record id="kc_production_entry_view_search" model="ir.ui.view">
+        <field name="name">kc.production.entry.search</field>
+        <field name="model">kc.production.entry</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Registros de Producción">
+                <field name="name"/>
+                <field name="production_line_id"/>
+                <field name="sale_order_id"/>
+                <field name="partner_id"/>
+                <separator/>
+                <filter name="filter_draft" string="Borrador"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_confirmed" string="Confirmado"
+                        domain="[('state', '=', 'confirmed')]"/>
+                <filter name="filter_done" string="Validado"
+                        domain="[('state', '=', 'done')]"/>
+                <filter name="filter_cancel" string="Cancelado"
+                        domain="[('state', '=', 'cancel')]"/>
+                <separator/>
+                <filter name="filter_origin_replenishment" string="Abastecimiento"
+                        domain="[('origin_type', '=', 'replenishment')]"/>
+                <filter name="filter_origin_sale" string="Orden de Venta"
+                        domain="[('origin_type', '=', 'sale_order')]"/>
+                <separator/>
+                <filter name="filter_my_lines" string="Mis líneas"
+                        domain="[('production_line_id.user_ids', 'in', uid)]"/>
+                <separator/>
+                <filter name="filter_today" string="Hoy"
+                        domain="[('date_production', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')),
+                                 ('date_production', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter name="filter_this_month" string="Este Mes"
+                        domain="[('date_production', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_partner" string="Cliente"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Estado"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_origin" string="Origen"
+                            context="{'group_by': 'origin_type'}"/>
+                    <filter name="group_production_line" string="Línea de Producción"
+                            context="{'group_by': 'production_line_id'}"/>
+                    <filter name="group_sale_order" string="Orden de Venta"
+                            context="{'group_by': 'sale_order_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Acción: Registros de Producción                              -->
+    <!-- ============================================================ -->
+    <record id="kc_production_entry_action" model="ir.actions.act_window">
+        <field name="name">Órdenes de Producción</field>
+        <field name="res_model">kc.production.entry</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kc_production_entry_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea tu primer Registro de Producción
+            </p>
+            <p>
+                Registra la entrada de Producto Terminado al inventario con
+                trazabilidad por lote.
+            </p>
+        </field>
+    </record>
+
+    <!-- Confirmadas: producción ya cerró; falta recepción en bodega (Cola C). -->
+    <record id="kc_production_entry_action_confirmed" model="ir.actions.act_window">
+        <field name="name">Confirmadas (pendiente validar)</field>
+        <field name="res_model">kc.production.entry</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'confirmed')]</field>
+        <field name="context">{'create': False, 'search_default_filter_confirmed': 1}</field>
+        <field name="search_view_id" ref="kc_production_entry_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay órdenes confirmadas pendientes de validar en bodega.
+            </p>
+            <p>
+                Producción ya confirmó estas OP. Bodega recibe el PT con
+                <strong>Validar</strong> (menú <em>A validar en bodega</em>).
+            </p>
+        </field>
+    </record>
+
+    <!-- Misma Cola C para inventario/bodega (recibir PT). -->
+    <record id="kc_production_entry_action_pending_validate" model="ir.actions.act_window">
+        <field name="name">A validar en bodega</field>
+        <field name="res_model">kc.production.entry</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'confirmed')]</field>
+        <field name="context">{'create': False, 'search_default_filter_confirmed': 1}</field>
+        <field name="search_view_id" ref="kc_production_entry_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay producciones pendientes de recibir en inventario.
+            </p>
+            <p>
+                Abra el RP y pulse <strong>Validar</strong> para recibir el
+                producto terminado al stock (PT).
+            </p>
+        </field>
+    </record>
+
+    <!-- Cola D: ya validadas → entraron a PT. -->
+    <record id="kc_production_entry_action_validated" model="ir.actions.act_window">
+        <field name="name">Producción validada</field>
+        <field name="res_model">kc.production.entry</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'done')]</field>
+        <field name="context">{'create': False, 'search_default_filter_done': 1}</field>
+        <field name="search_view_id" ref="kc_production_entry_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aún no hay producciones validadas en PT.
+            </p>
+            <p>
+                Aquí se listan las OP ya validadas (producto terminado ingresado
+                a bodega PT).
+            </p>
+        </field>
+    </record>
+
+</odoo>

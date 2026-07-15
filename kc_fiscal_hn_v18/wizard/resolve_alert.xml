@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de formulario para resolver alerta -->
+        <record id="view_resolve_alert_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn.wizard.resolve_alert.form</field>
+            <field name="model">kc_fiscal_hn.wizard.resolve_alert</field>
+            <field name="arch" type="xml">
+                <form string="Resolver Alerta de Secuencia">
+                    <sheet>
+                        <group>
+                            <group string="Información de la Alerta">
+                                <field name="alert_id"/>
+                                <field name="sequence_id"/>
+                                <field name="alert_type"/>
+                            </group>
+                            <group string="Acción de Resolución">
+                                <field name="resolution_action"/>
+                                <field name="follow_up_date"/>
+                                <field name="assign_to"/>
+                            </group>
+                        </group>
+                        <group string="Notas de Resolución">
+                            <field name="resolution_notes" nolabel="1" placeholder="Describa cómo se resolverá la alerta..."/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_resolve_alert" string="Resolver Alerta" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción para resolver alerta -->
+        <record id="action_resolve_alert" model="ir.actions.act_window">
+            <field name="name">Resolver Alerta de Secuencia</field>
+            <field name="res_model">kc_fiscal_hn.wizard.resolve_alert</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_resolve_alert_form"/>
+        </record>
+    </data>
+</odoo> 

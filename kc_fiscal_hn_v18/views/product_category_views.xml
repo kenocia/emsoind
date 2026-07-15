@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Sección "Validación Contable Kenocia" en el formulario de categoría -->
+    <record id="view_product_category_validacion_form" model="ir.ui.view">
+        <field name="name">product.category.validacion.form</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="account.view_category_property_form"/>
+        <field name="arch" type="xml">
+            <group name="account_property" position="after">
+                <separator string="Validación Contable Kenocia"/>
+                <group>
+                    <field name="estado_validacion_contable"
+                           readonly="1"
+                           widget="badge"
+                           decoration-success="estado_validacion_contable == 'ok'"
+                           decoration-warning="estado_validacion_contable == 'pendiente'"
+                           decoration-danger="estado_validacion_contable == 'no_valida'"/>
+                    <field name="validado_contable"
+                           groups="account.group_account_manager"/>
+                </group>
+                <div class="alert alert-danger"
+                     role="alert"
+                     invisible="estado_validacion_contable != 'no_valida'">
+                    🔴 Esta categoría no tiene la configuración contable
+                    mínima. No se podrán crear ni editar productos con esta
+                    categoría hasta corregirla.
+                </div>
+                <div class="alert alert-warning"
+                     role="alert"
+                     invisible="estado_validacion_contable != 'pendiente'">
+                    🟡 Cumple los requisitos técnicos pero Contabilidad aún
+                    no la ha validado.
+                </div>
+            </group>
+        </field>
+    </record>
+
+    <!-- Vista de lista para control de validación contable -->
+    <record id="view_product_category_validacion_tree" model="ir.ui.view">
+        <field name="name">product.category.validacion.tree</field>
+        <field name="model">product.category</field>
+        <field name="arch" type="xml">
+            <list string="Validación Contable de Categorías">
+                <field name="complete_name" string="Categoría"/>
+                <field name="property_valuation" string="Método Valoración"/>
+                <field name="estado_validacion_contable"
+                       widget="badge"
+                       decoration-success="estado_validacion_contable == 'ok'"
+                       decoration-warning="estado_validacion_contable == 'pendiente'"
+                       decoration-danger="estado_validacion_contable == 'no_valida'"/>
+                <field name="validado_contable"
+                       widget="boolean_toggle"
+                       groups="account.group_account_manager"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista de búsqueda con filtros por estado -->
+    <record id="view_product_category_validacion_search" model="ir.ui.view">
+        <field name="name">product.category.validacion.search</field>
+        <field name="model">product.category</field>
+        <field name="arch" type="xml">
+            <search string="Validación Contable de Categorías">
+                <field name="complete_name" string="Categoría"/>
+                <filter name="pendientes"
+                        string="Pendientes (no validadas)"
+                        domain="[('estado_validacion_contable', '!=', 'ok')]"/>
+                <separator/>
+                <filter name="no_valida"
+                        string="🔴 No válidas"
+                        domain="[('estado_validacion_contable', '=', 'no_valida')]"/>
+                <filter name="pendiente"
+                        string="🟡 Pendientes de validación"
+                        domain="[('estado_validacion_contable', '=', 'pendiente')]"/>
+                <filter name="ok"
+                        string="✅ Validadas"
+                        domain="[('estado_validacion_contable', '=', 'ok')]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción: Categorías pendientes de validación contable -->
+    <record id="action_product_category_pendientes" model="ir.actions.act_window">
+        <field name="name">Categorías Pendientes de Validación Contable</field>
+        <field name="res_model">product.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_product_category_validacion_tree"/>
+        <field name="search_view_id" ref="view_product_category_validacion_search"/>
+        <field name="domain">[('estado_validacion_contable', '!=', 'ok')]</field>
+        <field name="context">{'search_default_pendientes': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay categorías pendientes de validación contable
+            </p>
+            <p>
+                Aquí aparecen las categorías de producto cuya configuración
+                contable está incompleta o aún no ha sido validada por
+                Contabilidad.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menú dentro de Configuraciones del módulo Fiscal HN -->
+    <menuitem id="menu_product_category_pendientes"
+              name="📋 Categorías Pendientes (Contable)"
+              parent="menu_settings"
+              action="action_product_category_pendientes"
+              sequence="10"/>
+
+</odoo>

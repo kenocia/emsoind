@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kc_expense_advance_tree" model="ir.ui.view">
+        <field name="name">kc.expense.advance.list</field>
+        <field name="model">kc.expense.advance</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="date_delivered"/>
+                <field name="amount" sum="Total"/>
+                <field name="amount_spent"/>
+                <field name="amount_balance"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'delivered'"
+                       decoration-warning="state == 'pending_settlement'"
+                       decoration-muted="state == 'closed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kc_expense_advance_form" model="ir.ui.view">
+        <field name="name">kc.expense.advance.form</field>
+        <field name="model">kc.expense.advance</field>
+        <field name="arch" type="xml">
+            <form string="Anticipo a Empleado">
+                <header>
+                    <button name="action_deliver" string="Entregar Anticipo" type="object"
+                            class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_close" string="Liquidar Anticipo" type="object"
+                            class="oe_highlight" invisible="state != 'delivered'"/>
+                    <button name="action_confirm_manual_settlement"
+                            string="Confirmar liquidación manual" type="object"
+                            class="oe_highlight"
+                            invisible="state != 'pending_settlement'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,delivered,pending_settlement,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_expense_sheets" type="object"
+                                class="oe_stat_button" icon="fa-list"
+                                invisible="expense_sheet_count == 0">
+                            <field name="expense_sheet_count" widget="statinfo"
+                                   string="Reportes"/>
+                        </button>
+                        <button name="action_view_vendor_bills" type="object"
+                                class="oe_stat_button" icon="fa-pencil-square-o"
+                                invisible="vendor_bill_count == 0">
+                            <field name="vendor_bill_count" widget="statinfo"
+                                   string="Facturas"/>
+                        </button>
+                        <button name="action_view_advance_account_moves" type="object"
+                                class="oe_stat_button" icon="fa-book"
+                                invisible="not delivery_move_id">
+                            <span class="o_stat_text">Apuntes Anticipo</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="state != 'draft'"/>
+                            <field name="date_delivered" readonly="state != 'draft'"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="account_advance_id" readonly="state != 'draft'"/>
+                            <field name="journal_id" readonly="state != 'draft'"/>
+                            <field name="amount_spent"/>
+                            <field name="amount_balance"/>
+                        </group>
+                    </group>
+                    <group string="Contabilidad" invisible="not delivery_move_id">
+                        <field name="delivery_move_id"/>
+                        <field name="closing_move_id"/>
+                    </group>
+                    <notebook>
+                        <page string="Reportes de Gastos" name="expense_sheets">
+                            <field name="expense_sheet_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="accounting_date"/>
+                                    <field name="total_amount"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_kc_expense_advance" model="ir.actions.act_window">
+        <field name="name">Anticipos a Empleados</field>
+        <field name="res_model">kc.expense.advance</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_kc_expense_advance"
+              name="Anticipos a Empleados"
+              parent="hr_expense.menu_hr_expense_root"
+              action="action_kc_expense_advance"
+              sequence="25"
+              groups="hr_expense.group_hr_expense_user"/>
+</odoo>

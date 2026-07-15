@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kc_expense_advance_user,kc.expense.advance user,kc_expense_fiscal_hn_v18.model_kc_expense_advance,hr_expense.group_hr_expense_user,1,1,1,0
+access_kc_expense_advance_manager,kc.expense.advance manager,kc_expense_fiscal_hn_v18.model_kc_expense_advance,hr_expense.group_hr_expense_manager,1,1,1,1
+access_kc_expense_advance_close_wizard,kc.expense.advance.close.wizard,kc_expense_fiscal_hn_v18.model_kc_expense_advance_close_wizard,hr_expense.group_hr_expense_manager,1,1,1,1

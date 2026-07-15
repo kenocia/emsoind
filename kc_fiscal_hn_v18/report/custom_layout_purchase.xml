@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Encabezado Orden de Compra / RFQ -->
+        <template id="header_purchase_layout" name="Encabezado Orden de Compra Kenocia">
+            <t t-set="company" t-value="doc.company_id"/>
+            <t t-set="partner" t-value="doc.partner_id.commercial_partner_id or doc.partner_id"/>
+            <t t-set="is_rfq" t-value="doc.state in ('draft', 'sent', 'to approve')"/>
+            <t t-set="brand_bg" t-value="'#b45309' if is_rfq else '#0c2d5e'"/>
+
+            <table style="width:100%; border-collapse:collapse; margin:0 0 14px 0;">
+                <tr>
+                    <td style="width:72%; vertical-align:middle; padding:0; border:none;">
+                        <div t-att-style="'padding:18px 18px 16px 18px; background-color:' + brand_bg + '; border-radius:8px; -webkit-print-color-adjust:exact;'">
+                            <div t-att-style="'font-size:14px; letter-spacing:1.6px; text-transform:uppercase; margin:0 0 8px 0; font-weight:700; line-height:1.35; color:' + ('#fde68a' if is_rfq else '#bfdbfe') + ';'">
+                                <t t-if="is_rfq">Solicitud de cotización</t>
+                                <t t-elif="doc.state == 'cancel'">Orden de compra cancelada</t>
+                                <t t-else="">Orden de compra</t>
+                            </div>
+                            <div style="font-size:26px; font-weight:700; color:#ffffff; letter-spacing:0.4px; line-height:1.25; margin:0;">
+                                <span t-field="doc.name"/>
+                            </div>
+                            <div style="margin-top:10px;">
+                            <t t-if="doc.date_order">
+                                <span style="display:inline-block; background-color:rgba(255,255,255,0.15); color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:600; margin:0 6px 4px 0; -webkit-print-color-adjust:exact;">
+                                    <t t-if="is_rfq">Fecha límite </t>
+                                    <t t-else="">Fecha </t>
+                                    <span t-field="doc.date_order" t-options="{'widget': 'date'}"/>
+                                </span>
+                            </t>
+                            <t t-if="not is_rfq and doc.date_approve">
+                                <span style="display:inline-block; background-color:rgba(255,255,255,0.15); color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:600; margin:0 6px 4px 0; -webkit-print-color-adjust:exact;">
+                                    Aprobada <span t-field="doc.date_approve" t-options="{'widget': 'date'}"/>
+                                </span>
+                            </t>
+                            <t t-if="doc.state in ('purchase', 'done')">
+                                <span style="display:inline-block; background-color:#22c55e; color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:700; margin:0 0 4px 0; -webkit-print-color-adjust:exact;">
+                                    Confirmada
+                                </span>
+                            </t>
+                            <t t-if="doc.state == 'to approve'">
+                                <span style="display:inline-block; background-color:#fbbf24; color:#78350f; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:700; margin:0 0 4px 0; -webkit-print-color-adjust:exact;">
+                                    Por aprobar
+                                </span>
+                            </t>
+                            <t t-if="doc.state == 'cancel'">
+                                <span style="display:inline-block; background-color:#ef4444; color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:700; margin:0 0 4px 0; -webkit-print-color-adjust:exact;">
+                                    Cancelada
+                                </span>
+                            </t>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width:28%; vertical-align:middle; text-align:right; padding:0 0 0 14px; border:none;">
+                        <t t-if="company.logo">
+                            <img t-att-src="image_data_uri(company.logo)"
+                                 style="max-height:72px; max-width:100%;" alt="Logo"/>
+                        </t>
+                        <t t-else="">
+                            <div style="font-size:16px; font-weight:700; color:#0c2d5e;">
+                                <span t-field="company.name"/>
+                            </div>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Emisor + Proveedor protagonista -->
+            <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+                <tr>
+                    <td style="width:38%; vertical-align:top; padding-right:8px;">
+                        <div style="border-left:3px solid #1a4fa0; padding:4px 0 4px 10px;">
+                            <div style="font-size:9px; letter-spacing:1.2px; color:#6b7280; text-transform:uppercase; margin-bottom:4px; font-weight:600;">
+                                Comprador
+                            </div>
+                            <div style="font-weight:600; color:#111827; font-size:11px; margin-bottom:3px;">
+                                <span t-field="company.name"/>
+                            </div>
+                            <div style="color:#374151; font-size:9px; line-height:1.45;">
+                                <div>
+                                    <span t-field="company.street"/>
+                                    <t t-if="company.street2">, <span t-field="company.street2"/></t>
+                                </div>
+                                <t t-set="emisor_ubicacion" t-value="', '.join([p for p in [company.city or '', company.state_id.name if company.state_id else '', company.country_id.name if company.country_id else ''] if p])"/>
+                                <div t-esc="emisor_ubicacion"/>
+                                <div style="margin-top:3px;">
+                                    RTN <strong style="font-family:'Courier New',monospace;" t-field="company.vat"/>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width:62%; vertical-align:top; padding-left:8px;">
+                        <div style="background-color:#f0f5ff; border:1px solid #c7d7f5; border-radius:6px; padding:12px 14px; -webkit-print-color-adjust:exact;">
+                            <div style="font-size:9px; letter-spacing:1.2px; color:#1a4fa0; text-transform:uppercase; margin-bottom:4px; font-weight:700;">
+                                Proveedor
+                            </div>
+                            <div style="font-weight:700; color:#0c2d5e; font-size:14px; margin-bottom:4px; line-height:1.25;">
+                                <span t-field="partner.name"/>
+                            </div>
+                            <t t-if="partner.street or partner.city">
+                                <div style="color:#374151; margin-bottom:4px; font-size:10px;">
+                                    <span t-field="partner.street"/>
+                                    <t t-if="partner.city">, <span t-field="partner.city"/></t>
+                                </div>
+                            </t>
+                            <div style="font-size:11px; color:#111827;">
+                                RTN
+                                <strong t-if="partner.vat"
+                                        style="font-family:'Courier New',monospace; margin-left:4px;"
+                                        t-field="partner.vat"/>
+                                <span t-else="" style="margin-left:4px; color:#9ca3af;">—</span>
+                            </div>
+                            <t t-if="partner.phone or partner.email">
+                                <div style="margin-top:4px; font-size:9px; color:#6b7280;">
+                                    <t t-if="partner.phone">Tel: <span t-field="partner.phone"/></t>
+                                    <t t-if="partner.email">
+                                        <t t-if="partner.phone"> · </t>
+                                        <span t-field="partner.email"/>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <t t-call="kc_fiscal_hn_v18.purchase_conditions_bar"/>
+        </template>
+
+        <template id="purchase_conditions_bar" name="Barra condiciones OC">
+            <div style="margin-bottom:14px; line-height:2.1;">
+                <t t-if="doc.user_id">
+                    <span style="display:inline-block; background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#6b7280; font-weight:600;">Comprador · </span>
+                        <span style="color:#111827; font-weight:700;"><span t-field="doc.user_id"/></span>
+                    </span>
+                </t>
+                <t t-if="doc.partner_ref">
+                    <span style="display:inline-block; background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#6b7280; font-weight:600;">Ref. proveedor · </span>
+                        <span style="color:#111827; font-weight:700;"><span t-field="doc.partner_ref"/></span>
+                    </span>
+                </t>
+                <t t-if="doc.payment_term_id">
+                    <span style="display:inline-block; background-color:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#1a4fa0; font-weight:600;">Pago · </span>
+                        <span style="color:#0c2d5e; font-weight:700;"><span t-field="doc.payment_term_id"/></span>
+                    </span>
+                </t>
+                <t t-if="doc.date_planned">
+                    <span style="display:inline-block; background-color:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#047857; font-weight:600;">Entrega esperada · </span>
+                        <span style="color:#065f46; font-weight:700;">
+                            <span t-field="doc.date_planned" t-options="{'widget': 'date'}"/>
+                        </span>
+                    </span>
+                </t>
+                <t t-if="'incoterm_id' in doc._fields and doc.incoterm_id">
+                    <span style="display:inline-block; background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#6b7280; font-weight:600;">Incoterm · </span>
+                        <span style="color:#111827; font-weight:700;"><span t-field="doc.incoterm_id.code"/></span>
+                    </span>
+                </t>
+                <span style="display:inline-block; background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                    <span style="color:#6b7280; font-weight:600;">Moneda · </span>
+                    <span style="color:#111827; font-weight:700;"><span t-field="doc.currency_id"/></span>
+                </span>
+            </div>
+        </template>
+
+        <template id="purchase_totals_block" name="Totales Orden de Compra">
+            <table style="width:100%; border-collapse:collapse; font-size:11px; color:#111827;">
+                <tr>
+                    <td style="padding:4px 0; color:#6b7280; font-weight:500;">Subtotal</td>
+                    <td class="text-end" style="padding:4px 0; color:#374151;">
+                        <span t-field="doc.amount_untaxed"
+                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                    </td>
+                </tr>
+                <t t-if="doc.amount_tax">
+                    <tr>
+                        <td style="padding:4px 0; color:#6b7280; font-weight:500;">Impuestos</td>
+                        <td class="text-end" style="padding:4px 0; color:#374151;">
+                            <span t-field="doc.amount_tax"
+                                  t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                        </td>
+                    </tr>
+                </t>
+                <tr>
+                    <td colspan="2" style="padding:10px 0 6px 0; border-top:1px solid #e5e7eb;"/>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding:0;">
+                        <table style="width:100%; border-collapse:collapse; background-color:#0c2d5e; border-radius:6px; -webkit-print-color-adjust:exact;">
+                            <tr>
+                                <td style="padding:12px 14px; vertical-align:middle;">
+                                    <div style="font-size:14px; font-weight:700; color:#fff; letter-spacing:0.5px;">TOTAL</div>
+                                    <div style="font-size:9px; font-weight:400; color:#93c5fd; margin-top:2px;">
+                                        <span t-field="doc.currency_id.name"/>
+                                    </div>
+                                </td>
+                                <td class="text-end" style="padding:12px 14px; font-size:18px; font-weight:700; color:#fff; vertical-align:middle; white-space:nowrap;">
+                                    <span t-field="doc.amount_total"
+                                          t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <template id="purchase_signatures_block" name="Firmas Orden de Compra">
+            <table style="width:100%; border-collapse:collapse; margin-top:36px; font-size:10px; color:#111827; page-break-inside:avoid;">
+                <tr>
+                    <td style="width:50%; text-align:center; padding:4px 24px; vertical-align:bottom;">
+                        <div style="height:40px;"/>
+                        <div style="border-top:1px solid #111827; padding-top:6px; margin:0 8px; color:#374151;">
+                            Elaborado por
+                        </div>
+                    </td>
+                    <td style="width:50%; text-align:center; padding:4px 24px; vertical-align:bottom;">
+                        <div style="height:40px;"/>
+                        <div style="border-top:1px solid #111827; padding-top:6px; margin:0 8px; color:#374151; font-weight:600;">
+                            Autorizado — firma y sello
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <template id="footer_purchase_layout" name="Pie Orden de Compra Kenocia">
+            <t t-set="company" t-value="doc.company_id"/>
+            <table style="width:100%; border-collapse:collapse; margin-top:16px; border-top:1px solid #e5e7eb;">
+                <tr>
+                    <td style="width:78%; vertical-align:middle; padding:10px 0 4px 0; font-size:9px; color:#6b7280;">
+                        <t t-if="company.phone"><span t-field="company.phone"/></t>
+                        <t t-if="company.email">
+                            <t t-if="company.phone"> · </t>
+                            <span t-field="company.email"/>
+                        </t>
+                        <t t-if="company.website">
+                            <t t-if="company.phone or company.email"> · </t>
+                            <span t-field="company.website"/>
+                        </t>
+                    </td>
+                    <td style="width:22%; vertical-align:middle; text-align:right; padding:10px 0 4px 0; font-size:10px; font-weight:700; color:#0c2d5e;">
+                        <t t-esc="page_num + 1"/> / <t t-esc="total_pages"/>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+    </data>
+</odoo>

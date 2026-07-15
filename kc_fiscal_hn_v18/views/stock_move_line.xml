@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_move_line_tree_inherit" model="ir.ui.view">
+            <field name="name">stock.move.line.tree.inherit</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_move_line_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='quantity']" position="replace">
+                    <field name="quantity_real" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='state']" position="replace">
+                    <field name="state" optional="hide"/>
+                </xpath>
+                <xpath expr="//field[@name='location_dest_id']" position="replace">
+                    <field name="location_dest_id" optional="hide"/>
+                </xpath>
+                <xpath expr="//field[@name='location_id']" position="replace">
+                    <field name="location_id" optional="hide"/>
+                </xpath>
+                <xpath expr="//field[@name='quantity_real']" position="after">
+                    <field name="unit_cost" optional="show"/>
+                    <field name="total_cost" optional="show"/>
+                    <field name="previous_available_quantity" optional="show"/>
+                    <field name="on_hand" optional="show"/>
+                    <field name="total_cost_on_hand" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='lot_id']" position="after">
+                    <field name="location_own_id" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='reference']" position="before">
+                    <field name="invoice_ids" optional="show" widget="many2many_tags"
+                           domain="[('move_type','in', ['out_invoice','in_invoice','out_refund','in_refund'])]"/>
+                    <field name="purchase_order_id" optional="hide"/>
+                    <field name="sale_order_id" optional="hide"/>
+                    <field name="partner_id" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+<!--        <record id="move_line_search_view_inherit" model="ir.ui.view">-->
+        <!--            <field name="name">move_line_search_view_inherit</field>-->
+        <!--            <field name="model">stock.move.line</field>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <search string="Fab">-->
+        <!--                    <filter name="group_manu" string="Fabricante" context="{'group_by': 'manufacturer_id'}"/>-->
+        <!--                </search>-->
+        <!--            </field>-->
+        <!--        </record>-->
+    </data>
+</odoo>

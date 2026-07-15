@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="account_move_extended" model="ir.ui.view">
+            <field name="name">account.move.extended</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="action_view_sar_print_logs"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-print"
+                            invisible="move_type != 'out_invoice' or sar_print_count == 0">
+                        <field name="sar_print_count"
+                               widget="statinfo"
+                               string="Impresiones SAR"/>
+                    </button>
+                </xpath>
+
+                <!-- Agregar campos fiscales en la secci?n principal -->
+                <xpath expr="//div[hasclass('o_col')]" position="after">
+                    <field name="depto"/>
+                    <field name="sale_order_id"/>
+                    <field name="document_fiscal"/>
+                    <field name="es_zoli" invisible="1"/>
+                    <field name="tipo_operacion_zoli"
+                           invisible="not es_zoli or move_type not in ['out_invoice', 'out_refund']"/>
+                    <!-- <field name="original_print"/> -->
+                </xpath>
+                
+                <!-- Agregar campo de retenci?n despu?s del campo ref -->
+                <xpath expr="//field[@name='ref']" position="after">
+                    <field name="invoice_retention"
+                         invisible="document_fiscal != 'retention'"/>
+                </xpath>
+                
+                <xpath expr="//field[@name='journal_id']" position="before">
+                    <field name="info_fiscal_proveedor"
+                         invisible="1"/>
+                    <field name="alerta_fiscal_factura"
+                         invisible="1"/>
+                    <div
+                         invisible="(move_type != 'in_invoice' or not partner_id)">
+                        <div class="alert alert-success py-1 mb-1"
+                         invisible="(alerta_fiscal_factura != 'ok' or not info_fiscal_proveedor)">
+                            <field name="info_fiscal_proveedor"
+                                   nolabel="1"
+                         readonly="1"/>
+                        </div>
+                        <div class="alert alert-warning py-1 mb-1"
+                         invisible="alerta_fiscal_factura != 'warning'">
+                            <field name="info_fiscal_proveedor"
+                                   nolabel="1"
+                         readonly="1"/>
+                        </div>
+                        <div class="alert alert-danger py-1 mb-1"
+                         invisible="alerta_fiscal_factura != 'error'">
+                            <field name="info_fiscal_proveedor"
+                                   nolabel="1"
+                         readonly="1"/>
+                        </div>
+                        <div class="alert alert-info py-1 mb-1"
+                         invisible="alerta_fiscal_factura != 'info'">
+                            <field name="info_fiscal_proveedor"
+                                   nolabel="1"
+                         readonly="1"/>
+                        </div>
+                    </div>
+                    <field name="motivo_emision"
+                         invisible="move_type not in ['out_refund']"/>
+                    <field name="fiscal_can_confirm"
+                         invisible="1"/>
+                    <field name="fiscal_can_manage_cancel"
+                         invisible="1"/>
+                    <field name="diario_fiscal_bloqueado"
+                         invisible="1"/>
+                </xpath>
+
+                <!-- El diario de compra se fija por la clasificaci?n fiscal del
+                     proveedor y no puede cambiarse manualmente. -->
+                <xpath expr="//field[@name='journal_id']" position="attributes">
+                    <attribute name="readonly" add="diario_fiscal_bloqueado"
+                               separator=" or "/>
+                </xpath>
+
+                <!-- Ocultar Confirmar cuando el rango/fecha fiscal ha vencido (sin subsecuencias futuras). Segundo action_post = Confirm (facturas). -->
+                <xpath expr="(//header/button[@name='action_post'])[2]" position="attributes">
+                    <attribute name="invisible">hide_post_button or move_type == 'entry' or display_inactive_currency_warning or not fiscal_can_confirm</attribute>
+                </xpath>
+
+                <!-- Ocultar bot?n Cancel para no administradores fiscales -->
+                <xpath expr="//button[@name='button_cancel']"
+                       position="attributes">
+                    <attribute name="invisible" add="move_type == 'out_invoice' and state == 'posted' and journal_id.document_fiscal == 'client' and not fiscal_can_manage_cancel" separator=" or "/>
+                </xpath>
+
+                <!-- Ocultar bot?n Reset to Draft para no admin fiscal -->
+                <xpath expr="//button[@name='button_draft']"
+                       position="attributes">
+                    <attribute name="invisible" add="move_type == 'out_invoice' and state in ['posted', 'cancel'] and journal_id.document_fiscal == 'client' and not fiscal_can_manage_cancel" separator=" or "/>
+                </xpath>
+
+                <xpath expr="//header" position="inside">
+                    <button name="action_open_sar_print_reissue_wizard"
+                            string="Autorizar reimpresión como Original"
+                            type="object"
+                            groups="kc_fiscal_hn_v18.group_fiscal_sequence_manager"
+                            invisible="not sar_print_can_authorize_reissue"/>
+                    <button name="action_open_sar_print_reissue_cancel_wizard"
+                            string="Cancelar reautorización"
+                            type="object"
+                            groups="kc_fiscal_hn_v18.group_fiscal_sequence_manager"
+                            invisible="not sar_print_can_cancel_reissue"/>
+                </xpath>
+
+                <!-- Mejorar el widget del usuario de facturaci?n -->
+                <xpath expr="//sheet/notebook/page[@name='other_info']/group/group[@name='sale_info_group']//field[@name='invoice_user_id']"
+                       position="replace">
+                    <field name="invoice_user_id" widget="many2one_avatar_user"/>
+                </xpath>
+                <xpath expr="//sheet/notebook/page[@name='other_info']/group/group[@name='sale_info_group']//field[@name='invoice_user_id']"
+                       position="before">
+                    <field name="vendedor_empleado"/>
+                </xpath>
+                
+                <!-- Agregar p?gina SAR con informaci?n fiscal -->
+                <xpath expr="//sheet/notebook/page[@name='other_info']" position="after">
+                    <page name="sar" string="SAR"
+                         invisible="move_type not in ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']">
+                    <!-- <page name="sar" string="SAR"> -->
+                        <field name="sar_print_can_authorize_reissue" invisible="1"/>
+                        <field name="sar_print_can_cancel_reissue" invisible="1"/>
+                        <field name="sar_print_reissue_authorized" invisible="1"/>
+                        <div class="alert alert-warning mb-2" role="alert"
+                             invisible="not sar_print_reissue_authorized">
+                            <strong>Reimpresión como Original autorizada (pendiente de imprimir)</strong>
+                            <div>
+                                Autorizado por:
+                                <field name="sar_print_reissue_pending_user_id"
+                                       readonly="1"
+                                       nolabel="1"
+                                       class="oe_inline"/>
+                                · Fecha:
+                                <field name="sar_print_reissue_pending_date"
+                                       readonly="1"
+                                       nolabel="1"
+                                       class="oe_inline"/>
+                            </div>
+                            <div>
+                                Motivo:
+                                <field name="sar_print_reissue_pending_reason"
+                                       readonly="1"
+                                       nolabel="1"/>
+                            </div>
+                        </div>
+                        <group>
+                            <group string="Informaci?n SAR">
+                                <field name="noOrdenCompraExenta"/>
+                                <field name="noConsRegistroExonerado"/>
+                                <field name="noIdentificacionRegistroSAG"/>
+                                <field name="is_import"
+                         invisible="not id"/>
+                            </group>
+                            <group string="Numeraci?n Fiscal">
+                                <field name="cai"
+                         readonly="1"/>
+                                <field name="numeroInicial"
+                         readonly="1"/>
+                                <field name="numeroFinal"
+                         readonly="1"/>
+                                <field name="fechaLimiteEmision"
+                         readonly="1"/>
+                            </group>
+                            <group string="Factura Proveedor"
+                         invisible="move_type not in ['in_invoice', 'in_refund']">
+                                <field name="cai_proveedor"/>
+                                <field name="correlativo_proveedor"/>
+                                <field name="femision_proveedor"/>
+                            </group>
+                            <group string="DMC"
+                         invisible="move_type not in ['in_invoice', 'in_refund']">
+                                <field name="class_document_sar"/>
+                                <field name="montos_sar"/>
+                            </group>
+                        </group>
+
+                        <group string="Clasificaci?n DMC SAR"
+                         invisible="(move_type not in ['in_invoice', 'in_refund'] or not obligado_dmc)">
+                            <field name="obligado_dmc"
+                         invisible="1"/>
+                            <group>
+                                <field name="seccion_dmc"
+                                      
+                                       widget="badge"
+                                       decoration-success="seccion_dmc == 'A'"
+                                       decoration-warning="seccion_dmc == 'B'"
+                                       decoration-info="seccion_dmc == 'C'"
+                                       decoration-muted="seccion_dmc == 'NA'"
+                         readonly="1"/>
+                                <field name="tipo_compra_dmc"
+                                      
+                                       widget="badge"
+                         readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="numero_dua"
+                         invisible="seccion_dmc != 'C'"/>
+                                <div class="alert alert-info small py-1 mb-0"
+                         invisible="seccion_dmc != 'A'">
+                                    <strong>Secci?n A</strong> 
+                                    Compra local regular. Genera cr?dito
+                                    fiscal ISV en la DMC.
+                                </div>
+                                <div class="alert alert-warning small py-1 mb-0"
+                         invisible="seccion_dmc != 'B'">
+                                    <strong>Secci?n B</strong> 
+                                    Comprobante eventual. Verifique
+                                    si genera cr?dito fiscal.
+                                </div>
+                                <div class="alert alert-info small py-1 mb-0"
+                         invisible="seccion_dmc != 'C'">
+                                    <strong>Secci?n C</strong> 
+                                    Importaci?n. Ingrese el N? DUA.
+                                </div>
+                            </group>
+                        </group>
+                        
+                        <!-- Agregar secci?n de montos fiscales -->
+                        <group string="Montos Fiscales"
+                         invisible="move_type not in ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']">                        
+                            <group>
+                                <field name="amount_discount"/>
+                                <field name="amount_exento"/>
+                                <field name="amount_exonerado"/>
+                                <field name="base_imponible_total"/>
+                                <field name="isv_total"/>
+                            </group>
+                            <group>
+                                <field name="amount_isv15"/>
+                                <field name="gravado_isv15"/>
+                                <field name="amount_isv18"/>
+                                <field name="gravado_isv18"/>
+                                <field name="totalAmountString"/>
+                            </group>
+                        </group>
+                        
+                        <!-- Agregar secci?n de validaci?n fiscal -->
+                        <group string="Validaci?n Fiscal"
+                         invisible="move_type not in ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']">
+                            <group>
+                                <field name="fiscal_validation_status"/>
+                                <field name="requires_fiscal_numbering"/>
+                                <field name="fiscal_validation_message"
+                         invisible="not fiscal_validation_message"/>
+                                <button name="validate_fiscal_invoice" 
+                                        string="Validar Factura Fiscal" 
+                                        type="object" 
+                                        class="btn-primary"
+                         invisible="state != 'draft'"/>
+                            </group>
+                        </group>
+
+                        <group string=" Nacionalizaci?n (Zona Libre)"
+                               name="zoli_nacionalizacion"
+                               invisible="not es_zoli or tipo_operacion_zoli != 'nacionalizacion'">
+                            <group>
+                                <field name="zoli_base_dai" readonly="1"/>
+                                <field name="zoli_dai_amount" readonly="1"/>
+                                <field name="zoli_isv_nacionalizacion" readonly="1"/>
+                                <field name="zoli_total_tributos" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="zoli_calculo_html" nolabel="1" readonly="1"/>
+                            </group>
+                        </group>
+
+                        <group string="Estado en Libros SAR">
+                            <group>
+                                <field name="estado_sar"
+                                       widget="badge"
+                                       decoration-success="estado_sar == 'declarada'"
+                                       decoration-warning="estado_sar == 'en_libro'"
+                                       decoration-danger="estado_sar == 'no_incluida'"
+                                       decoration-info="estado_sar == 'rectificada'"/>
+                                <field name="tipo_documento_sar"
+                         readonly="1"/>
+                                <field name="in_libro_ventas"
+                         invisible="1"/>
+                                <field name="in_libro_compras"
+                         invisible="1"/>
+                                <field name="in_libro_retenciones"
+                         invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="libro_ventas_id"
+                         invisible="not in_libro_ventas"
+                         readonly="1"/>
+                                <field name="libro_ventas_estado"
+                         invisible="not in_libro_ventas"
+                         readonly="1"/>
+                                <field name="libro_compras_id"
+                         invisible="not in_libro_compras"
+                         readonly="1"/>
+                                <field name="libro_compras_estado"
+                         invisible="not in_libro_compras"
+                         readonly="1"/>
+                                <field name="libro_retenciones_id"
+                         invisible="not in_libro_retenciones"
+                         readonly="1"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+
+                <!-- Agregar campos en las l?neas de factura -->
+                <xpath expr="//field[@name='invoice_line_ids']//field[@name='account_id']" position="after">
+                    <field name="base_imponible" optional="hide" />
+                    <field name="porcentaje_retencion" options="{'no_create': True}" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vista de b?squeda mejorada -->
+        <record id="account_move_search_view" model="ir.ui.view">
+            <field name="name">account_move_search_view</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_account_move_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <filter name="group_depto" string="Departamento" context="{'group_by': 'depto'}"/>
+                    <filter name="fiscal_moves" string="Movimientos Fiscales" 
+                            domain="[('journal_id.fiscal_sequence_id.is_fiscal', '=', True)]"/>
+                    <filter name="non_fiscal_moves" string="Movimientos No Fiscales" 
+                            domain="[('journal_id.fiscal_sequence_id', '=', False)]"/>
+                    <filter name="printed_documents" string="Documentos Impresos"
+                            domain="[('sar_print_count', '&gt;', 0)]"/>
+                    <filter name="not_printed_documents" string="Documentos No Impresos"
+                            domain="[('sar_print_count', '=', 0)]"/>
+                    <filter name="import_moves" string="Importados" 
+                            domain="[('is_import', '=', True)]"/>
+                    <filter name="non_import_moves" string="No Importados" 
+                            domain="[('is_import', '=', False)]"/>
+                    <separator/>
+                    <filter name="sin_declarar_sar"
+                            string="Sin declarar al SAR"
+                            domain="[
+                                ('estado_sar','=','no_incluida'),
+                                ('state','=','posted')
+                            ]"/>
+                    <filter name="en_libro_sar"
+                            string="En Libro SAR"
+                            domain="[('estado_sar','=','en_libro')]"/>
+                    <filter name="declaradas_sar"
+                            string="Declaradas al SAR"
+                            domain="[('estado_sar','=','declarada')]"/>
+                    <filter name="group_estado_sar"
+                            string="Estado SAR"
+                            context="{'group_by':'estado_sar'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vista de lista mejorada -->
+        <record id="account_move_tree_extended" model="ir.ui.view">
+            <field name="name">account.move.tree.extended</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="depto" optional="hide"/>
+                    <field name="document_fiscal" optional="hide"/>
+                    <field name="estado_sar"
+                           widget="badge"
+                           optional="show"
+                           decoration-success="estado_sar == 'declarada'"
+                           decoration-warning="estado_sar == 'en_libro'"
+                           decoration-muted="estado_sar == 'no_incluida'"
+                           decoration-info="estado_sar == 'rectificada'"/>
+                    <field name="amount_isv15" optional="hide"/>
+                    <field name="amount_isv18" optional="hide"/>
+                    <!-- <field name="original_print" optional="hide"/> -->
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

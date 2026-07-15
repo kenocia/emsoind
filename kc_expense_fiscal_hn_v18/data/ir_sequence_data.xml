@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_kc_expense_advance" model="ir.sequence">
+        <field name="name">Anticipo Gastos Empleado</field>
+        <field name="code">kc.expense.advance</field>
+        <field name="prefix">ANT/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

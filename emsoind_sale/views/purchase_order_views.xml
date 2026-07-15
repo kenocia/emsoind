@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="purchase_order_form_emsoind_partner_domain" model="ir.ui.view">
+        <field name="name">purchase.order.form.emsoind.partner.domain</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id'][@widget='res_partner_many2one']" position="attributes">
+                <attribute name="domain">[('emsoind_use_in_purchases', '=', True)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

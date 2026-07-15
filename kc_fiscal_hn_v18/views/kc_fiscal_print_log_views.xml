@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_kc_fiscal_print_log_list" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn.print.log.list</field>
+            <field name="model">kc_fiscal_hn.print.log</field>
+            <field name="arch" type="xml">
+                <list string="Impresiones SAR" create="false" edit="false" delete="false">
+                    <field name="print_date"/>
+                    <field name="print_number"/>
+                    <field name="print_type"/>
+                    <field name="document_number"/>
+                    <field name="document_name"/>
+                    <field name="move_type" optional="hide"/>
+                    <field name="user_id"/>
+                    <field name="report_id"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_kc_fiscal_print_log" model="ir.actions.act_window">
+            <field name="name">Auditoría de impresiones SAR</field>
+            <field name="res_model">kc_fiscal_hn.print.log</field>
+            <field name="view_mode">list</field>
+            <field name="context">{'create': False, 'edit': False, 'delete': False}</field>
+        </record>
+
+    </data>
+</odoo>

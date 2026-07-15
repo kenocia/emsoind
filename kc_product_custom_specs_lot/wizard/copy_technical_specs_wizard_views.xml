@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kc_copy_technical_specs_wizard_form" model="ir.ui.view">
+        <field name="name">kc.copy.technical.specs.wizard.form</field>
+        <field name="model">kc.copy.technical.specs.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Copiar especificaciones">
+                <group>
+                    <field name="sale_order_id" invisible="1"/>
+                    <field name="target_line_id" invisible="1"/>
+                    <field name="source_line_id"
+                           options="{'no_create': True}"
+                           domain="[('order_id', '=', sale_order_id), ('id', '!=', target_line_id)]"/>
+                </group>
+                <footer>
+                    <button name="action_copy" type="object" string="Copiar" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_kenocia_petty_cash" model="ir.actions.report">
+        <field name="name">Reporte Caja Chica</field>
+        <field name="model">kenocia.petty.cash</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kenocia_tesoreria_v18.report_petty_cash_fund</field>
+        <field name="report_file">kenocia_tesoreria_v18.report_petty_cash_fund</field>
+        <field name="print_report_name">'Caja Chica - %s' % (object.name or '')</field>
+        <field name="paperformat_id" ref="paperformat_kenocia_tesoreria"/>
+    </record>
+
+    <template id="report_petty_cash_fund">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Fondo de Caja Chica — Kenocia</h2>
+                    <p>
+                        <strong><span t-field="docs.name"/></strong> —
+                        Custodio: <span t-field="docs.custodian_id"/>
+                    </p>
+                    <table class="table table-sm table-bordered mt-3">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Empleado</th>
+                                <th>Concepto</th>
+                                <th class="text-end">Monto</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs.line_ids" t-as="line">
+                                <td><span t-field="line.date"/></td>
+                                <td><span t-field="line.employee_id"/></td>
+                                <td><span t-field="line.description"/></td>
+                                <td class="text-end">
+                                    <span t-field="line.amount"
+                                          t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                </td>
+                                <td><span t-field="line.state"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

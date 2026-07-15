@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia mínima para formulario técnico estándar (Ajustes > Secuencias) -->
+        <record id="ir_sequence_form_extended" model="ir.ui.view">
+            <field name="name">ir.sequence.form.extended</field>
+            <field name="model">ir.sequence</field>
+            <field name="inherit_id" ref="base.sequence_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="is_fiscal"/>
+                    <field name="fiscal_type"
+                         invisible="not is_fiscal"/>
+                </xpath>
+                <xpath expr="//field[@name='date_range_ids']/list" position="inside">
+                    <field name="cai" optional="hide"/>
+                    <field name="rangoInicial" optional="hide"/>
+                    <field name="rangoFinal" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vista fiscal dedicada (menú Fiscal HN) -->
+        <record id="ir_sequence_fiscal_form" model="ir.ui.view">
+            <field name="name">ir.sequence.form.fiscal</field>
+            <field name="model">ir.sequence</field>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <form string="Secuencia Fiscal SAR" class="o_fiscal_sequence_form">
+                    <header
+                         invisible="not id">
+                        <field name="fiscal_status"
+                               widget="statusbar"
+                               statusbar_visible="active,warning,critical,expired"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon"
+                                title="Validada"
+                                bg_color="text-bg-success"
+                                invisible="not fiscal_sequence_validated"/>
+
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_open_preregistro_cai"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-magic"
+                         invisible="not id">
+                                <div class="o_stat_info">
+                                    <span class="o_stat_text">Agregar</span>
+                                    <span class="o_stat_text">Rango CAI</span>
+                                </div>
+                            </button>
+                            <button class="oe_stat_button"
+                                    icon="fa-list-alt"
+                         invisible="not id">
+                                <field name="rango_cai_count"
+                                       widget="statinfo"
+                                       string="Rangos CAI"/>
+                            </button>
+                            <button class="oe_stat_button"
+                                    icon="fa-ticket"
+                         invisible="not id">
+                                <field name="active_cai_disponibles"
+                                       widget="statinfo"
+                                       string="Disponibles"/>
+                            </button>
+                            <button name="action_view_journals"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-book"
+                         invisible="not id">
+                                <field name="journal_count"
+                                       widget="statinfo"
+                                       string="Diarios"/>
+                            </button>
+                        </div>
+
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name"
+                                       placeholder="Ej. Secuencia Fiscal Facturas"/>
+                            </h1>
+                        </div>
+
+                        <field name="is_fiscal" invisible="1"/>
+                        <field name="use_date_range" invisible="1"/>
+                        <field name="implementation" invisible="1"/>
+                        <field name="active_cai_name" invisible="1"/>
+                        <field name="active_cai_uso_label" invisible="1"/>
+                        <field name="active_cai_vence_label" invisible="1"/>
+                        <field name="fiscal_sequence_validated" invisible="1"/>
+                        <field name="rango_cai_count" invisible="1"/>
+
+                        <!-- Configuración -->
+                        <div class="o_fiscal_card">
+                            <div class="o_fiscal_card_header">
+                                <h3 class="o_fiscal_card_title">Configuración</h3>
+                            </div>
+
+                            <div class="alert alert-info o_fiscal_hint"
+                                 role="alert"
+                         invisible="id">
+                                Seleccione el tipo fiscal; el código y prefijo
+                                se completan automáticamente. Guarde para
+                                habilitar los rangos CAI.
+                            </div>
+
+                            <group col="2">
+                                <group string="Identificación">
+                                    <field name="fiscal_type"
+                                           string="Tipo fiscal"/>
+                                    <field name="code"
+                                           string="Código técnico"
+                                          
+                                           force_save="1"
+                         readonly="1"/>
+                                    <field name="company_id"
+                                           groups="base.group_multi_company"/>
+                                    <field name="active"
+                                           widget="boolean_toggle"/>
+                                </group>
+                                <group string="Numeración SAR">
+                                    <field name="prefix"
+                                           string="Prefijo"/>
+                                    <field name="padding"
+                                           string="Tamaño correlativo"/>
+                                    <field name="number_increment"
+                                           string="Incremento"
+                         readonly="1"/>
+                                </group>
+                            </group>
+
+                            <group string="Alertas por defecto (nuevos rangos CAI)"
+                                   col="2">
+                                <div class="text-muted mb-2" colspan="2">
+                                    Estos valores aplican solo a <strong>nuevos</strong> rangos CAI.
+                                    El rango activo usa sus propios umbrales en la pestaña Rangos CAI → Alertas.
+                                </div>
+                                <field name="default_dias_alerta"
+                                       string="Días antes del vencimiento"/>
+                                <field name="default_numeros_alerta"
+                                       string="Correlativos restantes"/>
+                            </group>
+                        </div>
+
+                        <!-- Rangos CAI (solo visualización; alta vía wizard) -->
+                        <div class="o_fiscal_card"
+                         invisible="not id">
+                            <div class="o_fiscal_card_header">
+                                <h3 class="o_fiscal_card_title">Rangos CAI</h3>
+                                <button name="action_open_preregistro_cai"
+                                        type="object"
+                                        string="Agregar rango CAI"
+                                        class="btn btn-primary"
+                                        icon="fa-plus-circle"/>
+                            </div>
+                            <p class="o_fiscal_card_subtitle mb-2">
+                                Vigente:
+                                <field name="active_cai_name"
+                                      
+                                       nolabel="1"
+                                       class="oe_inline"
+                         readonly="1"/>
+                                · Consumo:
+                                <field name="active_cai_uso_label"
+                                      
+                                       nolabel="1"
+                                       class="oe_inline"
+                         readonly="1"/>
+                                ·
+                                <field name="active_cai_vence_label"
+                                      
+                                       nolabel="1"
+                                       class="oe_inline"
+                         readonly="1"/>
+                            </p>
+
+                            <div class="o_fiscal_empty_state mb-2"
+                         invisible="bool(rango_cai_count)">
+                                Sin rangos CAI registrados.
+                                Use <strong>Agregar rango CAI</strong>
+                                para el flujo guiado (encabezado → detalle → validación).
+                            </div>
+
+                            <field name="date_range_ids"
+                                   context="{'default_sequence_id': id}"
+                                   mode="kanban,list"
+                                   default_order="date_from desc, id desc">
+                                <kanban class="o_kanban_mobile o_fiscal_cai_kanban"
+                                        create="0">
+                                    <field name="cai"/>
+                                    <field name="cai_validated"/>
+                                    <field name="can_manage_fiscal_range" invisible="1"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="rangoInicial"/>
+                                    <field name="rangoFinal"/>
+                                    <field name="number_next"/>
+                                    <field name="number_next_actual" invisible="1"/>
+                                    <field name="disponibles"/>
+                                    <field name="uso_porcentaje"/>
+                                    <field name="dias_restantes"/>
+                                    <field name="es_vigente"/>
+                                    <field name="estado_rango"/>
+                                    <templates>
+                                        <t t-name="card">
+                                            <div class="oe_kanban_global_click o_fiscal_cai_card"
+                                                 t-attf-class="o_fiscal_cai_card o_fiscal_cai_card--#{record.estado_rango.raw_value or 'future'}">
+                                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                                    <div class="o_fiscal_cai_title">
+                                                        <field name="cai"/>
+                                                    </div>
+                                                    <field name="estado_rango"
+                                                           widget="badge"
+                                                           decoration-success="estado_rango == 'active'"
+                                                           decoration-warning="estado_rango == 'warning'"
+                                                           decoration-danger="estado_rango in ('critical', 'expired')"
+                                                           decoration-info="estado_rango == 'future'"
+                                                           decoration-muted="estado_rango == 'inactive'"/>
+                                                </div>
+                                                <div class="o_fiscal_cai_meta">
+                                                    <div>
+                                                        <i class="fa fa-calendar me-1" title="Vigencia"/>
+                                                        <field name="date_from"/>
+                                                        →
+                                                        <field name="date_to"/>
+                                                    </div>
+                                                    <div>
+                                                        <i class="fa fa-sort-numeric-asc me-1" title="Rango"/>
+                                                        <field name="rangoInicial"/>
+                                                        –
+                                                        <field name="rangoFinal"/>
+                                                        · Siguiente:
+                                                        <field name="number_next"/>
+                                                    </div>
+                                                    <div>
+                                                        <i class="fa fa-hourglass-half me-1" title="Disponibles"/>
+                                                        <field name="disponibles"/>
+                                                        disponibles ·
+                                                        <field name="dias_restantes"/>
+                                                        días
+                                                    </div>
+                                                </div>
+                                                <div class="o_fiscal_cai_progress">
+                                                    <field name="uso_porcentaje"
+                                                           widget="progressbar"/>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                                <list string="Rangos CAI"
+                                      editable="bottom"
+                                      groups="kc_fiscal_hn_v18.group_fiscal_sequence_manager">
+                                    <field name="date_from" string="Desde"/>
+                                    <field name="date_to" string="Hasta"/>
+                                    <field name="cai"/>
+                                    <field name="rangoInicial" string="Ini."/>
+                                    <field name="rangoFinal" string="Fin."/>
+                                    <field name="number_next" string="Siguiente"/>
+                                    <field name="number_next_actual" column_invisible="True"/>
+                                    <field name="cai_validated" string="Activo" widget="boolean_toggle"/>
+                                    <field name="estado_rango" widget="badge"
+                                           decoration-muted="estado_rango == 'inactive'"/>
+                                </list>
+                                <list string="Rangos CAI"
+                                      create="0"
+                                      edit="0"
+                                      delete="0"
+                                      groups="!kc_fiscal_hn_v18.group_fiscal_sequence_manager">
+                                    <field name="date_from" string="Desde"/>
+                                    <field name="date_to" string="Hasta"/>
+                                    <field name="cai"/>
+                                    <field name="rangoInicial" string="Ini."/>
+                                    <field name="rangoFinal" string="Fin."/>
+                                    <field name="number_next" string="Siguiente"/>
+                                    <field name="number_next_actual" column_invisible="True"/>
+                                    <field name="cai_validated" string="Activo" widget="boolean_toggle" readonly="1"/>
+                                    <field name="estado_rango" widget="badge"
+                                           decoration-muted="estado_rango == 'inactive'"/>
+                                </list>
+                                <form string="Rango CAI">
+                                    <header>
+                                        <button name="validate_cai_manual"
+                                                type="object"
+                                                string="Validar CAI"
+                                                class="btn-primary"
+                                                icon="fa-check"
+                                                invisible="cai_validated"
+                                                groups="kc_fiscal_hn_v18.group_fiscal_sequence_manager"/>
+                                    </header>
+                                    <sheet>
+                                        <field name="can_manage_fiscal_range" invisible="1"/>
+                                        <div class="alert alert-warning mb-3" role="alert"
+                                             invisible="cai_validated"
+                                             groups="kc_fiscal_hn_v18.group_fiscal_sequence_manager">
+                                            Este rango CAI está <strong>desactivado</strong>
+                                            y no se usará para facturar hasta marcarlo como validado/activo.
+                                        </div>
+                                        <div class="oe_title">
+                                            <label for="cai"/>
+                                            <h1>
+                                                <field name="cai"
+                                                       readonly="not can_manage_fiscal_range"/>
+                                            </h1>
+                                        </div>
+                                        <group col="2">
+                                            <group string="Vigencia">
+                                                <field name="date_from"
+                                                       readonly="not can_manage_fiscal_range"/>
+                                                <field name="date_to"
+                                                       string="Fecha límite"
+                                                       readonly="not can_manage_fiscal_range"/>
+                                                <field name="number_next"
+                                                       string="Siguiente correlativo"
+                                                       readonly="not can_manage_fiscal_range"/>
+                                                <field name="number_next_actual" invisible="1"/>
+                                                <field name="estado_rango"
+                                                       widget="badge"
+                                                       readonly="1"/>
+                                            </group>
+                                            <group string="Correlativos">
+                                                <field name="rangoInicial"
+                                                       readonly="not can_manage_fiscal_range"/>
+                                                <field name="rangoFinal"
+                                                       readonly="not can_manage_fiscal_range"/>
+                                                <field name="disponibles"
+                                                       readonly="1"/>
+                                                <field name="uso_porcentaje"
+                                                       widget="progressbar"
+                                                       readonly="1"/>
+                                            </group>
+                                            <group string="Alertas">
+                                                <field name="dias_alerta"
+                                                       readonly="not can_manage_fiscal_range"/>
+                                                <field name="numeros_alerta"
+                                                       readonly="not can_manage_fiscal_range"/>
+                                                <field name="dias_restantes"
+                                                       readonly="1"/>
+                                            </group>
+                                            <group string="Activación">
+                                                <field name="cai_validated"
+                                                       string="CAI validado / activo"
+                                                       widget="boolean_toggle"
+                                                       readonly="not can_manage_fiscal_range"/>
+                                                <field name="cai_validation_date"
+                                                       readonly="1"/>
+                                                <field name="cai_validation_error"
+                                                       readonly="1"
+                                                       invisible="not cai_validation_error"/>
+                                            </group>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </div>
+
+                        <!-- Diarios vinculados -->
+                        <div class="o_fiscal_card"
+                         invisible="not id">
+                            <div class="o_fiscal_card_header">
+                                <h3 class="o_fiscal_card_title">Diarios contables vinculados</h3>
+                                <button name="action_view_journals"
+                                        type="object"
+                                        string="Ver todos"
+                                        class="btn btn-link"/>
+                            </div>
+                            <p class="o_fiscal_card_subtitle mb-2">
+                                Asigne esta secuencia a los diarios de venta o compra
+                                que emiten documentos fiscales SAR.
+                            </p>
+                            <group string="Documentos (facturas, FA, boletas…)">
+                                <field name="journal_fiscal_invoice_ids"
+                                       nolabel="1"
+                                       context="{'default_fiscal_sequence_id': id,
+                                                 'form_view_ref': 'kc_fiscal_hn_v18.view_account_journal_fiscal_form',
+                                                 'list_view_ref': 'kc_fiscal_hn_v18.view_account_journal_fiscal_list'}">
+                                    <list editable="bottom"
+                                          decoration-danger="fiscal_config_state in ('no_seq', 'seq_critical')"
+                                          decoration-warning="fiscal_config_state in ('no_doc', 'seq_alert')">
+                                        <field name="name"/>
+                                        <field name="code" optional="show"/>
+                                        <field name="type"/>
+                                        <field name="document_fiscal"/>
+                                        <field name="fiscal_cai_uso" string="Consumo CAI" optional="show"/>
+                                        <field name="fiscal_config_state" widget="badge" optional="show"/>
+                                    </list>
+                                </field>
+                            </group>
+                            <group string="Notas de crédito (secuencia NC)">
+                                <field name="journal_fiscal_refund_ids"
+                                       nolabel="1"
+                                       context="{'default_refund_fiscal_sequence_id': id,
+                                                 'form_view_ref': 'kc_fiscal_hn_v18.view_account_journal_fiscal_form'}">
+                                    <list editable="bottom">
+                                        <field name="name"/>
+                                        <field name="code" optional="show"/>
+                                        <field name="type"/>
+                                        <field name="document_fiscal"/>
+                                    </list>
+                                </field>
+                            </group>
+                        </div>
+
+                        <div class="o_fiscal_empty_state"
+                         invisible="id">
+                            Los rangos CAI aparecerán aquí después de guardar.
+                        </div>
+
+                        <!-- Validación compacta -->
+                        <div class="o_fiscal_card o_fiscal_validation_card"
+                         invisible="not id">
+                            <div class="o_fiscal_validation_meta">
+                                <h3 class="o_fiscal_card_title">Validación SAR</h3>
+                                <span class="o_fiscal_badge_ok"
+                         invisible="not fiscal_sequence_validated">
+                                    ✓ Secuencia validada
+                                </span>
+                                <span class="o_fiscal_badge_pending"
+                         invisible="bool(fiscal_sequence_validated)">
+                                    Pendiente de validación
+                                </span>
+                                <field name="fiscal_validation_date"
+                         invisible="not fiscal_sequence_validated"
+                         readonly="1"/>
+                                <field name="fiscal_validation_error"
+                         invisible="not fiscal_validation_error"
+                         readonly="1"/>
+                            </div>
+                            <button name="validate_fiscal_sequence_complete"
+                                    string="Validar secuencia"
+                                    type="object"
+                                    class="btn-primary"
+                                    icon="fa-check-circle"/>
+                        </div>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="ir_sequence_fiscal_list" model="ir.ui.view">
+            <field name="name">ir.sequence.list.fiscal</field>
+            <field name="model">ir.sequence</field>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <list string="Secuencias Fiscales"
+                      class="o_fiscal_sequence_list"
+                      decoration-danger="fiscal_list_vencida"
+                      decoration-warning="fiscal_list_alerta and not fiscal_list_vencida"
+                      default_order="fiscal_list_vencida desc, name">
+                    <field name="name" string="Secuencia"/>
+                    <field name="fiscal_type" string="Tipo"/>
+                    <field name="active_cai_uso_label" string="Consumido"/>
+                    <field name="active_cai_disponibles" string="Disponibles"/>
+                    <field name="active_cai_vence" string="Vence"/>
+                    <field name="active_cai_vence_label" string="Estado vencimiento"/>
+                    <field name="fiscal_list_estado"
+                           string="Estado"
+                           widget="badge"
+                           decoration-danger="fiscal_list_vencida"
+                           decoration-warning="fiscal_list_alerta and not fiscal_list_vencida"
+                           decoration-success="fiscal_list_estado == 'ok'"
+                           decoration-muted="fiscal_list_estado == 'sin_rango'"/>
+                    <field name="fiscal_sequence_validated"
+                           string="Validada"
+                           widget="boolean_toggle"
+                           optional="show"/>
+                    <field name="active" widget="boolean_toggle" optional="hide"/>
+                    <field name="fiscal_list_vencida"
+                         column_invisible="True"/>
+                    <field name="fiscal_list_alerta"
+                         column_invisible="True"/>
+                    <field name="code" optional="hide"/>
+                    <field name="prefix" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="ir_sequence_list_extended" model="ir.ui.view">
+            <field name="name">ir.sequence.list.extended</field>
+            <field name="model">ir.sequence</field>
+            <field name="inherit_id" ref="base.sequence_view_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="fiscal_type" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="is_fiscal" optional="hide"/>
+                </xpath>
+                <xpath expr="//field[@name='implementation']" position="after">
+                    <field name="fiscal_sequence_validated"
+                           optional="show"
+                         invisible="not is_fiscal"/>
+                    <field name="fiscal_validation_date"
+                           optional="hide"
+                         invisible="not is_fiscal"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="ir_sequence_search_extended" model="ir.ui.view">
+            <field name="name">ir.sequence.search.extended</field>
+            <field name="model">ir.sequence</field>
+            <field name="inherit_id" ref="base.view_sequence_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='code']" position="after">
+                    <field name="fiscal_type"/>
+                    <filter name="fiscal_sequences" string="Secuencias Fiscales"
+                            domain="[('is_fiscal', '=', True)]"/>
+                    <filter name="non_fiscal_sequences" string="Secuencias No Fiscales"
+                            domain="[('is_fiscal', '=', False)]"/>
+                    <separator/>
+                    <filter name="group_by_fiscal_type"
+                            string="Tipo fiscal"
+                            context="{'group_by': 'fiscal_type'}"/>
+                    <filter name="group_by_fiscal" string="Agrupar por Fiscal"
+                            context="{'group_by': 'is_fiscal'}"/>
+                    <separator/>
+                    <filter name="filter_vencidas"
+                            string="Vencidas o agotadas"
+                            domain="[('fiscal_list_vencida', '=', True)]"/>
+                    <filter name="filter_alerta"
+                            string="En advertencia"
+                            domain="[('fiscal_list_alerta', '=', True), ('fiscal_list_vencida', '=', False)]"/>
+                    <filter name="filter_sin_rango"
+                            string="Sin rango activo"
+                            domain="[('fiscal_list_estado', '=', 'sin_rango')]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_fiscal_sequences" model="ir.actions.act_window">
+            <field name="name">Secuencias Fiscales</field>
+            <field name="res_model">ir.sequence</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="ir_sequence_fiscal_list"/>
+            <field name="search_view_id" ref="ir_sequence_search_extended"/>
+            <field name="domain">[('is_fiscal', '=', True)]</field>
+            <field name="context">{
+                'fiscal_sequence_form': True,
+                'default_is_fiscal': True,
+                'default_use_date_range': True,
+                'default_implementation': 'no_gap',
+                'default_default_dias_alerta': 5,
+                'default_default_numeros_alerta': 10,
+            }</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crea tu primera secuencia fiscal
+                </p>
+                <p>
+                    Primero configure el encabezado (prefijo, tipo fiscal).
+                    Luego agregue los rangos CAI con fechas y correlativos SAR.
+                </p>
+            </field>
+        </record>
+
+        <record id="action_fiscal_sequences_view_list" model="ir.actions.act_window.view">
+            <field name="sequence">1</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="ir_sequence_fiscal_list"/>
+            <field name="act_window_id" ref="action_fiscal_sequences"/>
+        </record>
+
+        <record id="action_fiscal_sequences_view_form" model="ir.actions.act_window.view">
+            <field name="sequence">2</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="ir_sequence_fiscal_form"/>
+            <field name="act_window_id" ref="action_fiscal_sequences"/>
+        </record>
+
+        <!-- Alias legacy (compatibilidad) -->
+        <record id="ir_sequence_form_inherit" model="ir.actions.act_window">
+            <field name="name">Secuencias Fiscales</field>
+            <field name="res_model">ir.sequence</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="ir_sequence_fiscal_list"/>
+            <field name="search_view_id" ref="ir_sequence_search_extended"/>
+            <field name="domain">[('is_fiscal', '=', True)]</field>
+            <field name="context">{
+                'fiscal_sequence_form': True,
+                'default_is_fiscal': True,
+                'default_use_date_range': True,
+                'default_implementation': 'no_gap',
+                'default_default_dias_alerta': 5,
+                'default_default_numeros_alerta': 10,
+            }</field>
+        </record>
+
+    </data>
+</odoo>

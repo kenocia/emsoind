@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Escenario 1: Cobro masivo (CXC) -->
+    <menuitem id="menu_tesoreria_mass_payment_cxc"
+              name="Cobro masivo"
+              parent="menu_tesoreria_cxc"
+              action="action_kenocia_mass_payment_cxc"
+              sequence="12"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <!-- Escenario 1: Pago masivo (CXP) -->
+    <menuitem id="menu_tesoreria_mass_payment_cxp"
+              name="Pago masivo"
+              parent="menu_tesoreria_cxp"
+              action="action_kenocia_mass_payment_cxp"
+              sequence="12"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <!-- Escenario 2: Dispersión a proveedores (CXP) -->
+    <menuitem id="menu_tesoreria_vendor_dispersion"
+              name="Dispersión a proveedores"
+              parent="menu_tesoreria_cxp"
+              action="action_kenocia_vendor_dispersion"
+              sequence="13"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <!-- Escenario 3: Dispersión de nómina -->
+    <menuitem id="menu_tesoreria_payroll_dispersion"
+              name="Dispersión de nómina"
+              parent="menu_tesoreria_cxp"
+              action="action_kenocia_payroll_dispersion"
+              sequence="30"
+              groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+</odoo>

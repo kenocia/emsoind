@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        Ruta MARCADORA "Manufactura Manual (KC)".
+
+        Es puramente clasificatoria: se puede seleccionar en la pestaña
+        Inventario del producto para indicar que se fabrica internamente de
+        forma manual (vía Registro de Producción), en lugar de comprarse.
+
+        IMPORTANTE: no tiene reglas de stock asociadas, por lo que NO dispara
+        compras ni órdenes de fabricación automáticas. El abastecimiento se hace
+        manualmente desde el asistente de Producción de Abastecimiento. El
+        usuario debe desmarcar la ruta "Comprar" en los productos fabricados.
+
+        noupdate="1": permite que el usuario la edite/archive sin que la
+        actualización del módulo la sobrescriba.
+    -->
+    <record id="route_kc_manual_manufacture" model="stock.route">
+        <field name="name">Manufactura Manual (KC)</field>
+        <field name="product_selectable" eval="True"/>
+        <field name="product_categ_selectable" eval="True"/>
+        <field name="warehouse_selectable" eval="False"/>
+        <field name="sequence">5</field>
+    </record>
+</odoo>

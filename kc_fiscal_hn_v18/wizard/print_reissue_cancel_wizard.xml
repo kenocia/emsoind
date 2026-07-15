@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_sar_print_reissue_cancel_wizard_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn.print.reissue.cancel.wizard.form</field>
+            <field name="model">kc_fiscal_hn.print.reissue.cancel.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Cancelar reautorización pendiente">
+                    <group>
+                        <field name="move_id"/>
+                        <field name="reason" placeholder="Indique el motivo de la cancelación..."/>
+                    </group>
+                    <footer>
+                        <button name="action_cancel_authorization"
+                                string="Cancelar autorización"
+                                type="object"
+                                class="btn-primary"/>
+                        <button string="Descartar" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

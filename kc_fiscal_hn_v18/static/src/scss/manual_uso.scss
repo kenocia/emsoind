@@ -1,0 +1,67 @@
+.o_manual_fiscal_hn_form {
+    .o_form_sheet {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .card {
+        border-radius: 0.5rem;
+        transition: box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+    }
+
+    .o_manual_nav {
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    // Botones de navegación estilo "menú de Odoo": texto limpio, sin íconos.
+    .o_manual_nav_item {
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 0.35rem;
+        color: #4c4c4c;
+        font-weight: 500;
+        padding: 0.35rem 0.75rem;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .o_manual_nav_item:hover,
+    .o_manual_nav_item:focus {
+        background-color: #f0f2ff;
+        color: #714b67;
+        border-color: transparent;
+        box-shadow: none;
+    }
+
+    .o_manual_nav_item:active {
+        background-color: #714b67;
+        color: #fff;
+    }
+
+    .o_manual_section {
+        animation: o_manual_fade_in 0.25s ease;
+    }
+
+    @keyframes o_manual_fade_in {
+        from {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .table-sm th,
+    .table-sm td {
+        vertical-align: middle;
+    }
+
+    .form-check-input {
+        cursor: pointer;
+    }
+}

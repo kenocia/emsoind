@@ -1,0 +1,4 @@
+name,company_type,vat,email,phone,street,city,customer_rank,tiene_exoneracion_sar,exoneracion_fecha_vencimiento
+Empresa Ejemplo S. de R.L.,company,08019995123456,ventas@ejemplo.hn,+504 2200-0000,Col. Palmira Calle 1,Tegucigalpa,1,FALSO,
+Juan Pérez,person,0801199012345,juan.perez@correo.hn,+504 9900-0000,Barrio El Centro,San Pedro Sula,1,FALSO,
+Cliente Exonerado ONG,company,05019012528040,info@ong.hn,+504 2300-0000,Av. Los Próceres,Tegucigalpa,1,VERDADERO,2026-12-31

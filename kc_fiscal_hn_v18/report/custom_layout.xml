@@ -1,0 +1,860 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Pie legal compartido (NC, boleta, ND, guía, etc.): leyenda SAR + paginación -->
+        <template id="sar_legal_footer" name="Pie legal SAR">
+            <div class="sar-legal-footer text-center" style="width:100%; margin-top:8px; padding-top:6px; border-top:1px solid #333; font-size:9px; color:#333;">
+                <p style="margin:0 0 4px 0; font-weight:600;">
+                    La factura es beneficio de todos, ¡exíjala!
+                </p>
+                <p style="margin:0;">
+                    Página <span t-esc="sar_page_num"/> de <span t-esc="sar_total_pages"/>
+                </p>
+            </div>
+        </template>
+
+        <!-- Encabezado fiscal empresa (otros documentos: boleta, NC, guía, etc.) -->
+        <template id="sar_company_fiscal_header" name="Encabezado fiscal SAR">
+            <t t-set="company" t-value="o.company_id"/>
+            <t t-set="is_picking" t-value="o._name == 'stock.picking'"/>
+            <t t-set="doc_cai" t-value="o.cai if not is_picking else (o.cai or '')"/>
+            <t t-set="doc_num_ini" t-value="o.numeroInicial if not is_picking else (o.numeroInicial or '')"/>
+            <t t-set="doc_num_fin" t-value="o.numeroFinal if not is_picking else (o.numeroFinal or '')"/>
+            <t t-set="doc_fecha_limite" t-value="o.fechaLimiteEmision if not is_picking else o.fechaLimiteEmision"/>
+            <div class="sar-fiscal-header" style="margin-bottom:12px; border-bottom:2px solid #000; padding-bottom:8px;">
+                <div class="row">
+                    <div class="col-3" style="text-align:left;">
+                        <img t-if="company.logo"
+                             t-att-src="image_data_uri(company.logo)"
+                             style="max-height:70px; max-width:100%;" alt="Logo"/>
+                    </div>
+                    <div class="col-5" style="font-size:10px; line-height:1.35;">
+                        <strong style="font-size:12px;" t-field="company.name"/>
+                        <br/>
+                        <span>R.T.N.: </span><strong t-field="company.vat"/>
+                        <br/>
+                        <span t-field="company.street"/>
+                        <t t-if="company.street2">, <span t-field="company.street2"/></t>
+                        <br/>
+                        <span t-field="company.city"/>
+                        <t t-if="company.state_id">, <span t-field="company.state_id.name"/></t>
+                        <t t-if="company.country_id">, <span t-field="company.country_id.name"/></t>
+                        <br/>
+                        <t t-if="company.phone">Tel: <span t-field="company.phone"/></t>
+                        <t t-if="company.email"> | <span t-field="company.email"/></t>
+                    </div>
+                    <div class="col-4" style="font-size:10px; text-align:right; line-height:1.4;">
+                        <t t-if="doc_cai">
+                            <div><strong>CAI:</strong> <span t-esc="doc_cai"/></div>
+                        </t>
+                        <t t-if="doc_num_ini or doc_num_fin">
+                            <div><strong>Rango autorizado:</strong></div>
+                            <div>
+                                <span>Desde: </span><span t-esc="doc_num_ini"/>
+                                <span> — Hasta: </span><span t-esc="doc_num_fin"/>
+                            </div>
+                        </t>
+                        <t t-if="doc_fecha_limite">
+                            <div>
+                                <strong>Fecha límite de emisión:</strong>
+                                <span t-esc="doc_fecha_limite.strftime('%d/%m/%Y') if doc_fecha_limite else ''"/>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Encabezado Factura SAR (barra marca + cliente protagonista) -->
+        <template id="header_custom_layout" name="Encabezado Factura SAR">
+            <t t-set="company" t-value="o.company_id"/>
+            <t t-set="partner" t-value="o.commercial_partner_id"/>
+            <t t-set="lugar_emision" t-value="', '.join([p for p in [company.city or '', company.state_id.name if company.state_id else '', company.country_id.name if company.country_id else ''] if p])"/>
+            <t t-set="sar_invoice_date" t-value="o.invoice_date or o.date"/>
+            <t t-set="sar_fecha_limite" t-value="o.fechaLimiteEmision"/>
+            <t t-set="sar_client_ref" t-value="(o.sale_order_id.client_order_ref or '').strip() if o.sale_order_id else ''"/>
+            <t t-set="sar_vendedor" t-value="o.invoice_user_id or (o.sale_order_id.user_id if o.sale_order_id else False)"/>
+            <t t-set="sar_label"
+               t-value="(sar_print_labels or {}).get(o.id) or o.sar_print_label"/>
+
+            <!-- Barra de marca fiscal -->
+            <table style="width:100%; border-collapse:collapse; margin-bottom:14px;">
+                <tr>
+                    <td style="width:72%; vertical-align:middle; padding:14px 16px; background-color:#0c2d5e; border-radius:6px; -webkit-print-color-adjust:exact;">
+                        <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; font-weight:600; color:#bfdbfe;">
+                            Factura
+                        </div>
+                        <div style="font-size:22px; font-weight:700; color:#ffffff; letter-spacing:0.3px; line-height:1.15; margin-bottom:8px;">
+                            <span t-if="o.name != '/'" t-field="o.name"/>
+                        </div>
+                        <div>
+                            <t t-if="sar_invoice_date">
+                                <span style="display:inline-block; background-color:rgba(255,255,255,0.15); color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:600; margin:0 6px 4px 0; -webkit-print-color-adjust:exact;">
+                                    Emisión <t t-esc="sar_invoice_date.strftime('%d/%m/%Y')"/>
+                                </span>
+                            </t>
+                            <t t-if="o.invoice_date_due">
+                                <span style="display:inline-block; background-color:rgba(255,255,255,0.15); color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:600; margin:0 6px 4px 0; -webkit-print-color-adjust:exact;">
+                                    Vence <t t-esc="o.invoice_date_due.strftime('%d/%m/%Y')"/>
+                                </span>
+                            </t>
+                            <t t-if="sar_label">
+                                <span style="display:inline-block; background-color:#22c55e; color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:700; margin:0 0 4px 0; -webkit-print-color-adjust:exact;"
+                                      t-esc="sar_label"/>
+                            </t>
+                        </div>
+                    </td>
+                    <td style="width:28%; vertical-align:middle; text-align:right; padding:0 0 0 14px;">
+                        <t t-if="company.logo">
+                            <img t-att-src="image_data_uri(company.logo)"
+                                 style="max-height:72px; max-width:100%;" alt="Logo"/>
+                        </t>
+                        <t t-else="">
+                            <div style="font-size:16px; font-weight:700; color:#0c2d5e; letter-spacing:1px;">
+                                <span t-field="company.name"/>
+                            </div>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Emisor compacto + Cliente protagonista -->
+            <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+                <tr>
+                    <td style="width:38%; vertical-align:top; padding-right:8px;">
+                        <div style="border-left:3px solid #1a4fa0; padding:4px 0 4px 10px;">
+                            <div style="font-size:9px; letter-spacing:1.2px; color:#6b7280; text-transform:uppercase; margin-bottom:4px; font-weight:600;">
+                                Emisor
+                            </div>
+                            <div style="font-weight:600; color:#111827; font-size:11px; margin-bottom:3px;">
+                                <span t-field="company.name"/>
+                            </div>
+                            <div style="color:#374151; font-size:9px; line-height:1.45;">
+                                <div>
+                                    <span t-field="company.street"/>
+                                    <t t-if="company.street2">, <span t-field="company.street2"/></t>
+                                </div>
+                                <t t-set="emisor_ubicacion" t-value="', '.join([p for p in [company.city or '', company.state_id.name if company.state_id else '', company.country_id.name if company.country_id else ''] if p])"/>
+                                <div t-esc="emisor_ubicacion"/>
+                                <t t-if="company.phone">
+                                    <div>Tel: <span t-field="company.phone"/></div>
+                                </t>
+                                <div style="margin-top:3px;">
+                                    RTN <strong style="font-family:'Courier New',monospace;" t-field="company.vat"/>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width:62%; vertical-align:top; padding-left:8px;">
+                        <div style="background-color:#f0f5ff; border:1px solid #c7d7f5; border-radius:6px; padding:12px 14px; -webkit-print-color-adjust:exact;">
+                            <div style="font-size:9px; letter-spacing:1.2px; color:#1a4fa0; text-transform:uppercase; margin-bottom:4px; font-weight:700;">
+                                Cliente
+                            </div>
+                            <div style="font-weight:700; color:#0c2d5e; font-size:14px; margin-bottom:4px; line-height:1.25;">
+                                <span t-field="partner.name"/>
+                            </div>
+                            <t t-if="partner.street or partner.city">
+                                <div style="color:#374151; margin-bottom:4px; font-size:10px;">
+                                    <span t-field="partner.street"/>
+                                    <t t-if="partner.city">, <span t-field="partner.city"/></t>
+                                </div>
+                            </t>
+                            <div style="font-size:11px; color:#111827; margin-bottom:6px;">
+                                RTN
+                                <strong t-if="partner.vat"
+                                        style="font-family:'Courier New',monospace; margin-left:4px;"
+                                        t-field="partner.vat"/>
+                                <span t-else="" style="margin-left:4px; color:#9ca3af;">—</span>
+                            </div>
+                            <div style="font-size:9px; color:#6b7280; text-transform:uppercase; letter-spacing:0.8px;">
+                                Ref. cliente
+                            </div>
+                            <div style="font-weight:600; color:#111827; font-size:11px; margin-top:1px;">
+                                <t t-if="sar_client_ref" t-esc="sar_client_ref"/>
+                                <t t-else=""><span style="color:#9ca3af; font-weight:400;">—</span></t>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Franja metadatos -->
+            <table style="width:100%; border-collapse:collapse; margin-bottom:12px; background-color:#f8fafc; border:1px solid #e5e7eb; border-radius:6px; -webkit-print-color-adjust:exact;">
+                <tr>
+                    <td style="padding:8px 10px; font-size:10px; width:25%; vertical-align:top;">
+                        <div style="color:#6b7280; font-size:8px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px;">Orden interna</div>
+                        <div style="font-weight:600; color:#111827;">
+                            <t t-if="o.invoice_origin" t-esc="o.invoice_origin"/>
+                            <t t-else="">—</t>
+                        </div>
+                    </td>
+                    <td style="padding:8px 10px; font-size:10px; width:25%; vertical-align:top; border-left:1px solid #e5e7eb;">
+                        <div style="color:#6b7280; font-size:8px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px;">Vendedor</div>
+                        <div style="font-weight:600; color:#111827;">
+                            <t t-if="sar_vendedor" t-esc="sar_vendedor.name"/>
+                            <t t-else="">—</t>
+                        </div>
+                    </td>
+                    <td style="padding:8px 10px; font-size:10px; width:25%; vertical-align:top; border-left:1px solid #e5e7eb;">
+                        <div style="color:#6b7280; font-size:8px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px;">Condición de pago</div>
+                        <div style="font-weight:600; color:#111827;">
+                            <t t-if="o.invoice_payment_term_id" t-esc="o.invoice_payment_term_id.name"/>
+                            <t t-else="">—</t>
+                        </div>
+                    </td>
+                    <td style="padding:8px 10px; font-size:10px; width:25%; vertical-align:top; border-left:1px solid #e5e7eb;">
+                        <div style="color:#6b7280; font-size:8px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px;">Moneda</div>
+                        <div style="font-weight:600; color:#111827;" t-esc="o.currency_id.name"/>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <!-- Grilla metadatos compartida (NC / ND cliente) -->
+        <template id="sar_document_info_grid" name="Metadatos documento SAR cliente">
+            <table style="width:100%; max-width:520px; border-collapse:collapse; font-size:10px; color:#111827; line-height:1.55; margin-bottom:8px;">
+                <tr>
+                    <td style="width:50%; vertical-align:top; padding:1px 10px 3px 0;">
+                        <span style="color:#6b7280;">Fecha de emisión:</span>
+                        <span style="font-weight:600; color:#111827;">
+                            <t t-if="sar_invoice_date" t-esc="sar_invoice_date.strftime('%d/%m/%Y')"/>
+                            <t t-else=""><span style="color:#9ca3af; font-weight:400;">—</span></t>
+                        </span>
+                    </td>
+                    <td style="width:50%; vertical-align:top; padding:1px 0 3px 0;">
+                        <span style="color:#6b7280;">Fecha de vencimiento de factura:</span>
+                        <span style="font-weight:600; color:#111827;">
+                            <t t-if="o.invoice_date_due" t-esc="o.invoice_date_due.strftime('%d/%m/%Y')"/>
+                            <t t-else=""><span style="color:#9ca3af; font-weight:400;">—</span></t>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="vertical-align:top; padding:1px 10px 3px 0;">
+                        <span style="color:#6b7280;">Orden interna:</span>
+                        <span style="font-weight:600; color:#111827;">
+                            <t t-if="o.invoice_origin" t-esc="o.invoice_origin"/>
+                            <t t-else=""><span style="color:#9ca3af; font-weight:400;">—</span></t>
+                        </span>
+                    </td>
+                    <td style="vertical-align:top; padding:1px 0 3px 0;">
+                        <span style="color:#6b7280;">Vendedor:</span>
+                        <span style="font-weight:600; color:#111827;">
+                            <t t-if="sar_vendedor" t-esc="sar_vendedor.name"/>
+                            <t t-else=""><span style="color:#9ca3af; font-weight:400;">—</span></t>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <!-- Bloque cliente apilado SAR (NC / ND cliente) -->
+        <template id="sar_customer_stacked_block" name="Bloque cliente apilado SAR">
+            <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:10px; color:#111827;">
+                <tr>
+                    <td style="border:1px solid #1a4fa0; padding:5px 8px; -webkit-print-color-adjust:exact;">
+                        <strong style="color:#111827;">Cliente:</strong>
+                        <span t-field="partner.name"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; padding:5px 8px;">
+                        <strong style="color:#111827;">RTN:</strong>
+                        <span t-if="partner.vat" style="font-family:'Courier New',monospace; font-weight:600; color:#111827;" t-field="partner.vat"/>
+                        <span t-else="" style="color:#111827;">—</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; padding:5px 8px;">
+                        <strong style="color:#111827;">Referencia del cliente:</strong>
+                        <t t-if="sar_client_ref">
+                            <span style="font-weight:600; color:#111827;" t-esc="sar_client_ref"/>
+                        </t>
+                        <t t-else="">
+                            <span style="color:#111827;">—</span>
+                        </t>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; border-bottom:1px solid #1a4fa0; padding:5px 8px;">
+                        <strong style="color:#111827;">Factura afectada:</strong>
+                        <t t-if="o.reversed_entry_id">
+                            <span style="font-weight:600; color:#111827;" t-field="o.reversed_entry_id.name"/>
+                        </t>
+                        <t t-elif="'debit_origin_id' in o._fields and o.debit_origin_id">
+                            <span style="font-weight:600; color:#111827;" t-field="o.debit_origin_id.name"/>
+                        </t>
+                        <t t-elif="o.ref">
+                            <span t-field="o.ref"/>
+                        </t>
+                        <t t-else="">
+                            <span style="color:#111827;">—</span>
+                        </t>
+                    </td>
+                </tr>
+                <t t-if="o.motivo_emision">
+                    <tr>
+                        <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; border-bottom:1px solid #1a4fa0; padding:5px 8px; background-color:#f7f8fa; -webkit-print-color-adjust:exact;">
+                            <strong style="color:#111827;">Motivo:</strong>
+                            <span t-field="o.motivo_emision"/>
+                        </td>
+                    </tr>
+                </t>
+            </table>
+        </template>
+
+        <!-- Encabezado Nota de Crédito SAR — estructura Studio + estilo EMSOIND 2026 -->
+        <template id="header_credit_note_layout" name="Encabezado Nota de Crédito SAR">
+            <t t-set="company" t-value="o.company_id"/>
+            <t t-set="partner" t-value="o.commercial_partner_id"/>
+            <t t-set="emisor_ubicacion" t-value="', '.join([p for p in [company.city or '', company.state_id.name if company.state_id else '', company.country_id.name if company.country_id else ''] if p])"/>
+            <t t-set="sar_invoice_date" t-value="o.invoice_date or o.date"/>
+            <t t-set="sar_fecha_limite" t-value="o.fechaLimiteEmision"/>
+            <t t-set="sar_client_ref" t-value="(o.sale_order_id.client_order_ref or '').strip() if o.sale_order_id else ''"/>
+            <t t-set="sar_vendedor" t-value="o.invoice_user_id or (o.sale_order_id.user_id if o.sale_order_id else False)"/>
+
+            <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+                <tr>
+                    <td style="width:35%; vertical-align:top; font-size:10px; color:#111827; line-height:1.45; padding-right:8px;">
+                        <strong style="font-size:11px; color:#111827;" t-field="company.name"/>
+                        <br/>
+                        <t t-if="company.street"><span t-field="company.street"/><br/></t>
+                        <t t-if="company.street2"><span t-field="company.street2"/><br/></t>
+                        <t t-if="emisor_ubicacion"><span t-esc="emisor_ubicacion"/><br/></t>
+                        <t t-if="company.vat">
+                            <span>RTN: </span>
+                            <span style="font-family:'Courier New',monospace; font-weight:600; color:#111827;" t-field="company.vat"/>
+                            <br/>
+                        </t>
+                        <t t-if="company.phone">
+                            <span>Tel: </span><span t-field="company.phone"/><br/>
+                        </t>
+                        <t t-if="company.email"><span t-field="company.email"/></t>
+                    </td>
+                    <td style="width:30%; vertical-align:middle; text-align:center;">
+                        <img t-if="company.logo"
+                             t-att-src="image_data_uri(company.logo)"
+                             style="max-height:70px; max-width:180px;" alt="Logo"/>
+                    </td>
+                    <td style="width:35%; vertical-align:top; text-align:right; font-size:10px; color:#111827; line-height:1.5; padding-left:8px;">
+                        <div style="font-size:9px; color:#111827; margin-bottom:6px; line-height:1.35;">
+                            <strong>Original: Cliente — Copia: Obligado Tributario Emisor</strong>
+                        </div>
+                        <div style="font-size:11px; letter-spacing:1.2px; color:#1a4fa0; text-transform:uppercase; font-weight:600; margin-bottom:4px;">
+                            Nota de crédito
+                        </div>
+                        <div style="font-size:16px; font-weight:600; color:#111827; margin-bottom:6px;">
+                            <span t-if="o.name != '/'" t-field="o.name"/>
+                        </div>
+                        <t t-call="kc_fiscal_hn_v18.sar_document_info_grid"/>
+                    </td>
+                </tr>
+            </table>
+
+            <t t-call="kc_fiscal_hn_v18.sar_customer_stacked_block"/>
+        </template>
+
+        <!-- Encabezado Nota de Débito SAR cliente -->
+        <template id="header_debit_note_layout" name="Encabezado Nota de Débito SAR">
+            <t t-set="company" t-value="o.company_id"/>
+            <t t-set="partner" t-value="o.commercial_partner_id"/>
+            <t t-set="emisor_ubicacion" t-value="', '.join([p for p in [company.city or '', company.state_id.name if company.state_id else '', company.country_id.name if company.country_id else ''] if p])"/>
+            <t t-set="sar_invoice_date" t-value="o.invoice_date or o.date"/>
+            <t t-set="sar_fecha_limite" t-value="o.fechaLimiteEmision"/>
+            <t t-set="sar_client_ref" t-value="(o.sale_order_id.client_order_ref or '').strip() if o.sale_order_id else ''"/>
+            <t t-set="sar_vendedor" t-value="o.invoice_user_id or (o.sale_order_id.user_id if o.sale_order_id else False)"/>
+
+            <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+                <tr>
+                    <td style="width:35%; vertical-align:top; font-size:10px; color:#111827; line-height:1.45; padding-right:8px;">
+                        <strong style="font-size:11px; color:#111827;" t-field="company.name"/>
+                        <br/>
+                        <t t-if="company.street"><span t-field="company.street"/><br/></t>
+                        <t t-if="company.street2"><span t-field="company.street2"/><br/></t>
+                        <t t-if="emisor_ubicacion"><span t-esc="emisor_ubicacion"/><br/></t>
+                        <t t-if="company.vat">
+                            <span>RTN: </span>
+                            <span style="font-family:'Courier New',monospace; font-weight:600; color:#111827;" t-field="company.vat"/>
+                            <br/>
+                        </t>
+                        <t t-if="company.phone">
+                            <span>Tel: </span><span t-field="company.phone"/><br/>
+                        </t>
+                        <t t-if="company.email"><span t-field="company.email"/></t>
+                    </td>
+                    <td style="width:30%; vertical-align:middle; text-align:center;">
+                        <img t-if="company.logo"
+                             t-att-src="image_data_uri(company.logo)"
+                             style="max-height:70px; max-width:180px;" alt="Logo"/>
+                    </td>
+                    <td style="width:35%; vertical-align:top; text-align:right; font-size:10px; color:#111827; line-height:1.5; padding-left:8px;">
+                        <div style="font-size:9px; color:#111827; margin-bottom:6px; line-height:1.35;">
+                            <strong>Original: Cliente — Copia: Obligado Tributario Emisor</strong>
+                        </div>
+                        <div style="font-size:11px; letter-spacing:1.2px; color:#1a4fa0; text-transform:uppercase; font-weight:600; margin-bottom:4px;">
+                            Nota de débito
+                        </div>
+                        <div style="font-size:16px; font-weight:600; color:#111827; margin-bottom:6px;">
+                            <span t-if="o.name != '/'" t-field="o.name"/>
+                        </div>
+                        <t t-call="kc_fiscal_hn_v18.sar_document_info_grid"/>
+                    </td>
+                </tr>
+            </table>
+
+            <t t-call="kc_fiscal_hn_v18.sar_customer_stacked_block"/>
+        </template>
+
+        <!-- Bloque totales SAR Nota de Crédito (columna derecha) -->
+        <template id="credit_note_totals_block" name="Totales Nota de Crédito SAR">
+            <table style="width:100%; border-collapse:collapse; font-size:10px; color:#111827;">
+                <tr>
+                    <td style="border:1px solid #1a4fa0; padding:4px 6px;">Subtotal base</td>
+                    <td style="border:1px solid #1a4fa0; padding:4px 6px; text-align:right; color:#111827;">
+                        <span t-field="o.amount_untaxed" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; padding:4px 6px;">Descuentos / rebajas</td>
+                    <td style="border-right:1px solid #1a4fa0; padding:4px 6px; text-align:right; color:#111827;">
+                        <span t-esc="-o.amount_discount" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; padding:4px 6px;">Importe exento</td>
+                    <td style="border-right:1px solid #1a4fa0; padding:4px 6px; text-align:right; color:#111827;">
+                        <span t-field="o.amount_exento" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; padding:4px 6px;">Importe exonerado</td>
+                    <td style="border-right:1px solid #1a4fa0; padding:4px 6px; text-align:right; color:#111827;">
+                        <span t-field="o.amount_exonerado" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; padding:4px 6px;">Importe gravado 15%</td>
+                    <td style="border-right:1px solid #1a4fa0; padding:4px 6px; text-align:right; color:#111827;">
+                        <span t-field="o.gravado_isv15" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; padding:4px 6px;">Importe gravado 18%</td>
+                    <td style="border-right:1px solid #1a4fa0; padding:4px 6px; text-align:right; color:#111827;">
+                        <span t-field="o.gravado_isv18" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; padding:4px 6px;">ISV 15%</td>
+                    <td style="border-right:1px solid #1a4fa0; padding:4px 6px; text-align:right; color:#111827;">
+                        <span t-field="o.amount_isv15" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #1a4fa0; border-right:1px solid #1a4fa0; padding:4px 6px;">ISV 18%</td>
+                    <td style="border-right:1px solid #1a4fa0; padding:4px 6px; text-align:right; color:#111827;">
+                        <span t-field="o.amount_isv18" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #0c2d5e; padding:6px 8px; background-color:#0c2d5e; color:#fff; font-weight:600; font-size:11px; -webkit-print-color-adjust:exact;">
+                        Total nota de crédito
+                    </td>
+                    <td style="border:1px solid #0c2d5e; padding:6px 8px; text-align:right; background-color:#0c2d5e; color:#fff; font-weight:600; font-size:12px; -webkit-print-color-adjust:exact;">
+                        <span t-field="o.amount_total" t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <!-- Pie fiscal completo Factura SAR (solo última página del reporte) -->
+        <template id="invoice_sar_fiscal_footer" name="Pie fiscal Factura SAR">
+            <t t-set="company" t-value="o.company_id"/>
+            <t t-set="lugar_emision" t-value="', '.join([p for p in [company.city or '', company.state_id.name if company.state_id else '', company.country_id.name if company.country_id else ''] if p])"/>
+            <div class="invoice-sar-fiscal-footer"
+                 style="margin-top:14px; border:1px solid #c7d7f5; border-radius:6px; overflow:hidden; -webkit-print-color-adjust:exact;">
+                <div style="background-color:#0c2d5e; padding:6px 12px; text-align:center; -webkit-print-color-adjust:exact;">
+                    <span style="font-weight:700; font-size:10px; color:#ffffff; letter-spacing:0.3px;">
+                        La factura es beneficio de todos, ¡exíjala!
+                    </span>
+                </div>
+                <div style="background-color:#f0f5ff; padding:8px 12px; text-align:center; font-size:8.5px; color:#374151; line-height:1.55; -webkit-print-color-adjust:exact;">
+                    <t t-if="o.cai">
+                        <div style="margin-bottom:4px; white-space:nowrap; font-size:11px; font-weight:700; color:#0c2d5e; letter-spacing:0.6px; font-family:'Courier New',monospace;">
+                            <span style="font-size:9px; letter-spacing:1px; color:#1a4fa0; text-transform:uppercase; font-weight:700; font-family:inherit;">CAI</span>
+                            <span style="margin-left:6px;" t-esc="o.cai"/>
+                        </div>
+                    </t>
+                    <div style="margin-bottom:4px;">
+                        <t t-if="o.numeroInicial or o.numeroFinal">
+                            Rango
+                            <strong style="color:#111827;" t-esc="o.numeroInicial or ''"/>
+                            al
+                            <strong style="color:#111827;" t-esc="o.numeroFinal or ''"/>
+                        </t>
+                        <t t-if="o.fechaLimiteEmision">
+                            <t t-if="o.numeroInicial or o.numeroFinal"> · </t>
+                            Fecha límite de emisión
+                            <strong style="color:#111827;" t-esc="o.fechaLimiteEmision.strftime('%d/%m/%Y')"/>
+                        </t>
+                        <t t-if="lugar_emision">
+                            <t t-if="o.numeroInicial or o.numeroFinal or o.fechaLimiteEmision"> · </t>
+                            <strong style="color:#111827;" t-esc="lugar_emision"/>
+                        </t>
+                    </div>
+                    <div style="margin-bottom:5px;">
+                        <t t-if="company.fiscal_resolution">
+                            Resolución:
+                            <strong style="color:#111827;" t-esc="company.fiscal_resolution"/>
+                            <t t-if="company.fiscal_resolution_date">
+                                (<strong t-esc="company.fiscal_resolution_date.strftime('%d/%m/%Y')"/>)
+                            </t>
+                            <span> · </span>
+                        </t>
+                        Pág. <span t-esc="sar_page_num"/> de <span t-esc="sar_total_pages"/>
+                    </div>
+                    <div style="font-weight:700; font-size:9.5px; color:#1a4fa0; letter-spacing:0.2px;">
+                        El no pago de esta factura al vencimiento generará un 3% de recargo mensual
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="header_custom_layout_picking" name="Encabezado Guía Remisión SAR">
+            <t t-set="company" t-value="o.company_id"/>
+            <t t-set="partner" t-value="o.partner_id.commercial_partner_id or o.partner_id"/>
+            <t t-set="guia_fecha" t-value="o.scheduled_date or o.date_done or o.date"/>
+
+            <table style="width:100%; border-collapse:collapse; margin-bottom:14px;">
+                <tr>
+                    <td style="width:35%; vertical-align:top; font-size:10px; color:#111827; line-height:1.45; padding-right:8px;">
+                        <strong style="font-size:11px; color:#111827;" t-field="company.name"/>
+                        <br/>
+                        <t t-if="company.street"><span t-field="company.street"/><br/></t>
+                        <t t-if="company.city">
+                            <span t-field="company.city"/>
+                            <t t-if="company.state_id">, <span t-field="company.state_id.name"/></t>
+                            <br/>
+                        </t>
+                        <t t-if="company.vat">
+                            RTN:
+                            <span style="font-family:'Courier New',monospace; font-weight:600; color:#111827;" t-field="company.vat"/>
+                        </t>
+                    </td>
+                    <td style="width:30%; vertical-align:middle; text-align:center;">
+                        <img t-if="company.logo"
+                             t-att-src="image_data_uri(company.logo)"
+                             style="max-height:70px; max-width:180px;" alt="Logo"/>
+                    </td>
+                    <td style="width:35%; vertical-align:top; text-align:right; font-size:10px; color:#111827; line-height:1.5; padding-left:8px;">
+                        <div style="font-size:9px; color:#111827; margin-bottom:6px; line-height:1.35;">
+                            Original: Destinatario · Copia 1: Emisor · Copia 2: SAR
+                        </div>
+                        <div style="font-size:11px; letter-spacing:1.2px; color:#1a4fa0; text-transform:uppercase; font-weight:600; margin-bottom:4px;">
+                            Guía de remisión
+                        </div>
+                        <div style="font-size:16px; font-weight:600; color:#111827; margin-bottom:6px;">
+                            <span t-if="o.sar_name" t-field="o.sar_name"/>
+                            <span t-else="" t-field="o.name"/>
+                        </div>
+                        <div>
+                            <span>Fecha: </span>
+                            <span style="font-weight:600; color:#111827;"
+                                  t-esc="guia_fecha.strftime('%d/%m/%Y') if guia_fecha else ''"/>
+                        </div>
+                        <t t-if="o.cai">
+                            <div style="margin-top:4px;">
+                                <span>CAI: </span>
+                                <span style="font-family:'Courier New',monospace; font-weight:600; color:#111827;" t-field="o.cai"/>
+                            </div>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <!-- Bloque datos traslado guía remisión -->
+        <template id="guia_remision_info_block" name="Bloque datos Guía Remisión">
+            <t t-set="dest_partner" t-value="o.partner_id.commercial_partner_id or o.partner_id"/>
+            <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:10px;">
+                <tr>
+                    <td style="width:50%; vertical-align:top; padding:0 6px 0 0;">
+                        <div style="background-color:#f7f8fa; border:1px solid #e5e7eb; border-radius:6px; padding:10px 12px; min-height:95px; -webkit-print-color-adjust:exact;">
+                            <div style="font-size:9px; letter-spacing:1px; color:#111827; text-transform:uppercase; margin-bottom:6px;">
+                                Remitente
+                            </div>
+                            <div style="font-weight:600; color:#111827; margin-bottom:4px;">
+                                <span t-field="o.company_id.name"/>
+                            </div>
+                            <div style="color:#111827; margin-bottom:2px;">
+                                RTN:
+                                <span style="font-family:'Courier New',monospace; font-weight:600;" t-field="o.company_id.vat"/>
+                            </div>
+                            <div style="color:#111827;">
+                                <span t-esc="o._get_guia_punto_partida()"/>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width:50%; vertical-align:top; padding:0 0 0 6px;">
+                        <div style="background-color:#f7f8fa; border:1px solid #e5e7eb; border-radius:6px; padding:10px 12px; min-height:95px; -webkit-print-color-adjust:exact;">
+                            <div style="font-size:9px; letter-spacing:1px; color:#111827; text-transform:uppercase; margin-bottom:6px;">
+                                Destinatario
+                            </div>
+                            <div style="font-weight:600; color:#111827; margin-bottom:4px;">
+                                <span t-field="dest_partner.name"/>
+                            </div>
+                            <div style="color:#111827; margin-bottom:2px;">
+                                RTN:
+                                <t t-if="dest_partner.vat">
+                                    <span style="font-family:'Courier New',monospace; font-weight:600;" t-field="dest_partner.vat"/>
+                                </t>
+                                <t t-else="">—</t>
+                            </div>
+                            <div style="color:#111827;">
+                                <span t-esc="o._get_guia_punto_destino()"/>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:10px; color:#111827;">
+                <tr>
+                    <td style="width:25%; padding:4px 8px 4px 0; vertical-align:top;">
+                        <span style="color:#111827; text-transform:uppercase; font-size:9px; letter-spacing:0.6px;">Motivo traslado</span><br/>
+                        <span style="font-weight:600; color:#111827;" t-esc="o._get_motivo_traslado_label()"/>
+                    </td>
+                    <td style="width:25%; padding:4px 8px; vertical-align:top;">
+                        <span style="color:#111827; text-transform:uppercase; font-size:9px; letter-spacing:0.6px;">Referencia</span><br/>
+                        <span style="font-weight:600; color:#111827;" t-field="o.origin"/>
+                    </td>
+                    <td style="width:25%; padding:4px 8px; vertical-align:top;">
+                        <span style="color:#111827; text-transform:uppercase; font-size:9px; letter-spacing:0.6px;">Entrega Odoo</span><br/>
+                        <span style="font-weight:600; color:#111827;" t-field="o.name"/>
+                    </td>
+                    <td style="width:25%; padding:4px 0 4px 8px; vertical-align:top;">
+                        <span style="color:#111827; text-transform:uppercase; font-size:9px; letter-spacing:0.6px;">Estado</span><br/>
+                        <span style="font-weight:600; color:#111827;" t-field="o.state"/>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <!-- Bloque transportista guía remisión -->
+        <template id="guia_remision_transport_block" name="Bloque transportista Guía Remisión">
+            <div style="margin-top:16px; page-break-inside:avoid;">
+                <div style="font-size:10px; letter-spacing:1px; color:#1a4fa0; text-transform:uppercase; font-weight:600; margin-bottom:8px; border-bottom:2px solid #1a4fa0; padding-bottom:4px;">
+                    Datos del transportista
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:10px; color:#111827;">
+                    <tr>
+                        <td style="width:50%; padding:6px 8px 6px 0; vertical-align:top;">
+                            <span style="color:#111827;">Nombre: </span>
+                            <span style="font-weight:600; color:#111827;" t-field="o.transporter_name"/>
+                        </td>
+                        <td style="width:50%; padding:6px 0 6px 8px; vertical-align:top;">
+                            <span style="color:#111827;">RTN / Identidad: </span>
+                            <span style="font-weight:600; color:#111827;" t-field="o.transporter_rtn"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 8px 6px 0; vertical-align:top;">
+                            <span style="color:#111827;">Marca y placa: </span>
+                            <span style="font-weight:600; color:#111827;" t-field="o.vehicle_info"/>
+                        </td>
+                        <td style="padding:6px 0 6px 8px; vertical-align:top;">
+                            <span style="color:#111827;">Licencia: </span>
+                            <span style="font-weight:600; color:#111827;" t-field="o.driver_license"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </template>
+
+        <!-- Encabezado Salida de Inventario -->
+        <template id="header_salida_inventario_layout" name="Encabezado Salida de Inventario">
+            <t t-set="company" t-value="o.company_id"/>
+            <t t-set="salida_fecha_prog" t-value="o.scheduled_date"/>
+            <t t-set="salida_fecha_val" t-value="o.date_done"/>
+
+            <table style="width:100%; border-collapse:collapse; margin-bottom:14px;">
+                <tr>
+                    <td style="width:72%; vertical-align:middle; padding:14px 16px; background-color:#0c2d5e; border-radius:6px; -webkit-print-color-adjust:exact;">
+                        <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; font-weight:600; color:#bfdbfe;">
+                            Comprobante de entrega
+                        </div>
+                        <div style="font-size:22px; font-weight:700; color:#ffffff; letter-spacing:0.3px; line-height:1.15; margin-bottom:8px;">
+                            <span t-field="o.name"/>
+                        </div>
+                        <div>
+                            <t t-if="salida_fecha_prog">
+                                <span style="display:inline-block; background-color:rgba(255,255,255,0.15); color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:600; margin:0 6px 4px 0; -webkit-print-color-adjust:exact;">
+                                    Programada <t t-esc="salida_fecha_prog.strftime('%d/%m/%Y %H:%M')"/>
+                                </span>
+                            </t>
+                            <t t-if="salida_fecha_val">
+                                <span style="display:inline-block; background-color:rgba(255,255,255,0.15); color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:600; margin:0 6px 4px 0; -webkit-print-color-adjust:exact;">
+                                    Validación <t t-esc="salida_fecha_val.strftime('%d/%m/%Y %H:%M')"/>
+                                </span>
+                            </t>
+                            <t t-if="o.state == 'done'">
+                                <span style="display:inline-block; background-color:#22c55e; color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:700; margin:0 0 4px 0; -webkit-print-color-adjust:exact;">
+                                    Hecho
+                                </span>
+                            </t>
+                        </div>
+                    </td>
+                    <td style="width:28%; vertical-align:middle; text-align:right; padding:0 0 0 14px;">
+                        <t t-if="company.logo">
+                            <img t-att-src="image_data_uri(company.logo)"
+                                 style="max-height:72px; max-width:100%;" alt="Logo"/>
+                        </t>
+                        <t t-else="">
+                            <div style="font-size:16px; font-weight:700; color:#0c2d5e;">
+                                <span t-field="company.name"/>
+                            </div>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Empresa emisora compacta + metadatos documento -->
+            <table style="width:100%; border-collapse:collapse; margin-bottom:12px;">
+                <tr>
+                    <td style="width:55%; vertical-align:top; padding-right:10px;">
+                        <div style="border-left:3px solid #1a4fa0; padding:4px 0 4px 10px;">
+                            <div style="font-weight:600; color:#111827; font-size:11px; margin-bottom:3px;">
+                                <span t-field="company.name"/>
+                            </div>
+                            <div style="color:#374151; font-size:9px; line-height:1.45;">
+                                <t t-if="company.street"><div t-field="company.street"/></t>
+                                <t t-if="company.city">
+                                    <div>
+                                        <span t-field="company.city"/>
+                                        <t t-if="company.state_id">, <span t-field="company.state_id.name"/></t>
+                                        <t t-if="company.country_id">, <span t-field="company.country_id.name"/></t>
+                                    </div>
+                                </t>
+                                <div style="margin-top:3px;">
+                                    <t t-if="company.vat">
+                                        RTN <strong style="font-family:'Courier New',monospace;" t-field="company.vat"/>
+                                    </t>
+                                    <t t-if="company.phone">
+                                        <span> · Tel: </span><span t-field="company.phone"/>
+                                    </t>
+                                </div>
+                                <t t-if="company.email">
+                                    <div>Email: <span t-field="company.email"/></div>
+                                </t>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width:45%; vertical-align:top; padding-left:6px;">
+                        <table style="width:100%; border-collapse:collapse; background-color:#f8fafc; border:1px solid #e5e7eb; border-radius:6px; font-size:10px; -webkit-print-color-adjust:exact;">
+                            <tr>
+                                <td style="padding:8px 10px; width:50%; vertical-align:top; border-right:1px solid #e5e7eb;">
+                                    <div style="color:#6b7280; font-size:8px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px;">Referencia</div>
+                                    <div style="font-weight:600; color:#111827;">
+                                        <t t-if="o.origin" t-esc="o.origin"/>
+                                        <t t-else="">—</t>
+                                    </div>
+                                </td>
+                                <td style="padding:8px 10px; width:50%; vertical-align:top;">
+                                    <div style="color:#6b7280; font-size:8px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px;">Factura</div>
+                                    <div style="min-height:14px; border-bottom:1px solid #9ca3af; color:#111827; font-weight:600;">&#160;</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <!-- Bloque datos generales salida de inventario -->
+        <template id="salida_inventario_info_block" name="Bloque datos Salida de Inventario">
+            <t t-set="dest_partner" t-value="o.partner_id.commercial_partner_id or o.partner_id"/>
+            <t t-set="delivery_partner" t-value="o._get_salida_delivery_partner()"/>
+            <t t-set="warehouse_name" t-value="o._get_salida_warehouse_name()"/>
+            <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:10px;">
+                <tr>
+                    <td style="width:50%; vertical-align:top; padding:0 6px 0 0;">
+                        <div style="background-color:#f0f5ff; border:1px solid #c7d7f5; border-radius:6px; padding:12px 14px; min-height:88px; -webkit-print-color-adjust:exact;">
+                            <div style="font-size:9px; letter-spacing:1.2px; color:#1a4fa0; text-transform:uppercase; margin-bottom:4px; font-weight:700;">
+                                Cliente / Destinatario
+                            </div>
+                            <div style="font-weight:700; color:#0c2d5e; font-size:13px; margin-bottom:4px; line-height:1.25;">
+                                <span t-field="dest_partner.name"/>
+                            </div>
+                            <t t-if="dest_partner.vat">
+                                <div style="color:#111827; font-size:11px;">
+                                    RTN
+                                    <strong style="font-family:'Courier New',monospace; margin-left:4px;" t-field="dest_partner.vat"/>
+                                </div>
+                            </t>
+                        </div>
+                    </td>
+                    <td style="width:50%; vertical-align:top; padding:0 0 0 6px;">
+                        <div style="border-left:3px solid #1a4fa0; padding:8px 0 8px 12px; min-height:88px;">
+                            <div style="font-size:9px; letter-spacing:1.2px; color:#6b7280; text-transform:uppercase; margin-bottom:4px; font-weight:600;">
+                                Dirección de entrega
+                            </div>
+                            <t t-if="delivery_partner">
+                                <div style="font-weight:600; color:#111827; margin-bottom:4px; font-size:11px;">
+                                    <span t-field="delivery_partner.name"/>
+                                </div>
+                                <div style="color:#374151; line-height:1.45; font-size:10px;">
+                                    <span t-field="delivery_partner.contact_address"/>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div style="color:#9ca3af;">—</div>
+                            </t>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding-top:8px;">
+                        <table style="width:100%; border-collapse:collapse; background-color:#f8fafc; border:1px solid #e5e7eb; border-radius:6px; -webkit-print-color-adjust:exact;">
+                            <tr>
+                                <td style="padding:8px 10px; width:34%; vertical-align:top; border-right:1px solid #e5e7eb;">
+                                    <div style="color:#6b7280; font-size:8px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px;">Bodega origen</div>
+                                    <div style="font-weight:600; color:#111827;" t-esc="warehouse_name or '—'"/>
+                                </td>
+                                <td style="padding:8px 10px; width:33%; vertical-align:top; border-right:1px solid #e5e7eb;">
+                                    <div style="color:#6b7280; font-size:8px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px;">Operación</div>
+                                    <div style="font-weight:600; color:#111827;" t-field="o.picking_type_id.name"/>
+                                </td>
+                                <td style="padding:8px 10px; width:33%; vertical-align:top;">
+                                    <div style="color:#6b7280; font-size:8px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px;">Estado</div>
+                                    <div style="font-weight:600; color:#111827;" t-field="o.state"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <template id="salida_inventario_footer" name="Pie Salida de Inventario">
+            <div style="margin-top:16px; border:1px solid #c7d7f5; border-radius:6px; overflow:hidden; -webkit-print-color-adjust:exact;">
+                <div style="background-color:#0c2d5e; padding:5px 12px; text-align:center; -webkit-print-color-adjust:exact;">
+                    <span style="font-weight:700; font-size:9px; color:#ffffff; letter-spacing:0.3px;">
+                        Comprobante de entrega de productos
+                    </span>
+                </div>
+                <div style="background-color:#f0f5ff; padding:6px 12px; text-align:center; font-size:9px; color:#374151; -webkit-print-color-adjust:exact;">
+                    Página <span class="page"/> de <span class="topage"/>
+                </div>
+            </div>
+        </template>
+
+        <template id="footer_custom_layout" name="Pie Factura SAR">
+            <t t-call="kc_fiscal_hn_v18.invoice_sar_fiscal_footer"/>
+        </template>
+
+        <template id="footer_credit_note_layout" name="Pie Nota de Crédito SAR">
+            <t t-call="kc_fiscal_hn_v18.invoice_sar_fiscal_footer"/>
+        </template>
+
+    </data>
+</odoo>

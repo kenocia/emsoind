@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- ACCIONES ACTIVAS — Cheques / Transferencias / Efectivo       -->
+    <!-- ============================================================ -->
+
+    <!-- CXC — Cheques -->
+    <record id="action_kenocia_payment_cxc_cheque" model="ir.actions.act_window">
+        <field name="name">Cheques CXC</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('tesoreria_type', '=', 'cheque'),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'inbound',
+            'default_partner_type': 'customer',
+            'default_tesoreria_type': 'cheque',
+            'default_move_journal_types': ('bank',),
+        }</field>
+    </record>
+    <record id="action_kenocia_payment_cxc_cheque_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_account_payment_list_kenocia_tesoreria"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxc_cheque"/>
+    </record>
+    <record id="action_kenocia_payment_cxc_cheque_view_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_kenocia_payment_cheque_form"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxc_cheque"/>
+    </record>
+
+    <!-- CXP — Cheques -->
+    <record id="action_kenocia_payment_cxp_cheque" model="ir.actions.act_window">
+        <field name="name">Cheques CXP</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'outbound'),
+            ('tesoreria_type', '=', 'cheque'),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'outbound',
+            'default_partner_type': 'supplier',
+            'default_tesoreria_type': 'cheque',
+            'default_move_journal_types': ('bank',),
+        }</field>
+    </record>
+    <record id="action_kenocia_payment_cxp_cheque_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="account.view_account_supplier_payment_tree"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxp_cheque"/>
+    </record>
+    <record id="action_kenocia_payment_cxp_cheque_view_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_kenocia_payment_cheque_form"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxp_cheque"/>
+    </record>
+
+    <!-- CXC — Transferencias -->
+    <record id="action_kenocia_payment_cxc_transfer" model="ir.actions.act_window">
+        <field name="name">Transferencias CXC</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('tesoreria_type', 'in', ('transferencia', 'transferencia_banco')),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'inbound',
+            'default_partner_type': 'customer',
+            'default_tesoreria_type': 'transferencia',
+            'default_move_journal_types': ('bank',),
+        }</field>
+    </record>
+    <record id="action_kenocia_payment_cxc_transfer_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_account_payment_list_kenocia_tesoreria"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxc_transfer"/>
+    </record>
+    <record id="action_kenocia_payment_cxc_transfer_view_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_kenocia_payment_transfer_form"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxc_transfer"/>
+    </record>
+
+    <!-- CXP — Transferencias -->
+    <record id="action_kenocia_payment_cxp_transfer" model="ir.actions.act_window">
+        <field name="name">Transferencias CXP</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'outbound'),
+            ('tesoreria_type', 'in', ('transferencia', 'transferencia_banco')),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'outbound',
+            'default_partner_type': 'supplier',
+            'default_tesoreria_type': 'transferencia',
+            'default_move_journal_types': ('bank',),
+        }</field>
+    </record>
+    <record id="action_kenocia_payment_cxp_transfer_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="account.view_account_supplier_payment_tree"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxp_transfer"/>
+    </record>
+    <record id="action_kenocia_payment_cxp_transfer_view_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_kenocia_payment_transfer_form"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxp_transfer"/>
+    </record>
+
+    <!-- CXC — Efectivo -->
+    <record id="action_kenocia_payment_cxc_cash" model="ir.actions.act_window">
+        <field name="name">Efectivo CXC</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('tesoreria_type', '=', 'efectivo'),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'inbound',
+            'default_partner_type': 'customer',
+            'default_tesoreria_type': 'efectivo',
+            'default_move_journal_types': ('cash',),
+        }</field>
+    </record>
+    <record id="action_kenocia_payment_cxc_cash_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_account_payment_list_kenocia_tesoreria"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxc_cash"/>
+    </record>
+    <record id="action_kenocia_payment_cxc_cash_view_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_kenocia_payment_cash_form"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxc_cash"/>
+    </record>
+
+    <!-- CXP — Efectivo -->
+    <record id="action_kenocia_payment_cxp_cash" model="ir.actions.act_window">
+        <field name="name">Efectivo CXP</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'outbound'),
+            ('tesoreria_type', '=', 'efectivo'),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'outbound',
+            'default_partner_type': 'supplier',
+            'default_tesoreria_type': 'efectivo',
+            'default_move_journal_types': ('cash',),
+        }</field>
+    </record>
+    <record id="action_kenocia_payment_cxp_cash_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="account.view_account_supplier_payment_tree"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxp_cash"/>
+    </record>
+    <record id="action_kenocia_payment_cxp_cash_view_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_kenocia_payment_cash_form"/>
+        <field name="act_window_id" ref="action_kenocia_payment_cxp_cash"/>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- ACCIONES PREPARADAS — Depósito / Débito / Crédito (sin menú) -->
+    <!-- ============================================================ -->
+
+    <record id="action_kenocia_payment_cxc_deposito" model="ir.actions.act_window">
+        <field name="name">Depósitos CXC</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('tesoreria_type', '=', 'deposito'),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'inbound',
+            'default_partner_type': 'customer',
+            'default_tesoreria_type': 'deposito',
+            'default_move_journal_types': ('bank',),
+        }</field>
+    </record>
+
+    <record id="action_kenocia_payment_cxp_deposito" model="ir.actions.act_window">
+        <field name="name">Depósitos CXP</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'outbound'),
+            ('tesoreria_type', '=', 'deposito'),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'outbound',
+            'default_partner_type': 'supplier',
+            'default_tesoreria_type': 'deposito',
+            'default_move_journal_types': ('bank',),
+        }</field>
+    </record>
+
+    <record id="action_kenocia_payment_cxc_debito" model="ir.actions.act_window">
+        <field name="name">Débitos CXC</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('tesoreria_type', '=', 'debito'),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'inbound',
+            'default_partner_type': 'customer',
+            'default_tesoreria_type': 'debito',
+            'default_move_journal_types': ('bank',),
+        }</field>
+    </record>
+
+    <record id="action_kenocia_payment_cxp_debito" model="ir.actions.act_window">
+        <field name="name">Débitos CXP</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'outbound'),
+            ('tesoreria_type', '=', 'debito'),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'outbound',
+            'default_partner_type': 'supplier',
+            'default_tesoreria_type': 'debito',
+            'default_move_journal_types': ('bank',),
+        }</field>
+    </record>
+
+    <record id="action_kenocia_payment_cxc_credito" model="ir.actions.act_window">
+        <field name="name">Créditos CXC</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('tesoreria_type', '=', 'credito'),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'inbound',
+            'default_partner_type': 'customer',
+            'default_tesoreria_type': 'credito',
+            'default_move_journal_types': ('bank',),
+        }</field>
+    </record>
+
+    <record id="action_kenocia_payment_cxp_credito" model="ir.actions.act_window">
+        <field name="name">Créditos CXP</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('payment_type', '=', 'outbound'),
+            ('tesoreria_type', '=', 'credito'),
+        ]</field>
+        <field name="context">{
+            'default_payment_type': 'outbound',
+            'default_partner_type': 'supplier',
+            'default_tesoreria_type': 'credito',
+            'default_move_journal_types': ('bank',),
+        }</field>
+    </record>
+
+</odoo>

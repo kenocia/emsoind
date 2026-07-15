@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_petty_cash_fiscal">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-4">
+                            <h3>Reporte Fiscal — Caja Chica</h3>
+                            <h5 t-esc="data.get('company').name"/>
+                            <p>
+                                RTN Empresa:
+                                <strong t-esc="data.get('company').rtn_empresa or data.get('company').vat or ''"/>
+                            </p>
+                            <p>
+                                Período:
+                                <span t-esc="data.get('date_from')"/> al
+                                <span t-esc="data.get('date_to')"/>
+                            </p>
+                        </div>
+
+                        <table class="table table-sm table-bordered" style="font-size:9px">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Empleado</th>
+                                    <th>Proveedor</th>
+                                    <th>RTN</th>
+                                    <th>CAI</th>
+                                    <th>Correlativo</th>
+                                    <th>F. Emisión</th>
+                                    <th>Clase</th>
+                                    <th>Base</th>
+                                    <th>ISV</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="data.get('rows', [])" t-as="row">
+                                    <td t-esc="row['fecha']"/>
+                                    <td t-esc="row['empleado']"/>
+                                    <td t-esc="row['proveedor']"/>
+                                    <td t-esc="row['rtn']"/>
+                                    <td t-esc="row['cai']" style="font-size:7px"/>
+                                    <td t-esc="row['correlativo']"/>
+                                    <td t-esc="row['fecha_emision']"/>
+                                    <td t-esc="row['clase_sar']"/>
+                                    <td class="text-end">
+                                        <span t-esc="row['base_imponible']"
+                                              t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="row['isv']"
+                                              t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="row['total_factura']"
+                                              t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="8">TOTALES</th>
+                                    <th class="text-end">
+                                        <span t-esc="data.get('total_base')"
+                                              t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="data.get('total_isv')"
+                                              t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="data.get('total_facturado')"
+                                              t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <p>Total documentos: <strong t-esc="data.get('count')"/></p>
+                                <p>Total ISV acreditable:
+                                    <strong>
+                                        <span t-esc="data.get('total_isv')"
+                                              t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                    </strong>
+                                </p>
+                            </div>
+                            <div class="col-6 text-end">
+                                <p style="margin-top:40px">
+                                    ________________________<br/>
+                                    Firma responsable
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

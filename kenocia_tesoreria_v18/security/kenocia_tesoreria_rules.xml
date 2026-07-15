@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Reglas multicompañía -->
+    <record id="rule_kenocia_sequence_company" model="ir.rule">
+        <field name="name">Secuencias: multicompañía</field>
+        <field name="model_id" ref="model_kenocia_sequence"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_kenocia_advance_company" model="ir.rule">
+        <field name="name">Adelantos: multicompañía</field>
+        <field name="model_id" ref="model_kenocia_advance_payment"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_kenocia_advance_application_company" model="ir.rule">
+        <field name="name">Aplicaciones adelanto: multicompañía</field>
+        <field name="model_id" ref="model_kenocia_advance_application"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- CXC: solo adelantos de clientes -->
+    <record id="rule_kenocia_advance_cxc" model="ir.rule">
+        <field name="name">Adelantos CXC: solo clientes</field>
+        <field name="model_id" ref="model_kenocia_advance_payment"/>
+        <field name="domain_force">[('advance_type', '=', 'customer')]</field>
+        <field name="groups" eval="[(4, ref('kenocia_tesoreria_v18.group_tesoreria_cxc'))]"/>
+    </record>
+
+    <!-- CXP: solo adelantos de proveedores -->
+    <record id="rule_kenocia_advance_cxp" model="ir.rule">
+        <field name="name">Adelantos CXP: solo proveedores</field>
+        <field name="model_id" ref="model_kenocia_advance_payment"/>
+        <field name="domain_force">[('advance_type', '=', 'supplier')]</field>
+        <field name="groups" eval="[(4, ref('kenocia_tesoreria_v18.group_tesoreria_cxp'))]"/>
+    </record>
+
+    <!-- CXC: pagos entrantes con tesorería -->
+    <record id="rule_account_payment_cxc" model="ir.rule">
+        <field name="name">Pagos CXC: cobros entrantes</field>
+        <field name="model_id" ref="account.model_account_payment"/>
+        <field name="domain_force">['|', ('tesoreria_type', '=', False), ('payment_type', '=', 'inbound')]</field>
+        <field name="groups" eval="[(4, ref('kenocia_tesoreria_v18.group_tesoreria_cxc'))]"/>
+    </record>
+
+    <!-- CXP: pagos salientes con tesorería -->
+    <record id="rule_account_payment_cxp" model="ir.rule">
+        <field name="name">Pagos CXP: egresos salientes</field>
+        <field name="model_id" ref="account.model_account_payment"/>
+        <field name="domain_force">['|', ('tesoreria_type', '=', False), ('payment_type', '=', 'outbound')]</field>
+        <field name="groups" eval="[(4, ref('kenocia_tesoreria_v18.group_tesoreria_cxp'))]"/>
+    </record>
+
+    <!-- Caja chica: multicompañía -->
+    <record id="rule_kenocia_petty_cash_company" model="ir.rule">
+        <field name="name">Fondos caja chica: multicompañía</field>
+        <field name="model_id" ref="model_kenocia_petty_cash"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_kenocia_petty_cash_line_company" model="ir.rule">
+        <field name="name">Anticipos caja chica: multicompañía</field>
+        <field name="model_id" ref="model_kenocia_petty_cash_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_kenocia_petty_cash_recharge_company" model="ir.rule">
+        <field name="name">Recargas caja chica: multicompañía</field>
+        <field name="model_id" ref="model_kenocia_petty_cash_recharge"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Custodio: solo pagos vinculados a caja chica -->
+    <record id="rule_account_payment_custodian" model="ir.rule">
+        <field name="name">Pagos custodio: solo caja chica</field>
+        <field name="model_id" ref="account.model_account_payment"/>
+        <field name="domain_force">[('petty_cash_line_id', '!=', False)]</field>
+        <field name="groups" eval="[(4, ref('kenocia_tesoreria_v18.group_tesoreria_custodian'))]"/>
+    </record>
+
+    <!-- Custodio: solo ve fondos donde es el custodio -->
+    <record id="rule_petty_cash_custodian_funds" model="ir.rule">
+        <field name="name">CC: Custodio solo ve sus fondos</field>
+        <field name="model_id" ref="model_kenocia_petty_cash"/>
+        <field name="groups" eval="[(4, ref('kenocia_tesoreria_v18.group_tesoreria_custodian'))]"/>
+        <field name="domain_force">[('custodian_id', '=', user.partner_id.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Custodio: solo ve anticipos de sus fondos -->
+    <record id="rule_petty_cash_custodian_lines" model="ir.rule">
+        <field name="name">CC: Custodio solo ve anticipos de sus fondos</field>
+        <field name="model_id" ref="model_kenocia_petty_cash_line"/>
+        <field name="groups" eval="[(4, ref('kenocia_tesoreria_v18.group_tesoreria_custodian'))]"/>
+        <field name="domain_force">[('petty_cash_id.custodian_id', '=', user.partner_id.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Custodio: solo ve recargas de sus fondos -->
+    <record id="rule_petty_cash_custodian_recharges" model="ir.rule">
+        <field name="name">CC: Custodio solo ve recargas de sus fondos</field>
+        <field name="model_id" ref="model_kenocia_petty_cash_recharge"/>
+        <field name="groups" eval="[(4, ref('kenocia_tesoreria_v18.group_tesoreria_custodian'))]"/>
+        <field name="domain_force">[('petty_cash_id.custodian_id', '=', user.partner_id.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+</odoo>

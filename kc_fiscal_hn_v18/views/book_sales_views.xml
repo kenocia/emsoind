@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Cabecera: lista de libros -->
+    <record id="view_book_sales_header_list" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn.book.sales.header.list</field>
+        <field name="model">kc_fiscal_hn.book.sales</field>
+        <field name="arch" type="xml">
+            <list string="Libros de Ventas SAR">
+                <field name="name"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'pending'"
+                       decoration-success="state == 'declared'"
+                       decoration-danger="state == 'rectified'"/>
+                <field name="total_ventas" sum="Total"/>
+                <field name="total_nc" sum="Total"/>
+                <field name="total_nd" sum="Total"/>
+                <field name="total_isv_15" sum="Total"/>
+                <field name="total_isv_18" sum="Total"/>
+                <field name="total_general" sum="Total"/>
+                <field name="fecha_declaracion" optional="show"/>
+                <field name="declarado_por" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_book_sales_form" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn.book.sales.form</field>
+        <field name="model">kc_fiscal_hn.book.sales</field>
+        <field name="arch" type="xml">
+            <form string="Libro de Ventas SAR">
+                <header>
+                    <button name="action_generate" type="object"
+                            string="Generar Libro" class="btn-primary"
+                         invisible="state == 'declared'"/>
+                    <button name="action_declare" type="object"
+                            string="Marcar Declarado" class="btn-primary"
+                         invisible="state != 'pending'"/>
+                    <button name="action_rectify" type="object"
+                            string="Rectificar"
+                         invisible="state != 'declared'"/>
+                    <button name="action_export_excel" type="object"
+                            string="Exportar Excel"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,pending,declared,rectified"/>
+                </header>
+                <sheet>
+                    <field name="tipo_contribuyente"
+                         invisible="1"/>
+                    <div class="alert alert-info mb-3" role="alert"
+                         invisible="state != 'draft'">
+                        <strong>Instrucciones:</strong><br/>
+                        1. Configure el período (Fecha Desde / Hasta)<br/>
+                        2. Clic en <strong>Generar Libro</strong> para
+                           cargar las facturas automáticamente<br/>
+                        3. Revise y ajuste las líneas si es necesario<br/>
+                        4. Clic en <strong>Marcar Declarado</strong>
+                           cuando envíe la declaración al SAR<br/>
+                        5. Exporte a Excel como respaldo
+                    </div>
+                    <div class="alert alert-warning mb-3" role="alert"
+                         invisible="state != 'pending'">
+                        <strong>Pendiente de declarar.</strong>
+                        Revise las líneas y cuando esté listo
+                        presione <strong>Marcar Declarado</strong>.
+                    </div>
+                    <div class="alert alert-success mb-3" role="alert"
+                         invisible="state != 'declared'">
+                        <strong>Declarado al SAR</strong>
+                        por <field name="declarado_por" nolabel="1"
+                         readonly="1"/>
+                        el <field name="fecha_declaracion" nolabel="1"
+                         readonly="1"/>.
+                        Este libro está bloqueado.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name"
+                         readonly="1"/></h1>
+                        <span class="badge text-bg-secondary me-2">
+                            <field name="tipo_contribuyente"
+                                   nolabel="1"
+                         readonly="1"/>
+                        </span>
+                    </div>
+                    <group>
+                        <group string="Período">
+                            <field name="date_from"
+                                   help="Primer día del mes calendario a declarar."
+                         readonly="state == 'declared'"/>
+                            <field name="date_to"
+                                   help="Último día del mismo mes (se ajusta automáticamente)."
+                         readonly="state == 'declared'"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                         readonly="state == 'declared'"/>
+                        </group>
+                        <group string="Declaración">
+                            <field name="fecha_declaracion"/>
+                            <field name="declarado_por"/>
+                            <field name="currency_id"
+                         invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Totales del Libro">
+                        <group>
+                            <field name="total_ventas"
+                         readonly="1"/>
+                            <field name="total_nc"
+                         readonly="1"/>
+                            <field name="total_nd"
+                         readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="total_isv_15"
+                         readonly="1"/>
+                            <field name="total_isv_18"
+                         readonly="1"/>
+                            <field name="total_general"
+                         readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Verificación ISV vs Libro Ventas">
+                        <group>
+                            <field name="total_isv_ventas"
+                                  
+                                   class="fw-bold text-warning"
+                         readonly="1"/>
+                            <field name="debito_declarado_isv"/>
+                        </group>
+                        <group>
+                            <field name="diferencia_debito_isv"
+                         invisible="not debito_declarado_isv"
+                         readonly="1"/>
+                            <field name="consistencia_debito"
+                                  
+                                   widget="badge"
+                                  
+                                   decoration-success="consistencia_debito == 'ok'"
+                                   decoration-warning="consistencia_debito == 'diferencia'"
+                         invisible="not debito_declarado_isv"
+                         readonly="1"/>
+                        </group>
+                    </group>
+                    <div class="col-12">
+                        <div class="alert alert-danger mb-3"
+                         invisible="consistencia_debito != 'diferencia'">
+                            El SAR cruza el débito fiscal del Libro de Ventas
+                            con la Declaración ISV automáticamente.
+                            Corrija la diferencia antes de declarar.
+                        </div>
+                        <div class="alert alert-success mb-3"
+                         invisible="consistencia_debito != 'ok'">
+                            Valores consistentes con ISV.
+                        </div>
+                    </div>
+                    <group string="Rectificación"
+                         invisible="state not in ('declared', 'rectified')">
+                        <field name="notas_rectificacion"
+                         readonly="state == 'rectified'"/>
+                    </group>
+                    <notebook>
+                        <page string="Líneas del Libro" name="lines">
+                            <field name="line_ids"
+                         readonly="1">
+                                <list create="0" delete="0"
+                                      decoration-info="tipo_documento == 'nota_credito'"
+                                      decoration-warning="tipo_documento == 'nota_debito'"
+                                      decoration-muted="es_anulada">
+                                    <field name="tipo_documento" widget="badge"
+                                           decoration-info="tipo_documento == 'nota_credito'"
+                                           decoration-warning="tipo_documento == 'nota_debito'"/>
+                                    <field name="es_anulada"
+                         column_invisible="True"/>
+                                    <field name="fecha"
+                         readonly="1"/>
+                                    <field name="numero_factura"
+                         readonly="1"/>
+                                    <field name="rtn_cliente"
+                         readonly="1"/>
+                                    <field name="cliente"
+                         readonly="1"/>
+                                    <field name="exento" sum="Total"
+                         readonly="1"/>
+                                    <field name="exonerado" sum="Total"
+                         readonly="1"/>
+                                    <field name="gravado_15" sum="Total"
+                         readonly="1"/>
+                                    <field name="isv_15" sum="Total"
+                         readonly="1"/>
+                                    <field name="gravado_18" sum="Total"
+                         readonly="1"/>
+                                    <field name="isv_18" sum="Total"
+                         readonly="1"/>
+                                    <field name="descuento" sum="Total"
+                         readonly="1"/>
+                                    <field name="amount_total" sum="Total"
+                         readonly="1"/>
+                                    <field name="cai"
+                         readonly="1"/>
+                                    <field name="invoice_id" optional="show"/>
+                                    <field name="state" widget="badge" optional="show"/>
+                                    <field name="no_orden_compra_exenta" optional="hide"/>
+                                    <field name="no_constancia_exonerado" optional="hide"/>
+                                    <field name="currency_id"
+                         column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_book_sales_search" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn.book.sales.search</field>
+        <field name="model">kc_fiscal_hn.book.sales</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <filter string="Borrador" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Pendiente" name="pending" domain="[('state','=','pending')]"/>
+                <filter string="Declarado" name="declared" domain="[('state','=','declared')]"/>
+                <filter string="Rectificado" name="rectified" domain="[('state','=','rectified')]"/>
+                <separator/>
+                <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
+                <filter string="Mes" name="group_month" context="{'group_by': 'date_from:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_book_sales" model="ir.actions.act_window">
+        <field name="name">Libro de Ventas SAR</field>
+        <field name="res_model">kc_fiscal_hn.book.sales</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_book_sales_search"/>
+        <field name="context">{'search_default_pending': 0}</field>
+    </record>
+
+</odoo>

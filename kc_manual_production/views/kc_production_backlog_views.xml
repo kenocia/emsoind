@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="kc_production_backlog_view_list" model="ir.ui.view">
+        <field name="name">kc.production.backlog.list</field>
+        <field name="model">kc.production.backlog</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false" delete="false">
+                <field name="sale_order_id"/>
+                <field name="partner_id" optional="show"/>
+                <field name="commitment_date" optional="show"/>
+                <field name="production_line_id"/>
+                <field name="product_id"/>
+                <field name="technical_description"/>
+                <field name="ov_qty"/>
+                <field name="stock_qty"/>
+                <field name="produced_qty"/>
+                <field name="pending_qty"/>
+                <field name="status" widget="badge"
+                        decoration-info="status == 'pendiente'"
+                        decoration-warning="status == 'parcial'"
+                        decoration-success="status == 'en_curso'"
+                        decoration-muted="status == 'planificado'"/>
+                <field name="open_plan" column_invisible="1"/>
+                <button name="action_planificar" type="object"
+                        string="Planificar" class="btn-link"
+                        invisible="pending_qty &lt;= 0 or open_plan"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="kc_production_backlog_view_kanban" model="ir.ui.view">
+        <field name="name">kc.production.backlog.kanban</field>
+        <field name="model">kc.production.backlog</field>
+        <field name="arch" type="xml">
+            <kanban create="false" default_group_by="production_line_id">
+                <field name="sale_order_id"/>
+                <field name="product_id"/>
+                <field name="technical_description"/>
+                <field name="pending_qty"/>
+                <field name="status"/>
+                <field name="open_plan"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card">
+                            <strong><field name="sale_order_id"/></strong>
+                            <div><field name="product_id"/></div>
+                            <div class="text-muted" t-if="record.technical_description.raw_value">
+                                <field name="technical_description"/>
+                            </div>
+                            <div>Pendiente: <field name="pending_qty"/></div>
+                            <div><field name="status"/></div>
+                            <button name="action_planificar" type="object"
+                                    string="Planificar" class="btn btn-sm btn-primary"
+                                    invisible="pending_qty &lt;= 0 or open_plan"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="kc_production_backlog_view_search" model="ir.ui.view">
+        <field name="name">kc.production.backlog.search</field>
+        <field name="model">kc.production.backlog</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="sale_order_id"/>
+                <field name="product_id"/>
+                <field name="production_line_id"/>
+                <field name="commitment_date"/>
+                <field name="technical_description"/>
+                <filter name="filter_pendiente" string="Pendiente"
+                        domain="[('produced_qty', '=', 0), ('open_rp', '=', False)]"/>
+                <filter name="filter_parcial" string="Parcial"
+                        domain="[('produced_qty', '&gt;', 0), ('open_rp', '=', False)]"/>
+                <filter name="filter_en_curso" string="En curso"
+                        domain="[('open_rp', '=', True)]"/>
+                <group>
+                    <filter name="group_sale_order" string="Orden de Venta"
+                            context="{'group_by': 'sale_order_id'}"/>
+                    <filter name="group_commitment_date" string="Fecha de entrega"
+                            context="{'group_by': 'commitment_date:day'}"/>
+                    <filter name="group_line" string="Línea"
+                            context="{'group_by': 'production_line_id'}"/>
+                    <filter name="group_open_rp" string="RP en curso"
+                            context="{'group_by': 'open_rp'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="kc_production_backlog_action" model="ir.actions.act_window">
+        <field name="name">Órdenes Pendientes de Planificar</field>
+        <field name="res_model">kc.production.backlog</field>
+        <field name="view_mode">list,kanban</field>
+        <field name="search_view_id" ref="kc_production_backlog_view_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay OV pendientes de planificar
+                (stock, producción o plan activo ya cubren el saldo).
+            </p>
+        </field>
+    </record>
+
+</odoo>

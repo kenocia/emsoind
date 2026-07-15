@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="id_report_debit_note">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.basic_layout">
+                        <div class="page" style="font-family: Arial, Helvetica, sans-serif; font-size:11px; color:#111827;">
+                            <t t-call="kc_fiscal_hn_v18.header_debit_note_layout"/>
+                            <br/>
+                            <t t-set="display_discount" t-value="any(l.discount for l in o.invoice_line_ids)"/>
+                            <table style="font-size: 12px" class="table table-sm o_main_table table-borderless"
+                                   name="invoice_line_table">
+                                <thead>
+                                    <tr>
+                                        <th name="th_description" class="text-start">
+                                            <span>Descripcion</span>
+                                        </th>
+                                        <th name="th_item" class="text-end">
+                                            <span>Item</span>
+                                        </th>
+                                        <th name="th_lot" class="text-end">
+                                            <span>Lote</span>
+                                        </th>
+                                        <th name="th_expiration_date" class="text-end">
+                                            <span>F. Expiración</span>
+                                        </th>
+                                        <th name="th_quantity" class="text-end">
+                                            <span>Cant</span>
+                                        </th>
+                                        <th name="th_uom" class="text-end">
+                                            <span>Unidades</span>
+                                        </th>
+                                        <th name="th_priceunit"
+                                            t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                            <span>Precio</span>
+                                        </th>
+                                        <th name="th_price_unit" t-if="display_discount"
+                                            t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                            <span>Desc.%</span>
+                                        </th>
+                                        <!--                                        <th name="th_taxes"-->
+                                        <!--                                            t-attf-class="text-start {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">-->
+                                        <!--                                            <span>Isv</span>-->
+                                        <!--                                        </th>-->
+                                        <th name="th_subtotal" class="text-end">
+                                            <span>SubTotal</span>
+                                            <!--                                            <span groups="account.group_show_line_subtotals_tax_included">Total-->
+                                            <!--                                            </span>-->
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="invoice_tbody">
+                                    <t t-set="current_subtotal" t-value="0"/>
+                                    <t t-set="lines"
+                                       t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+
+                                    <t t-foreach="lines" t-as="line">
+                                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"
+                                           groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"
+                                           groups="account.group_show_line_subtotals_tax_included"/>
+
+                                        <tr t-att-class="'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                            <t t-if="line.display_type == 'product'"
+                                               name="account_invoice_line_accountable">
+                                                <td name="account_invoice_line_name">
+                                                    <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-field="line.item"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-field="line.serial_no"/>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span t-field="line.expiration_date_serial"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-field="line.quantity"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-field="line.product_uom_id" groups="uom.group_uom"/>
+                                                </td>
+                                                <td t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                                    <span class="text-nowrap" t-field="line.price_unit"/>
+                                                </td>
+                                                <td t-if="display_discount"
+                                                    t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                                    <span class="text-nowrap" t-field="line.discount"/>
+                                                </td>
+                                                <!--                                                <td t-attf-class="text-start {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">-->
+                                                <!--                                                    <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_ids))"-->
+                                                <!--                                                          id="line_tax_ids"/>-->
+                                                <!--                                                </td>-->
+                                                <td class="text-end o_price_total">
+                                                    <span class="text-nowrap" t-field="line.price_subtotal"/>
+                                                    <!--                                                    <span class="text-nowrap" t-field="line.price_total"/>-->
+                                                </td>
+                                            </t>
+                                            <t t-if="line.display_type == 'line_section'">
+                                                <td colspan="99">
+                                                    <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                                </td>
+                                                <t t-set="current_section" t-value="line"/>
+                                                <t t-set="current_subtotal" t-value="0"/>
+                                            </t>
+                                            <t t-if="line.display_type == 'line_note'">
+                                                <td colspan="99">
+                                                    <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                                </td>
+                                            </t>
+                                        </tr>
+
+                                        <t t-if="current_section and (line_last or lines[line_index+1].display_type == 'line_section')">
+                                            <tr class="is-subtotal text-end">
+                                                <td colspan="99">
+                                                    <strong class="mr16">Subtotal</strong>
+                                                    <span t-esc="current_subtotal"
+                                                          t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-set="result_array" t-value="[1]"/>
+                                    <t t-foreach="result_array" t-as="line">
+                                        <tr>
+                                            <td style="background-color:#ffffff">
+                                                <span>***************************** U.L. *******************************
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-set="result_array" t-value="[i for i in range(1, 8 - len(lines) + 1)]"/>
+                                    <t t-foreach="result_array" t-as="line">
+                                        <tr>
+                                            <td style="background-color:#ffffff">
+                                                <span style="display: block; height: 8px;"></span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <!-- SUBTOTALES-->
+                            <div class="clearfix mb-4">
+                                <div id="total" class="row">
+                                    <div class="col-6">
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <span>Firma Autorizado: ________________________________________</span>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <span>Firma Recibido: ________________________________________</span>
+                                        <br/>
+                                        <br/>
+                                        <div style="font-size: 12px">
+                                            <span>Original: Cliente.</span>
+                                            <br/>
+                                            <span>Copia: Obligado Tributario.</span>
+
+                                        </div>
+                                    </div>
+                                    <!-- <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ms-auto">-->
+                                    <div class="col-6">
+                                        <table class="table table-sm table-borderless"
+                                               style="page-break-inside: avoid;">
+
+                                            <!--Tax totals-->
+                                            <t t-set="tax_totals" t-value="o.tax_totals"/>
+                                            <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Subtotal</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-att-class="oe_subtotal_footer_separator"
+                                                              t-esc="subtotal['formatted_amount']"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Descuentos y Rebajas otorgados :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-att-class="oe_subtotal_footer_separator"
+                                                              t-field="o.amount_discount"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Importe Exento :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-field="o.amount_exento"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Importe Exonerado :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-field="o.amount_exonerado"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Importe Gravado 15% :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-field="o.gravado_isv15"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Importe Gravado 18% :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span>0.00</span>
+                                                    </td>
+                                                </tr>
+                                                <t t-set="subtotal_to_show" t-value="subtotal['name']"/>
+                                                <!--  ISV TOTALES-->
+                                                <t t-foreach="tax_totals['groups_by_subtotal'][subtotal_to_show]"
+                                                   t-as="amount_by_group">
+                                                    <tr class="border-black o_subtotal">
+                                                        <td>
+                                                            <strong t-esc="amount_by_group['tax_group_name']"/>:
+                                                        </td>
+                                                        <td class="text-end o_price_total">
+                                                            <span class="text-end"
+                                                                  t-esc="amount_by_group['formatted_tax_group_amount']"/>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>ISV 18% :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span>0.00</span>
+                                                    </td>
+                                                </tr>
+                                            </t>
+
+                                            <t t-if="not tax_totals['groups_by_subtotal'][subtotal_to_show]">
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Subtotal</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-att-class="oe_subtotal_footer_separator"
+                                                              t-field="o.amount_untaxed"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Descuentos y Rebajas otorgados :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-att-class="oe_subtotal_footer_separator"
+                                                              t-field="o.amount_discount"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Importe Exento :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-field="o.amount_exento"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Importe Exonerado :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-field="o.amount_exonerado"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Importe Gravado 15% :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-field="o.gravado_isv15"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>Importe Gravado 18% :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span>0.00</span>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>ISV 15% :</strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-field="o.amount_isv15"/>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-black o_subtotal">
+                                                    <td>
+                                                        <strong>ISV 18% :
+                                                        </strong>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span>0.00</span>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <!--Total amount with all taxes-->
+                                            <tr class="border-black o_total">
+                                                <td>
+                                                    <strong>Total</strong>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-esc="tax_totals['formatted_amount_total']"/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <br/>
+                                        <span>Cantidad en Letra:</span>
+                                        <br/>
+                                        <span t-field="o.totalAmountString"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--                            <br/>-->
+                            <!--                            <div style="text-align: center;">-->
+                            <!--                                <br/>-->
+                            <!--                                <div>-->
+                            <!--                                    <p>TERMINOS Y CONDICIONES</p>-->
+                            <!--                                    <ol>-->
+                            <!--                                        <span>-->
+                            <!--                                            *Tiene 5 días después de haber recibido el producto para hacer cualquier-->
+                            <!--                                            reclamo o devolución de este, pasado dicho término no aceptaran reclamos.-->
+                            <!--                                        </span>-->
+                            <!--                                        <span>-->
+                            <!--                                            Es obligación del Cliente reportar 3 meses antes de la fecha de vencimiento-->
+                            <!--                                            del producto al correo "recepcionservimedica@gmail.com", para iniciar con el-->
+                            <!--                                            proceso de devolución y/o cambio.-->
+                            <!--                                        </span>-->
+                            <!--                                    </ol>-->
+                            <!--                                    <strong>LA FACTURA ES BENEFICIO DE TODOS "EXIJALA"</strong>-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
+                            <t t-set="sar_page_num" t-value="1"/>
+                            <t t-set="sar_total_pages" t-value="1"/>
+                            <t t-call="kc_fiscal_hn_v18.footer_credit_note_layout"/>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

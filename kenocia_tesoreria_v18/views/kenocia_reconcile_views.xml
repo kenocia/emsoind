@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_move_line_reconcile_search_kenocia" model="ir.ui.view">
+        <field name="name">account.move.line.reconcile.search.kenocia.tesoreria</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account_accountant.view_account_move_line_reconcile_search"/>
+        <field name="arch" type="xml">
+            <filter name="trade_receivable" position="after">
+                <filter string="Anticipos Kenocia"
+                        name="kenocia_advance_accounts"
+                        domain="[('kenocia_is_advance_account', '=', True)]"
+                        help="Apuntes en cuentas de anticipo CXC/CXP configuradas en la compañía"/>
+            </filter>
+        </field>
+    </record>
+
+</odoo>

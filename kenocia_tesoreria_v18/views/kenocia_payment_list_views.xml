@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_payment_list_kenocia_tesoreria" model="ir.ui.view">
+        <field name="name">account.payment.list.kenocia.tesoreria</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_tree"/>
+        <field name="arch" type="xml">
+            <field name="journal_id" position="after">
+                <field name="tesoreria_type" optional="show"/>
+                <field name="kenocia_sequence_name" optional="show"/>
+                <field name="state_tesoreria" widget="badge" optional="show"
+                       decoration-success="state_tesoreria == 'reconciled'"
+                       decoration-warning="state_tesoreria == 'posted'"
+                       decoration-danger="state_tesoreria in ('void', 'cancelled')"/>
+                <field name="is_reconciled_tesoreria" column_invisible="True"/>
+                <field name="is_void_cheque" column_invisible="True"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_account_payment_search_kenocia_tesoreria" model="ir.ui.view">
+        <field name="name">account.payment.search.kenocia.tesoreria</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_search"/>
+        <field name="arch" type="xml">
+            <field name="journal_id" position="after">
+                <field name="tesoreria_type"/>
+                <field name="kenocia_sequence_name"/>
+            </field>
+            <filter name="reconciled" position="after">
+                <separator/>
+                <filter name="tesoreria_cheque" string="Cheques"
+                        domain="[('tesoreria_type', '=', 'cheque')]"/>
+                <filter name="tesoreria_transfer" string="Transferencias"
+                        domain="[('tesoreria_type', 'in', ('transferencia', 'transferencia_banco'))]"/>
+                <filter name="tesoreria_efectivo" string="Efectivo"
+                        domain="[('tesoreria_type', '=', 'efectivo')]"/>
+                <filter name="tesoreria_deposito" string="Depósitos"
+                        domain="[('tesoreria_type', '=', 'deposito')]"/>
+                <filter name="tesoreria_reconciled" string="Conciliado Tesorería"
+                        domain="[('is_reconciled_tesoreria', '=', True)]"/>
+                <filter name="tesoreria_void" string="Cheques Anulados"
+                        domain="[('is_void_cheque', '=', True)]"/>
+            </filter>
+            <filter name="journal" position="after">
+                <filter name="group_tesoreria_type" string="Tipo Tesorería"
+                        context="{'group_by': 'tesoreria_type'}"/>
+            </filter>
+        </field>
+    </record>
+
+</odoo>

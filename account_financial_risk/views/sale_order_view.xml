@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Kenocia
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="view_order_form_financial_risk" model="ir.ui.view">
+        <field name="name">sale.order.form.financial.risk</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="priority" eval="50" />
+        <field name="arch" type="xml">
+            <field name="pricelist_id" position="attributes">
+                <attribute name="readonly">1</attribute>
+                <attribute
+                    name="help"
+                >This field can only be modified on the customer contact.</attribute>
+            </field>
+            <field name="payment_term_id" position="attributes">
+                <attribute name="readonly">1</attribute>
+                <attribute
+                    name="help"
+                >This field can only be modified on the customer contact.</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

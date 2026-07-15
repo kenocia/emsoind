@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Acción de Reporte: Consumo de Materia Prima (CMP)            -->
+    <!-- ============================================================ -->
+    <record id="action_report_kc_production_consumption" model="ir.actions.report">
+        <field name="name">Consumo de Materia Prima</field>
+        <field name="model">kc.production.consumption</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kc_manual_production.report_kc_production_consumption_document</field>
+        <field name="report_file">kc_manual_production.report_kc_production_consumption_document</field>
+        <field name="print_report_name">'CMP - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_kc_production_consumption"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_us"/>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Documento QWeb: Consumo de Materia Prima                     -->
+    <!-- ============================================================ -->
+    <template id="report_kc_production_consumption_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or env.user.lang)"/>
+                    <div class="page">
+
+                        <!-- Título -->
+                        <div class="text-center mb-4">
+                            <h2 class="mt-0">CONSUMO DE MATERIA PRIMA</h2>
+                            <h3 class="text-muted" t-field="o.name"/>
+                        </div>
+
+                        <!-- Datos generales -->
+                        <table class="table table-sm table-borderless mb-4">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 25%;"><strong>Registro de Producción:</strong></td>
+                                    <td style="width: 25%;">
+                                        <span t-if="o.entry_id" t-field="o.entry_id.name"/>
+                                        <span t-else="">Consumo sin RP vinculado (merma/ajuste)</span>
+                                    </td>
+                                    <td style="width: 25%;"><strong>Fecha de Consumo:</strong></td>
+                                    <td style="width: 25%;">
+                                        <span t-field="o.date_consumption"
+                                              t-options='{"widget": "datetime"}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Orden de Venta:</strong></td>
+                                    <td>
+                                        <span t-if="o.sale_order_id" t-field="o.sale_order_id.name"/>
+                                        <span t-else="">N/A</span>
+                                    </td>
+                                    <td><strong>Cliente:</strong></td>
+                                    <td>
+                                        <span t-if="o.partner_id" t-field="o.partner_id.name"/>
+                                        <span t-else="">N/A</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Estado:</strong></td>
+                                    <td><span t-field="o.state"/></td>
+                                    <td/>
+                                    <td/>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Tabla de líneas consumidas -->
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th>Materia Prima</th>
+                                    <th>Lote Consumido</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th>UdM</th>
+                                    <th class="text-end">Costo Unitario</th>
+                                    <th class="text-end">Costo Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.line_ids" t-as="line"
+                                    style="page-break-inside: avoid;">
+                                    <td><span t-field="line.product_id.display_name"/></td>
+                                    <td>
+                                        <span t-if="line.line_type == 'service'">Servicio</span>
+                                        <span t-elif="line.line_type == 'supply'">Insumo</span>
+                                        <span t-elif="line.lot_id" t-field="line.lot_id.name"/>
+                                        <span t-else="">-</span>
+                                    </td>
+                                    <td class="text-end"><span t-field="line.qty"/></td>
+                                    <td><span t-field="line.uom_id.name"/></td>
+                                    <td class="text-end">
+                                        <span t-if="line.line_type == 'service'"
+                                              t-esc="line.service_value / line.qty if line.qty else line.service_value"
+                                              t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                        <span t-else=""
+                                              t-esc="line.product_id.standard_price"
+                                              t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-if="line.line_type == 'service'"
+                                              t-esc="line.service_value"
+                                              t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                        <span t-else=""
+                                              t-esc="line.qty * line.product_id.standard_price"
+                                              t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <!-- Total general (siempre, columna monetaria) -->
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" class="text-end"><strong>TOTAL GENERAL:</strong></td>
+                                    <td class="text-end">
+                                        <strong>
+                                            <span t-esc="sum((line.service_value if line.line_type == 'service' else line.qty * line.product_id.standard_price) for line in o.line_ids)"
+                                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Referencia al albarán generado -->
+                        <p t-if="o.picking_id" class="mt-3">
+                            <strong>Transferencia de Inventario:</strong>
+                            <span t-field="o.picking_id.name"/>
+                        </p>
+
+                        <!-- Notas -->
+                        <div t-if="o.notes" class="mt-3">
+                            <strong>Notas:</strong>
+                            <p t-field="o.notes"/>
+                        </div>
+
+                        <!-- Pie de firmas (flujo normal, una sola vez al final) -->
+                        <div class="row mt-5 pt-5">
+                            <div class="col-6 text-center">
+                                <div style="border-top: 1px solid #000; margin: 0 20px;"/>
+                                <p class="mt-1 mb-0"><strong>Elaborado por</strong></p>
+                                <p class="mb-0">
+                                    <span t-field="o.create_uid.name"/>
+                                </p>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div style="border-top: 1px solid #000; margin: 0 20px;"/>
+                                <p class="mt-1 mb-0"><strong>Autorizado por</strong></p>
+                                <p class="mb-0">&#160;</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

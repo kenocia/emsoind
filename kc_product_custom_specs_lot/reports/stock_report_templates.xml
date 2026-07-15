@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_picking_technical" inherit_id="stock.report_picking">
+        <xpath expr="//span[@t-field='ml.product_id.display_name']" position="after">
+            <t t-if="ml.lot_id and ml.lot_id.technical_description">
+                <br/>
+                <small class="text-muted">
+                    <span t-esc="ml.lot_id.technical_description"/>
+                </small>
+            </t>
+            <t t-if="ml.lot_id">
+                <br/>
+                <small>
+                    Lote: <span t-esc="ml.lot_id.name"/>
+                </small>
+            </t>
+        </xpath>
+    </template>
+</odoo>

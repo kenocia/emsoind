@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_kenocia_report_wizard_form" model="ir.ui.view">
+        <field name="name">kenocia.report.wizard.form</field>
+        <field name="model">kenocia.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reportes de Tesorería">
+                <group>
+                    <group>
+                        <field name="report_type"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <field name="journal_ids" widget="many2many_tags"/>
+                        <field name="advance_type"
+                               invisible="report_type != 'advances'"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_print_pdf"
+                            string="Imprimir PDF"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="action_export_csv"
+                            string="Exportar CSV"
+                            type="object"
+                            class="btn-secondary"/>
+                    <button string="Cancelar" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_kenocia_report_wizard" model="ir.actions.act_window">
+        <field name="name">Reportes de Tesorería</field>
+        <field name="res_model">kenocia.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_tesoreria_reports"
+              name="Reportes"
+              parent="menu_kenocia_tesoreria_root"
+              action="action_kenocia_report_wizard"
+              sequence="80"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <!-- Reporte nativo Odoo: Antigüedad de Saldos CXC (Aged Receivable) -->
+    <menuitem id="menu_kenocia_report_aging_receivable"
+              name="Antigüedad de Saldos CXC"
+              parent="menu_tesoreria_reports"
+              action="account_reports.action_account_report_ar"
+              sequence="50"
+              groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin,kenocia_tesoreria_v18.group_tesoreria_cxc"/>
+
+    <!-- Reporte nativo Odoo: Antigüedad de Saldos CXP (Aged Payable) -->
+    <menuitem id="menu_kenocia_report_aging_payable"
+              name="Antigüedad de Saldos CXP"
+              parent="menu_tesoreria_reports"
+              action="account_reports.action_account_report_ap"
+              sequence="51"
+              groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin,kenocia_tesoreria_v18.group_tesoreria_cxp"/>
+
+</odoo>

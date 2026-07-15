@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tarjeta con ícono en "Mi cuenta" del portal -->
+    <template id="portal_my_home_kc_pin" name="Portal: Cambiar PIN"
+              inherit_id="portal.portal_my_home" priority="60">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <a t-if="kc_has_employee" href="/my/pin" class="kc_pin_home_card">
+                <img src="/kc_pin_authorization_portal/static/src/img/change_pin.png"
+                     alt="Cambiar PIN" class="kc_pin_home_icon"/>
+                <span class="kc_pin_home_text">
+                    <span class="kc_pin_home_title">Cambiar mi PIN</span>
+                    <small class="text-muted">PIN de autorización</small>
+                </span>
+            </a>
+        </xpath>
+    </template>
+
+    <!-- Página /my/pin -->
+    <template id="portal_my_pin" name="Cambiar mi PIN">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="False"/>
+            <div class="kc_pin_page">
+                <div class="kc_pin_box">
+                    <div class="kc_pin_box_header">
+                        <img src="/kc_pin_authorization_portal/static/src/img/change_pin.png"
+                             alt="Cambiar PIN"/>
+                        <h3>Cambiar mi PIN</h3>
+                        <p class="text-muted">
+                            Defina un nuevo PIN numérico de al menos 4 dígitos.
+                        </p>
+                    </div>
+
+                    <t t-if="not has_employee">
+                        <div class="alert alert-warning" role="alert">
+                            No tiene un empleado vinculado a su usuario, por lo que
+                            no puede definir un PIN. Contacte al administrador.
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div t-if="success" class="alert alert-success" role="status">
+                            <i class="fa fa-check-circle me-1"/>
+                            PIN actualizado correctamente.
+                        </div>
+                        <div t-if="error" class="alert alert-danger" role="alert">
+                            <i class="fa fa-exclamation-triangle me-1"/>
+                            <t t-esc="error"/>
+                        </div>
+
+                        <form id="kc_pin_form" action="/my/pin" method="post">
+                            <input type="hidden" name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+
+                            <div class="kc_pin_inputgroup">
+                                <label for="new_pin">Nuevo PIN</label>
+                                <div class="kc_pin_input_wrap">
+                                    <input type="password" name="new_pin" id="new_pin"
+                                           required="required" inputmode="numeric"
+                                           autocomplete="new-password"
+                                           placeholder="••••"/>
+                                    <button type="button" class="kc_pin_toggle"
+                                            data-target="new_pin"
+                                            aria-label="Mostrar u ocultar PIN">
+                                        <i class="fa fa-eye"/>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="kc_pin_inputgroup">
+                                <label for="confirm_pin">Confirmar PIN</label>
+                                <div class="kc_pin_input_wrap">
+                                    <input type="password" name="confirm_pin"
+                                           id="confirm_pin" required="required"
+                                           inputmode="numeric"
+                                           autocomplete="new-password"
+                                           placeholder="••••"/>
+                                    <button type="button" class="kc_pin_toggle"
+                                            data-target="confirm_pin"
+                                            aria-label="Mostrar u ocultar PIN">
+                                        <i class="fa fa-eye"/>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <ul class="kc_pin_hints">
+                                <li data-rule="num">Solo números</li>
+                                <li data-rule="len">Al menos 4 dígitos</li>
+                                <li data-rule="match">Las dos entradas coinciden</li>
+                            </ul>
+
+                            <button type="submit" class="kc_pin_submit">
+                                Guardar PIN
+                            </button>
+                        </form>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

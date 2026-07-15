@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="report_journal_document">
+            <t t-set="o" t-value="o.with_context(lang=lang)"/>
+            <div class="page mb-4">
+                <t t-call="kc_fiscal_hn_v18.sar_company_fiscal_header"/>
+                <h2 style="font-size: 20px; margin-top: 12px;">
+                    <span>Asiento Contable</span>
+                    <span t-if="o.name != '/'" t-field="o.name"/>
+                </h2>
+                <div class="oe_structure"/>
+                <div id="informations" class="row mt-3 mb-1" style="font-size: 10px">
+                    <div t-attf-class="#{'col-auto col-3 mw-100' if report_type != 'html' else 'col'} mb-2"
+                         t-if="o.date" name="date">
+                        <strong>Fecha:</strong>
+                        <br/>
+                        <span t-field="o.date"/>
+                    </div>
+                    <div t-attf-class="#{'col-auto col-3 mw-100' if report_type != 'html' else 'col'} mb-2"
+                         t-if="o.journal_id and o.move_type == 'entry'" name="journal_id">
+                        <strong>Diario:</strong>
+                        <br/>
+                        <span t-field="o.journal_id"/>
+                    </div>
+                    <div t-attf-class="#{'col-auto col-3 mw-100' if report_type != 'html' else 'col'} mb-2"
+                         t-if="o.ref" name="ref">
+                        <strong>Referencia:</strong>
+                        <br/>
+                        <span t-field="o.ref"/>
+                    </div>
+                    <div t-attf-class="#{'col-auto col-3 mw-100' if report_type != 'html' else 'col'} mb-2"
+                         t-if="o.company_id" name="company_id">
+                        <strong>Compañía:</strong>
+                        <br/>
+                        <span t-field="o.company_id"/>
+                    </div>
+                </div>
+                <t t-set="display_partner" t-value="any(l.partner_id for l in o.line_ids)"/>
+                <div class="oe_structure"/>
+                <table style="font-size: 10px" class="table table-sm o_main_table table-borderless"
+                       name="invoice_line_table">
+                    <thead>
+                        <tr>
+                            <th name="th_account" class="text-start">
+                                <span>Cuenta</span>
+                            </th>
+                            <th name="th_partner" t-if="display_partner" class="text-start">
+                                <span>Partner</span>
+                            </th>
+                            <th name="th_label" class="text-start">
+                                <span>Descripción</span>
+                            </th>
+                            <th name="th_label" class="text-start">
+                                <span>Dist. Analítica</span>
+                            </th>
+                            <th name="th_amount_currency"
+                                t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                <span>Importe Moneda</span>
+                            </th>
+                            <th name="th_amount_currency"
+                                t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                <span>Moneda</span>
+                            </th>
+                            <th name="th_debit"
+                                t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                <span>Débito</span>
+                            </th>
+                            <th name="th_credit"
+                                t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                <span>Crédito</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="invoice_tbody">
+                        <t t-set="current_debit" t-value="0"/>
+                        <t t-set="current_credit" t-value="0"/>
+                        <t t-set="lines"
+                           t-value="o.line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+                        <t t-foreach="lines" t-as="line">
+                            <t t-set="current_debit" t-value="current_debit + line.debit"/>
+                            <t t-set="current_credit" t-value="current_credit + line.credit"/>
+                            <tr>
+                                <td name="account_invoice_line_name">
+                                    <span t-field="line.account_id"/>
+                                </td>
+                                <td t-if="display_partner" name="td_partner" class="text-start">
+                                    <span t-field="line.partner_id"/>
+                                </td>
+                                <td name="td_label" class="text-start">
+                                    <span t-field="line.name"/>
+                                </td>
+                                <td name="td_label" class="text-start">
+                                    <span t-field="line.analytic_distribution_text"/>
+                                </td>
+                                <td name="td_amount_currency"
+                                    t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                    <span class="text-nowrap" t-field="line.amount_currency"/>
+                                </td>
+                                <td name="td_label" class="text-start">
+                                    <span t-field="line.currency_id"/>
+                                </td>
+                                <td name="td_debit" class="text-end">
+                                    <span class="text-nowrap" t-field="line.debit"/>
+                                </td>
+                                <td name="td_credit" class="text-end">
+                                    <span class="text-nowrap" t-field="line.credit"/>
+                                </td>
+                            </tr>
+                        </t>
+                        <tr>
+                            <t t-set="colspan_no" t-value="4"/>
+                            <t t-if="display_partner" t-set="colspan_no" t-value="colspan_no + 1"/>
+                            <td t-att-colspan="colspan_no" style="border-top: 1px solid black;"
+                                class="fw-bold text-end">Balance</td>
+                            <td name="td_total_debit" style="border-top: 1px solid black;" class="text-end">
+                                <strong>
+                                    <span class="text-nowrap" t-out="current_debit"/>
+                                </strong>
+                            </td>
+                            <td name="td_total_credit" style="border-top: 1px solid black;" class="text-end">
+                                <strong>
+                                    <span class="text-nowrap" t-out="current_credit"
+                                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </strong>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="firmas" class="row mt-3 mb-1" style="font-size: 10px">
+                    <div t-attf-class="#{'col-auto col-3 mw-100' if report_type != 'html' else 'col'} mb-2">
+                        <strong>Creado por:</strong>
+                        <span t-field="o.create_uid"/>
+                    </div>
+                    <div t-attf-class="#{'col-auto col-3 mw-100' if report_type != 'html' else 'col'} mb-2">
+                        <strong>Firma revisado:</strong>
+                        <span>________________________________________</span>
+                    </div>
+                    <div t-attf-class="#{'col-auto col-3 mw-100' if report_type != 'html' else 'col'} mb-2">
+                        <strong>Firma autorizado:</strong>
+                        <span>________________________________________</span>
+                    </div>
+                </div>
+                <t t-set="sar_page_num" t-value="1"/>
+                <t t-set="sar_total_pages" t-value="1"/>
+                <t t-call="kc_fiscal_hn_v18.sar_legal_footer"/>
+            </div>
+        </template>
+
+        <template id="report_journal">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.basic_layout">
+                        <t t-call="kc_fiscal_hn_v18.report_journal_document" t-lang="o.partner_id.lang"/>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

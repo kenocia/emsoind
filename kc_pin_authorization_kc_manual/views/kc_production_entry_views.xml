@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="kc_production_entry_view_form_kc_pin" model="ir.ui.view">
+        <field name="name">kc.production.entry.form.kc.pin</field>
+        <field name="model">kc.production.entry</field>
+        <field name="inherit_id"
+               ref="kc_manual_production.kc_production_entry_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Autorización por PIN"
+                      name="kc_pin_authorization"
+                      invisible="not kc_pin_authorized_employee_id">
+                    <group>
+                        <field name="kc_pin_authorized_employee_id" readonly="1"/>
+                        <field name="kc_pin_authorization_date" readonly="1"/>
+                        <field name="kc_pin_authorized_user_id" readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

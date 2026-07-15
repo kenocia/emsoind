@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <function model="res.partner.category" name="_emsoind_run_post_upgrade"/>
+    </data>
+</odoo>

@@ -1,0 +1,241 @@
+// Centro de Alertas Fiscales SAR — estilos compatibles con modo claro/oscuro.
+// Solo layout, bordes y tonos translúcidos sobre variables Bootstrap de Odoo.
+
+.o_fiscal_alerts_form {
+    .o_form_sheet {
+        max-width: 1100px;
+        padding: 1.25rem 1.5rem 1.5rem;
+    }
+
+    // El widget html de solo lectura no debe verse como un editor.
+    .o_field_html,
+    .o_field_widget[name] .odoo-editor-editable {
+        border: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
+
+    // ── Barra superior / resumen ──────────────────────────────
+    .o_fa_topbar {
+        margin-bottom: 1.25rem;
+    }
+
+    .o_fa_topbar_title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.85rem;
+
+        i {
+            color: var(--bs-primary);
+        }
+    }
+
+    .o_fa_banner {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.7rem 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        margin-bottom: 0.85rem;
+
+        i { font-size: 1.15rem; }
+
+        &--ok {
+            background: rgba(var(--bs-success-rgb), 0.14);
+            color: var(--bs-success);
+        }
+        &--alert {
+            background: rgba(var(--bs-warning-rgb), 0.16);
+            color: var(--bs-warning);
+        }
+    }
+
+    .o_fa_chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    .o_fa_chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid var(--bs-border-color);
+        background: var(--bs-body-bg);
+        opacity: 0.7;
+
+        .o_fa_chip_count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.5rem;
+            height: 1.5rem;
+            padding: 0 0.4rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            background: var(--bs-secondary-bg, rgba(0, 0, 0, 0.08));
+        }
+
+        &.o_fa_chip--active {
+            opacity: 1;
+            border-width: 1px;
+        }
+
+        &--danger.o_fa_chip--active {
+            border-color: var(--bs-danger);
+            color: var(--bs-danger);
+            .o_fa_chip_count { background: rgba(var(--bs-danger-rgb), 0.16); }
+        }
+        &--warning.o_fa_chip--active {
+            border-color: var(--bs-warning);
+            color: var(--bs-warning);
+            .o_fa_chip_count { background: rgba(var(--bs-warning-rgb), 0.18); }
+        }
+        &--info.o_fa_chip--active {
+            border-color: var(--bs-info);
+            color: var(--bs-info);
+            .o_fa_chip_count { background: rgba(var(--bs-info-rgb), 0.18); }
+        }
+        &--journals.o_fa_chip--active {
+            border-color: var(--bs-primary);
+            color: var(--bs-primary);
+            .o_fa_chip_count { background: rgba(var(--bs-primary-rgb), 0.16); }
+        }
+    }
+
+    // ── Grilla de tarjetas ────────────────────────────────────
+    .o_fa_grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .o_fa_grid { grid-template-columns: 1fr; }
+    }
+
+    .o_fa_card {
+        border: 1px solid var(--bs-border-color);
+        border-radius: 14px;
+        padding: 1rem 1.1rem 1.1rem;
+        background: var(--bs-body-bg);
+        border-top: 3px solid var(--bs-border-color);
+
+        &--danger { border-top-color: var(--bs-danger); }
+        &--warning { border-top-color: var(--bs-warning); }
+        &--info { border-top-color: var(--bs-info); }
+        &--journals { border-top-color: var(--bs-primary); }
+    }
+
+    .o_fa_card_head {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        opacity: 0.82;
+        margin-bottom: 0.85rem;
+
+        &--between { justify-content: space-between; }
+        i { opacity: 0.9; }
+    }
+
+    // ── Lista de incidencias ──────────────────────────────────
+    .o_fa_list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .o_fa_item {
+        display: flex;
+        gap: 0.7rem;
+        padding: 0.7rem 0.8rem;
+        border-radius: 10px;
+        border: 1px solid var(--bs-border-color);
+        background: var(--bs-secondary-bg, rgba(0, 0, 0, 0.02));
+
+        &.o_fa--danger { border-left: 4px solid var(--bs-danger); }
+        &.o_fa--warning { border-left: 4px solid var(--bs-warning); }
+        &.o_fa--info { border-left: 4px solid var(--bs-info); }
+        &.o_fa--success { border-left: 4px solid var(--bs-success); }
+    }
+
+    .o_fa_item_icon {
+        flex: 0 0 auto;
+        font-size: 1.05rem;
+        line-height: 1.4;
+
+        .o_fa--danger & { color: var(--bs-danger); }
+        .o_fa--warning & { color: var(--bs-warning); }
+        .o_fa--info & { color: var(--bs-info); }
+    }
+    .o_fa--danger .o_fa_item_icon { color: var(--bs-danger); }
+    .o_fa--warning .o_fa_item_icon { color: var(--bs-warning); }
+    .o_fa--info .o_fa_item_icon { color: var(--bs-info); }
+
+    .o_fa_item_body { flex: 1 1 auto; min-width: 0; }
+
+    .o_fa_item_head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .o_fa_item_title {
+        font-weight: 600;
+        font-size: 0.92rem;
+        word-break: break-word;
+    }
+
+    .o_fa_badge {
+        flex: 0 0 auto;
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        border: 1px solid currentColor;
+        white-space: nowrap;
+
+        .o_fa--danger & { color: var(--bs-danger); }
+        .o_fa--warning & { color: var(--bs-warning); }
+        .o_fa--info & { color: var(--bs-info); }
+    }
+
+    .o_fa_meta {
+        font-size: 0.82rem;
+        opacity: 0.85;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    .o_fa_meta_label {
+        font-weight: 600;
+        opacity: 0.7;
+    }
+
+    .o_fa_empty {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.85rem 0.9rem;
+        border-radius: 10px;
+        border: 1px dashed var(--bs-border-color);
+        font-size: 0.86rem;
+        opacity: 0.8;
+
+        i { color: var(--bs-success); font-size: 1.05rem; }
+    }
+}

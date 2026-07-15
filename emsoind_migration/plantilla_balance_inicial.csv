@@ -1,0 +1,26 @@
+cuenta;saldo_inicial;diario_odoo;notas
+11202;-406209.60;;Reserv. Amort. Ctas Incobrables — saldo NEGATIVO (contra activo)
+11502;1102578.80;;Anticipo a Proveedores
+13001;58495.81;;Pagos a Cuenta ISR
+13002;7198.49;;Retención 1% ISR
+12101;1489226;;Terrenos
+12102;7956296.12;;Edificios
+12103;6923831.45;;Vehículos
+12104;666478.91;;Mobiliario y Equipo
+12105;7863673.13;;Maquinaria y Equipo
+12106;91406.84;;Sistema Informático → Herramientas
+12202;-1755629.11;;Dep. Acum. Edificio — saldo NEGATIVO
+12203;-3486667.75;;Dep. Acum. Vehículos — saldo NEGATIVO
+12204;-327446.08;;Dep. Acum. Mob y Equipo — saldo NEGATIVO
+12205;-1974433.04;;Dep. Acum. Maq y Equipo — saldo NEGATIVO
+21102;-659672.62;;Anticipo a Clientes — saldo NEGATIVO
+21104;-381789.12;;Sueldos por Pagar (CXP Empleados) — saldo NEGATIVO
+21210;-702315.35;;Préstamo BAC — saldo NEGATIVO
+21301;-50553.24;;Seguro Social — saldo NEGATIVO
+21302;-58435.22;;RAP-FOSOVI — saldo NEGATIVO
+21501;-386987.56;;ISV 15% por pagar — saldo NEGATIVO
+21506;-21372.62;;Retenciones ISR Empleados — saldo NEGATIVO
+22201;-10686226.52;;Juan Jose Paz — saldo NEGATIVO
+31101;-25000;;Capital Inscrito — saldo NEGATIVO
+31102;-11307553.56;;Superávit/Revaluación Activos — saldo NEGATIVO
+31103;-4395396.79;;Utilidad retenida + utilidad período 2025 — saldo NEGATIVO

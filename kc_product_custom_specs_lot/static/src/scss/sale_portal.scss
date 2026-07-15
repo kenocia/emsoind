@@ -1,0 +1,253 @@
+// Portal cotización / OV — estilo Kenocia fresco y legible
+$kc-portal-primary: #1a4fa0;
+$kc-portal-primary-soft: #e8f0fb;
+$kc-portal-text: #111827;
+$kc-portal-muted: #6b7280;
+$kc-portal-muted-light: #9ca3af;
+$kc-portal-border: #e5e7eb;
+$kc-portal-row-alt: #f9fafb;
+$kc-portal-radius: 12px;
+$kc-portal-shadow: 0 4px 24px rgba(17, 24, 39, 0.06);
+
+.kc-sale-portal-intro {
+    margin-bottom: 0.5rem;
+
+    h2 {
+        color: $kc-portal-text;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.35rem;
+    }
+
+    .kc-validity-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border: 1px solid $kc-portal-primary;
+        color: $kc-portal-primary;
+        background: $kc-portal-primary-soft;
+        border-radius: 999px;
+        padding: 0.2rem 0.85rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+}
+
+.kc-sale-portal-info-card {
+    background: #fff;
+    border: 1px solid $kc-portal-border;
+    border-radius: $kc-portal-radius;
+    padding: 1rem 1.15rem;
+    box-shadow: $kc-portal-shadow;
+
+    h5 {
+        color: $kc-portal-primary;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    hr {
+        border-color: $kc-portal-border;
+        opacity: 1;
+    }
+
+    #sale_info_table th {
+        color: $kc-portal-muted;
+        font-weight: 600;
+        font-size: 0.88rem;
+        padding-right: 0.75rem;
+        vertical-align: top;
+    }
+
+    #sale_info_table td {
+        color: $kc-portal-text;
+        font-weight: 500;
+    }
+}
+
+.kc-sale-portal-lines-card {
+    background: #fff;
+    border: 1px solid $kc-portal-border;
+    border-radius: $kc-portal-radius;
+    padding: 0.35rem 0.5rem 0.75rem;
+    box-shadow: $kc-portal-shadow;
+    margin-top: 0.5rem;
+}
+
+.kc-section-title {
+    color: $kc-portal-primary;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 1.25rem 0 0.75rem;
+}
+
+table.kc-sale-portal-table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    thead th {
+        border-bottom: 2px solid $kc-portal-primary !important;
+        color: $kc-portal-muted;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 0.85rem 0.65rem 0.55rem;
+        white-space: nowrap;
+        background: transparent;
+    }
+
+    tbody.sale_tbody > tr:not(.o_line_section):not(.o_line_note):not(.is-subtotal) {
+        transition: background-color 0.15s ease;
+
+        &:nth-child(even) {
+            background-color: $kc-portal-row-alt;
+        }
+
+        &:hover {
+            background-color: $kc-portal-primary-soft;
+        }
+    }
+
+    tbody td {
+        padding: 0.85rem 0.65rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #eef0f3;
+        color: $kc-portal-text;
+    }
+
+    tbody tr.o_line_section td {
+        background: $kc-portal-primary-soft;
+        color: $kc-portal-primary;
+        font-weight: 700;
+        border-bottom-color: darken($kc-portal-primary-soft, 6%);
+        padding-top: 1rem;
+    }
+
+    tbody tr.o_line_note td {
+        color: $kc-portal-muted;
+        font-style: italic;
+    }
+
+    tbody tr.is-subtotal td {
+        background: #fff;
+        border-top: 1px dashed $kc-portal-border;
+        padding-top: 0.65rem;
+    }
+
+    td#quote_qty_td,
+    td#subtotal {
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    td#taxes {
+        white-space: nowrap;
+        font-size: 0.82rem;
+        color: $kc-portal-muted;
+    }
+
+    .kc-portal-price {
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+    }
+
+    .kc-portal-amount {
+        font-weight: 700;
+        color: $kc-portal-text;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.kc-sale-portal-product {
+    min-width: 220px;
+
+    .kc-product-name {
+        color: $kc-portal-text;
+        line-height: 1.35;
+        font-size: 0.95rem;
+    }
+
+    .kc-product-specs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .kc-spec-chip {
+        display: inline-flex;
+        align-items: center;
+        background: #f3f4f6;
+        color: $kc-portal-muted;
+        border: 1px solid #e5e7eb;
+        border-radius: 999px;
+        padding: 0.12rem 0.55rem;
+        font-size: 0.72rem;
+        font-weight: 500;
+        line-height: 1.4;
+        white-space: nowrap;
+    }
+
+    .kc-lot-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: $kc-portal-primary-soft;
+        color: $kc-portal-primary;
+        border-radius: 6px;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.74rem;
+        font-weight: 600;
+    }
+}
+
+.kc-sale-portal-totals {
+    margin-top: 1.25rem;
+
+    .kc-totals-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+        border: 1px solid $kc-portal-border;
+        border-radius: $kc-portal-radius;
+        padding: 0.75rem 1rem;
+        box-shadow: $kc-portal-shadow;
+    }
+
+    table[name="sale_order_totals_table"] {
+        margin-bottom: 0;
+
+        tr:last-child td,
+        tr:last-child th {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: $kc-portal-primary;
+            border-top: 2px solid $kc-portal-primary;
+            padding-top: 0.65rem;
+        }
+    }
+}
+
+@media (max-width: 767.98px) {
+    .kc-sale-portal-info-card {
+        margin-bottom: 0.85rem !important;
+    }
+
+    table.kc-sale-portal-table thead th {
+        font-size: 0.68rem;
+        padding: 0.65rem 0.4rem 0.45rem;
+    }
+
+    table.kc-sale-portal-table tbody td {
+        padding: 0.65rem 0.4rem;
+    }
+
+    .kc-sale-portal-product .kc-spec-chip {
+        white-space: normal;
+    }
+}

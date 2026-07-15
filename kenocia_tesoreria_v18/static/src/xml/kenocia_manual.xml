@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="kenocia_tesoreria_v18.Manual">
+        <div class="kc-manual o_view_controller">
+
+            <!-- Cabecera -->
+            <div class="kc-manual-header">
+                <div class="kc-brand">
+                    <div class="kc-brand-badge">KC</div>
+                    <div class="kc-brand-text">
+                        <div class="kc-brand-title">Manual de Tesorería</div>
+                        <div class="kc-brand-sub">KenoCia · Guía interactiva del usuario</div>
+                    </div>
+                </div>
+                <div class="kc-header-tools">
+                    <div class="kc-search">
+                        <i class="fa fa-search"/>
+                        <input type="text" placeholder="Buscar en el manual…"
+                               t-att-value="state.search" t-on-input="onSearch"/>
+                    </div>
+                    <button type="button" class="kc-refresh" t-on-click="refresh">
+                        <i class="fa fa-refresh"/>
+                    </button>
+                </div>
+            </div>
+
+            <t t-if="state.loading">
+                <div class="kc-loading">
+                    <i class="fa fa-spinner fa-spin me-2"/> Cargando manual…
+                </div>
+            </t>
+
+            <t t-else="">
+                <div class="kc-manual-body">
+
+                    <!-- Navegación lateral -->
+                    <nav class="kc-nav">
+                        <t t-foreach="navSections" t-as="nav" t-key="nav.id">
+                            <button type="button" class="kc-nav-item"
+                                    t-att-class="{ active: state.active === nav.id }"
+                                    t-on-click="() => this.setActive(nav.id)">
+                                <i t-attf-class="fa {{ nav.icon }}"/>
+                                <span t-esc="nav.title"/>
+                                <t t-if="nav.id === 'config' and pendingCount">
+                                    <span class="kc-nav-badge" t-esc="pendingCount"/>
+                                </t>
+                                <t t-if="nav.id === 'alertas' and alerts.length">
+                                    <span class="kc-nav-badge kc-nav-badge-alert" t-esc="alerts.length"/>
+                                </t>
+                            </button>
+                        </t>
+                    </nav>
+
+                    <!-- Contenido -->
+                    <div class="kc-manual-content">
+
+                        <!-- Resultados de búsqueda -->
+                        <t t-if="searchHits !== null">
+                            <h2 class="kc-section-title">
+                                Resultados para “<t t-esc="state.search"/>”
+                            </h2>
+                            <t t-if="!searchHits.length">
+                                <div class="kc-empty">Sin coincidencias.</div>
+                            </t>
+                            <div class="kc-hit-grid">
+                                <t t-foreach="searchHits" t-as="hit" t-key="hit.id">
+                                    <button type="button" class="kc-hit-card"
+                                            t-on-click="() => this.setActive(hit.id)">
+                                        <i t-attf-class="fa {{ hit.icon }}"/>
+                                        <div>
+                                            <div class="kc-hit-title" t-esc="hit.title"/>
+                                            <div class="kc-hit-sub" t-esc="hit.intro"/>
+                                        </div>
+                                    </button>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- INICIO -->
+                        <t t-elif="state.active === 'inicio'">
+                            <div class="kc-hero">
+                                <div class="kc-hero-text">
+                                    <h1>Bienvenido a Tesorería KenoCia</h1>
+                                    <p>
+                                        Esta guía interactiva te acompaña en la operación diaria:
+                                        cobros y pagos con correlativos, anticipos CXC/CXP, caja chica
+                                        SAR, dispersión y reportes — con su afectación contable.
+                                    </p>
+                                    <div class="kc-hero-actions">
+                                        <button class="kc-btn-primary" t-on-click="() => this.setActive('config')">
+                                            <i class="fa fa-tasks me-1"/> Revisar configuración
+                                        </button>
+                                        <button class="kc-btn-ghost" t-on-click="() => this.setActive('pagos')">
+                                            Empezar a operar →
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="kc-hero-ring">
+                                    <div t-att-class="'kc-ring ' + progressTone()"
+                                         t-attf-style="--pct: {{ progress.pct }}">
+                                        <div class="kc-ring-inner">
+                                            <div class="kc-ring-pct"><t t-esc="progress.pct"/>%</div>
+                                            <div class="kc-ring-label">configurado</div>
+                                        </div>
+                                    </div>
+                                    <div class="kc-ring-caption">
+                                        <t t-esc="progress.done"/> de <t t-esc="progress.total"/> requisitos clave
+                                    </div>
+                                </div>
+                            </div>
+
+                            <t t-if="alerts.length">
+                                <h2 class="kc-section-title"><i class="fa fa-bell me-1"/> Atención inmediata</h2>
+                                <t t-foreach="alerts.slice(0, 3)" t-as="al" t-key="al_index">
+                                    <div t-att-class="'kc-alert ' + alertClass(al.level)">
+                                        <i t-attf-class="fa {{ al.icon }}"/>
+                                        <div class="kc-alert-body">
+                                            <div class="kc-alert-title" t-esc="al.title"/>
+                                            <div t-esc="al.msg"/>
+                                        </div>
+                                        <button t-if="al.action" class="kc-alert-link"
+                                                t-on-click="() => this.openAction(al.action)">Ver →</button>
+                                    </div>
+                                </t>
+                            </t>
+
+                            <h2 class="kc-section-title">Recorre el manual</h2>
+                            <div class="kc-tile-grid">
+                                <t t-foreach="sections" t-as="sec" t-key="sec.id">
+                                    <button type="button" class="kc-tile"
+                                            t-on-click="() => this.setActive(sec.id)">
+                                        <i t-attf-class="fa {{ sec.icon }}"/>
+                                        <div class="kc-tile-title" t-esc="sec.title"/>
+                                        <div class="kc-tile-sub" t-esc="sec.intro"/>
+                                    </button>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- CONFIGURACIÓN PENDIENTE -->
+                        <t t-elif="state.active === 'config'">
+                            <div class="kc-config-head">
+                                <div>
+                                    <h1>Centro de configuración</h1>
+                                    <p>Estado real de tu instalación. Pulsa cada botón para ir a la pantalla correspondiente.</p>
+                                </div>
+                                <div t-att-class="'kc-ring kc-ring-sm ' + progressTone()"
+                                     t-attf-style="--pct: {{ progress.pct }}">
+                                    <div class="kc-ring-inner">
+                                        <div class="kc-ring-pct"><t t-esc="progress.pct"/>%</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <t t-foreach="configGroups" t-as="group" t-key="group.key">
+                                <div class="kc-config-group">
+                                    <div class="kc-config-group-head">
+                                        <i t-attf-class="fa {{ group.icon }}"/>
+                                        <div>
+                                            <div class="kc-config-group-title" t-esc="group.title"/>
+                                            <div class="kc-config-group-desc" t-esc="group.desc"/>
+                                        </div>
+                                        <span t-att-class="'kc-pill kc-pill-' + statusMeta(groupStatus(group)).cls"
+                                              t-esc="statusMeta(groupStatus(group)).label"/>
+                                    </div>
+                                    <t t-foreach="group.items" t-as="item" t-key="item.key">
+                                        <div class="kc-check-item">
+                                            <i t-att-class="'fa ' + statusMeta(item.status).icon + ' kc-check-icon ' + statusMeta(item.status).cls"/>
+                                            <div class="kc-check-main">
+                                                <div class="kc-check-title">
+                                                    <span t-esc="item.title"/>
+                                                    <span t-if="item.required" class="kc-req">requerido</span>
+                                                </div>
+                                                <div class="kc-check-desc" t-esc="item.desc"/>
+                                                <t t-if="item.detail">
+                                                    <div class="kc-check-detail" t-esc="item.detail"/>
+                                                </t>
+                                            </div>
+                                            <t t-if="item.action">
+                                                <button type="button" class="kc-check-btn"
+                                                        t-on-click="() => this.openAction(item.action)">
+                                                    <t t-esc="item.fix_label"/>
+                                                </button>
+                                            </t>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                        </t>
+
+                        <!-- ALERTAS -->
+                        <t t-elif="state.active === 'alertas'">
+                            <h1>Alertas operativas</h1>
+                            <p>Situaciones que requieren tu acción, calculadas en tiempo real.</p>
+                            <t t-if="!alerts.length">
+                                <div class="kc-alert kc-alert-ok">
+                                    <i class="fa fa-check-circle"/>
+                                    <div class="kc-alert-body">
+                                        <div class="kc-alert-title">Todo en orden</div>
+                                        <div>No hay alertas pendientes en este momento.</div>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-foreach="alerts" t-as="al" t-key="al_index">
+                                <div t-att-class="'kc-alert ' + alertClass(al.level)">
+                                    <i t-attf-class="fa {{ al.icon }}"/>
+                                    <div class="kc-alert-body">
+                                        <div class="kc-alert-title" t-esc="al.title"/>
+                                        <div t-esc="al.msg"/>
+                                    </div>
+                                    <button t-if="al.action" class="kc-alert-link"
+                                            t-on-click="() => this.openAction(al.action)">Ver →</button>
+                                </div>
+                            </t>
+                        </t>
+
+                        <!-- SECCIÓN DE CONTENIDO -->
+                        <t t-elif="currentSection">
+                            <h1 class="kc-content-title">
+                                <i t-attf-class="fa {{ currentSection.icon }}"/>
+                                <t t-esc="currentSection.title"/>
+                            </h1>
+                            <p class="kc-content-intro" t-esc="currentSection.intro"/>
+
+                            <t t-foreach="currentSection.blocks" t-as="block" t-key="block_index">
+
+                                <t t-if="block.type === 'p'">
+                                    <p class="kc-p" t-out="block.html"/>
+                                </t>
+
+                                <t t-if="block.type === 'callout'">
+                                    <div t-att-class="'kc-callout kc-callout-' + block.tone">
+                                        <div class="kc-callout-title" t-esc="block.title"/>
+                                        <div t-esc="block.text"/>
+                                    </div>
+                                </t>
+
+                                <t t-if="block.type === 'steps'">
+                                    <ol class="kc-steps">
+                                        <t t-foreach="block.items" t-as="st" t-key="st_index">
+                                            <li class="kc-step">
+                                                <span class="kc-step-num" t-esc="st_index + 1"/>
+                                                <div>
+                                                    <div class="kc-step-title" t-esc="st.t"/>
+                                                    <div class="kc-step-desc" t-out="st.d"/>
+                                                </div>
+                                            </li>
+                                        </t>
+                                    </ol>
+                                </t>
+
+                                <t t-if="block.type === 'table'">
+                                    <div class="kc-table-wrap">
+                                        <table class="kc-table">
+                                            <thead>
+                                                <tr>
+                                                    <t t-foreach="block.headers" t-as="h" t-key="h_index">
+                                                        <th t-esc="h"/>
+                                                    </t>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="block.rows" t-as="row" t-key="row_index">
+                                                    <tr>
+                                                        <t t-foreach="row" t-as="cell" t-key="cell_index">
+                                                            <td t-esc="cell"/>
+                                                        </t>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </t>
+
+                                <t t-if="block.type === 'cards'">
+                                    <div class="kc-card-grid">
+                                        <t t-foreach="block.items" t-as="cd" t-key="cd_index">
+                                            <div class="kc-info-card">
+                                                <i t-attf-class="fa {{ cd.icon }}"/>
+                                                <div class="kc-info-card-title" t-esc="cd.title"/>
+                                                <div class="kc-info-card-text" t-esc="cd.text"/>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+
+                                <t t-if="block.type === 'accounting'">
+                                    <div class="kc-acc">
+                                        <div class="kc-acc-title">
+                                            <i class="fa fa-calculator me-1"/>
+                                            <t t-esc="block.title"/>
+                                        </div>
+                                        <t t-foreach="block.lines" t-as="ln" t-key="ln_index">
+                                            <div class="kc-acc-line">
+                                                <span class="kc-acc-note" t-esc="ln.note"/>
+                                                <div class="kc-acc-cols">
+                                                    <span class="kc-acc-debe">
+                                                        <span class="kc-acc-tag">DEBE</span>
+                                                        <t t-esc="ln.debe"/>
+                                                    </span>
+                                                    <span class="kc-acc-haber">
+                                                        <span class="kc-acc-tag">HABER</span>
+                                                        <t t-esc="ln.haber"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+
+                            </t>
+                        </t>
+
+                        <div class="kc-footer">
+                            © KenoCia (Kenosis Company) · Licencia LGPL-3 · consultoria@kenocia.com
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

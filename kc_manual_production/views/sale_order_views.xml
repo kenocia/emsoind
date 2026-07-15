@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="kc_view_order_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.kc.production</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_kc_entries" type="object"
+                        class="oe_stat_button" icon="fa-industry"
+                        invisible="kc_entry_count == 0">
+                    <field name="kc_entry_count" widget="statinfo"
+                           string="Reg. Producción"/>
+                </button>
+                <button name="action_create_kc_production_entry" type="object"
+                        class="oe_stat_button" icon="fa-plus-square"
+                        invisible="state not in ('sale', 'done') or kc_production_line_pending_count == 0"
+                        groups="kc_manual_production.kc_production_group_user,kc_manual_production.kc_production_group_manager,stock.group_stock_manager">
+                    <div class="o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="kc_production_line_pending_count"/>
+                        </span>
+                        <span class="o_stat_text">Líneas pendientes</span>
+                    </div>
+                </button>
+                <button name="action_view_kc_consumptions" type="object"
+                        class="oe_stat_button" icon="fa-arrow-right"
+                        invisible="kc_consumption_count == 0">
+                    <field name="kc_consumption_count" widget="statinfo"
+                           string="Consumos MP"/>
+                </button>
+                <button name="action_view_kc_lots" type="object"
+                        class="oe_stat_button" icon="fa-barcode"
+                        invisible="kc_lot_count == 0">
+                    <field name="kc_lot_count" widget="statinfo"
+                           string="Lotes"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Producción Manual" name="kc_production_status"
+                      invisible="state not in ('sale', 'done')">
+                    <field name="kc_production_incomplete" invisible="1"/>
+                    <field name="kc_production_line_required_count" invisible="1"/>
+                    <field name="kc_production_line_done_count" invisible="1"/>
+                    <field name="kc_production_line_pending_count" invisible="1"/>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not kc_production_incomplete">
+                        Esta Orden de Venta tiene
+                        <field name="kc_production_line_pending_count" class="oe_inline"/>
+                        línea(s) de producción pendiente(s) de
+                        <field name="kc_production_line_required_count" class="oe_inline"/>
+                        requerida(s).
+                    </div>
+                    <div class="alert alert-success" role="alert"
+                         invisible="kc_production_incomplete or kc_production_line_required_count == 0">
+                        Producción completa para todas las líneas requeridas.
+                    </div>
+
+                    <separator string="Avance por producto (seguimiento vendedor)"/>
+                    <field name="kc_production_progress_ids" nolabel="1" readonly="1">
+                        <list create="0" delete="0" edit="0">
+                            <field name="product_id"/>
+                            <field name="technical_description" optional="show"/>
+                            <field name="qty_ordered" sum="Total OV"/>
+                            <field name="qty_planned" sum="Total plan"/>
+                            <field name="qty_confirmed" sum="Total conf."/>
+                            <field name="qty_validated" sum="Total val."/>
+                            <field name="qty_pending" sum="Total pend."/>
+                            <field name="status" widget="badge"
+                                   decoration-success="status == 'done'"
+                                   decoration-info="status == 'confirmed'"
+                                   decoration-warning="status in ('planned', 'parcial')"
+                                   decoration-muted="status == 'none'"/>
+                        </list>
+                    </field>
+
+                    <separator string="Resumen por línea de producción"/>
+                    <field name="kc_production_status_ids" nolabel="1" readonly="1">
+                        <list create="0" delete="0" edit="0">
+                            <field name="production_line_id"/>
+                            <field name="product_summary"/>
+                            <field name="entry_id"/>
+                            <field name="status" widget="badge"
+                                   decoration-success="status == 'done'"
+                                   decoration-info="status == 'confirmed'"
+                                   decoration-warning="status in ('pending', 'draft', 'parcial')"
+                                   decoration-muted="status == 'cancel'"/>
+                        </list>
+                    </field>
+                    <button name="action_create_kc_production_entry" type="object"
+                            string="Nuevo Registro de Producción"
+                            class="btn-primary"
+                            invisible="state not in ('sale', 'done')"
+                            groups="kc_manual_production.kc_production_group_user,kc_manual_production.kc_production_group_manager,stock.group_stock_manager"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

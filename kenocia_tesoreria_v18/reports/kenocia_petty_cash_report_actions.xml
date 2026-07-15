@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_petty_cash_operational" model="ir.actions.report">
+        <field name="name">Reporte Operativo Caja Chica</field>
+        <field name="model">kenocia.petty.cash.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kenocia_tesoreria_v18.report_petty_cash_operational</field>
+        <field name="report_file">kenocia_tesoreria_v18.report_petty_cash_operational</field>
+        <field name="print_report_name">'Caja Chica Operativo'</field>
+        <field name="paperformat_id" ref="paperformat_kenocia_tesoreria"/>
+    </record>
+
+    <record id="action_report_petty_cash_fiscal" model="ir.actions.report">
+        <field name="name">Reporte Fiscal SAR Caja Chica</field>
+        <field name="model">kenocia.petty.cash.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kenocia_tesoreria_v18.report_petty_cash_fiscal</field>
+        <field name="report_file">kenocia_tesoreria_v18.report_petty_cash_fiscal</field>
+        <field name="print_report_name">'Caja Chica Fiscal SAR'</field>
+        <field name="paperformat_id" ref="paperformat_kenocia_tesoreria"/>
+    </record>
+
+</odoo>

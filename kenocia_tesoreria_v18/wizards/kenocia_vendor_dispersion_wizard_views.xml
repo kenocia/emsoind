@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_kenocia_vendor_dispersion_wizard_form" model="ir.ui.view">
+        <field name="name">kenocia.vendor.dispersion.wizard.form</field>
+        <field name="model">kenocia.vendor.dispersion.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Dispersión a proveedores">
+                <group>
+                    <group>
+                        <field name="journal_id"/>
+                        <field name="payment_date"/>
+                        <field name="bank_format"/>
+                    </group>
+                    <group>
+                        <field name="memo"/>
+                        <field name="partner_ids" widget="many2many_tags"
+                               options="{'no_create': True}"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="company_id" invisible="1"/>
+                        <field name="amount_total"/>
+                        <field name="line_count"/>
+                    </group>
+                </group>
+                <button name="action_load_invoices"
+                        string="Cargar facturas abiertas"
+                        type="object"
+                        class="btn-secondary"/>
+                <field name="line_ids">
+                    <list editable="bottom" create="false">
+                        <field name="move_line_id" column_invisible="True"/>
+                        <field name="include" widget="boolean_toggle"/>
+                        <field name="partner_id" readonly="1"/>
+                        <field name="move_id" readonly="1"/>
+                        <field name="date_maturity" readonly="1"/>
+                        <field name="currency_id" column_invisible="True"/>
+                        <field name="amount_residual" readonly="1"/>
+                        <field name="amount_to_pay"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm"
+                            string="Generar dispersión"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_kenocia_vendor_dispersion" model="ir.actions.act_window">
+        <field name="name">Dispersión a proveedores</field>
+        <field name="res_model">kenocia.vendor.dispersion.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

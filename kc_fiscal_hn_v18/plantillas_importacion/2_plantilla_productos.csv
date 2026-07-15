@@ -1,0 +1,4 @@
+name,default_code,type,categ_id,list_price,standard_price,taxes_id,supplier_taxes_id,aplica_retencion_isr
+Servicio de Consultoría,SERV-001,service,Servicios,1500.00,0.00,ISV 15%,,VERDADERO
+Producto Ejemplo Gravado,PROD-001,consu,Productos Gravados,250.00,180.00,ISV 15%,ISV 15%,FALSO
+Producto Ejemplo Exento,PROD-002,consu,Productos Exentos,100.00,70.00,,,FALSO

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kc_expense_advance_close_wizard_form" model="ir.ui.view">
+        <field name="name">kc.expense.advance.close.wizard.form</field>
+        <field name="model">kc.expense.advance.close.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirmar liquidación de anticipo">
+                <field name="close_type" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+                <group>
+                    <field name="advance_id"/>
+                    <field name="amount_balance"
+                           invisible="close_type == 'manual_settlement'"/>
+                    <field name="confirmation_message" nolabel="1" colspan="2"/>
+                    <field name="journal_id"
+                           invisible="close_type != 'surplus'"
+                           required="close_type == 'surplus'"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_close" string="Confirmar"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

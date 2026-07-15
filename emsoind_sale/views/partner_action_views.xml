@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_partner_view_search_emsoind" model="ir.ui.view">
+        <field name="name">res.partner.search.emsoind</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.res_partner_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='customer']" position="attributes">
+                <attribute name="string">Clientes EMSOIND</attribute>
+                <attribute name="domain">[('emsoind_use_in_sales', '=', True)]</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='supplier']" position="attributes">
+                <attribute name="string">Proveedores EMSOIND</attribute>
+                <attribute name="domain">[('emsoind_use_in_purchases', '=', True)]</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='customer']" position="after">
+                <filter string="Con rank cliente Odoo"
+                        name="customer_rank_legacy"
+                        domain="[('customer_rank', '&gt;', 0)]"/>
+                <filter string="Con rank proveedor Odoo"
+                        name="supplier_rank_legacy"
+                        domain="[('supplier_rank', '&gt;', 0)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account.res_partner_action_customer" model="ir.actions.act_window">
+        <field name="context" eval="{
+            'search_default_customer': 1,
+            'res_partner_search_mode': 'customer',
+            'default_is_company': True,
+            'default_customer_rank': 1,
+            'default_category_id': [(4, ref('emsoind_sale.partner_category_cliente'))],
+        }"/>
+    </record>
+
+    <record id="account.res_partner_action_supplier" model="ir.actions.act_window">
+        <field name="context" eval="{
+            'search_default_supplier': 1,
+            'res_partner_search_mode': 'supplier',
+            'default_is_company': True,
+            'default_supplier_rank': 1,
+            'default_category_id': [(4, ref('emsoind_sale.partner_category_proveedor'))],
+        }"/>
+    </record>
+
+</odoo>

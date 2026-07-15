@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Preferencias del propio usuario: permitir cambiar el PIN de autorización -->
+    <record id="view_users_form_simple_modif_kc_pin" model="ir.ui.view">
+        <field name="name">res.users.preferences.form.kc.pin</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='preferences_page']" position="inside">
+                <field name="kc_has_employee" invisible="1"/>
+                <group string="PIN de autorización" name="kc_pin"
+                       invisible="not kc_has_employee">
+                    <div class="text-muted o_form_label" colspan="2">
+                        Defina o cambie su PIN de autorización (numérico, mínimo
+                        4 dígitos). Se usa para autorizar acciones por PIN.
+                    </div>
+                    <field name="kc_pin_new" password="True"
+                           placeholder="Nuevo PIN"/>
+                    <field name="kc_pin_confirm" password="True"
+                           placeholder="Repita el nuevo PIN"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

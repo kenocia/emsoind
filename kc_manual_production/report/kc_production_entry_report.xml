@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Acción de Reporte: Registro de Producción (RP)               -->
+    <!-- Crea automáticamente el botón Imprimir en el form del RP.    -->
+    <!-- ============================================================ -->
+    <record id="action_report_kc_production_entry" model="ir.actions.report">
+        <field name="name">Registro de Producción</field>
+        <field name="model">kc.production.entry</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kc_manual_production.report_kc_production_entry_document</field>
+        <field name="report_file">kc_manual_production.report_kc_production_entry_document</field>
+        <field name="print_report_name">'RP - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_kc_production_entry"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_us"/>
+    </record>
+
+    <!-- Orden de entrega a bodega (RP Confirmado) -->
+    <record id="action_report_kc_production_entry_confirmed" model="ir.actions.report">
+        <field name="name">Orden de entrega a bodega</field>
+        <field name="model">kc.production.entry</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kc_manual_production.report_kc_production_entry_confirmed</field>
+        <field name="report_file">kc_manual_production.report_kc_production_entry_confirmed</field>
+        <field name="print_report_name">'Entrega Bodega - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_kc_production_entry"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_us"/>
+    </record>
+
+    <!-- Constancia de recepción PT (RP Validado) -->
+    <record id="action_report_kc_production_entry_validated" model="ir.actions.report">
+        <field name="name">Constancia de recepción PT</field>
+        <field name="model">kc.production.entry</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kc_manual_production.report_kc_production_entry_validated</field>
+        <field name="report_file">kc_manual_production.report_kc_production_entry_validated</field>
+        <field name="print_report_name">'Recepcion PT - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_kc_production_entry"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_us"/>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Documento QWeb: Registro de Producción                       -->
+    <!-- ============================================================ -->
+    <template id="report_kc_production_entry_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or env.user.lang)"/>
+                    <div class="page">
+
+                        <!-- Título -->
+                        <div class="text-center mb-4">
+                            <h2 class="mt-0">REGISTRO DE PRODUCCIÓN</h2>
+                            <h3 class="text-muted" t-field="o.name"/>
+                        </div>
+
+                        <!-- Datos generales -->
+                        <table class="table table-sm table-borderless mb-4">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 25%;"><strong>Orden de Venta:</strong></td>
+                                    <td style="width: 25%;">
+                                        <span t-if="o.sale_order_id" t-field="o.sale_order_id.name"/>
+                                        <span t-else="">Sin Orden de Venta</span>
+                                    </td>
+                                    <td style="width: 25%;"><strong>Fecha de Producción:</strong></td>
+                                    <td style="width: 25%;">
+                                        <span t-field="o.date_production"
+                                              t-options='{"widget": "datetime"}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cliente:</strong></td>
+                                    <td>
+                                        <span t-if="o.partner_id" t-field="o.partner_id.name"/>
+                                        <span t-else="">N/A</span>
+                                    </td>
+                                    <td><strong>Estado:</strong></td>
+                                    <td>
+                                        <span t-field="o.state"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Tabla de líneas producidas -->
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th>Producto Terminado</th>
+                                    <th>Lote Generado</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th>UdM</th>
+                                    <th class="text-end">Peso total (kg)</th>
+                                    <th class="text-end">Área total (FT²)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.line_ids" t-as="line"
+                                    style="page-break-inside: avoid;">
+                                    <td><span t-field="line.product_id.display_name"/></td>
+                                    <td>
+                                        <span t-if="line.lot_id" t-field="line.lot_id.name"/>
+                                        <span t-else="">-</span>
+                                    </td>
+                                    <td class="text-end"><span t-field="line.qty"/></td>
+                                    <td><span t-field="line.uom_id.name"/></td>
+                                    <td class="text-end"><span t-field="line.kc_total_weight"/></td>
+                                    <td class="text-end"><span t-field="line.kc_total_area_sqft"/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot t-if="o.line_ids">
+                                <tr>
+                                    <td colspan="2" class="text-end"><strong>Total:</strong></td>
+                                    <td class="text-end" t-if="len(o.line_ids.mapped('uom_id')) == 1">
+                                        <strong t-esc="sum(o.line_ids.mapped('qty'))"/>
+                                    </td>
+                                    <td t-else="" class="text-end">-</td>
+                                    <td t-if="len(o.line_ids.mapped('uom_id')) == 1">
+                                        <span t-field="o.line_ids[0].uom_id.name"/>
+                                    </td>
+                                    <td t-else="">-</td>
+                                    <td class="text-end">
+                                        <strong t-esc="sum(o.line_ids.mapped('kc_total_weight'))"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong t-esc="sum(o.line_ids.mapped('kc_total_area_sqft'))"/>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Referencia al albarán generado -->
+                        <p t-if="o.picking_id" class="mt-3">
+                            <strong>Transferencia de Inventario:</strong>
+                            <span t-field="o.picking_id.name"/>
+                        </p>
+
+                        <!-- Notas -->
+                        <div t-if="o.notes" class="mt-3">
+                            <strong>Notas:</strong>
+                            <p t-field="o.notes"/>
+                        </div>
+
+                        <!-- Pie de firmas (flujo normal, una sola vez al final) -->
+                        <div class="row mt-5 pt-5">
+                            <div class="col-6 text-center">
+                                <div style="border-top: 1px solid #000; margin: 0 20px;"/>
+                                <p class="mt-1 mb-0"><strong>Elaborado por</strong></p>
+                                <p class="mb-0">
+                                    <span t-field="o.create_uid.name"/>
+                                </p>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div style="border-top: 1px solid #000; margin: 0 20px;"/>
+                                <p class="mt-1 mb-0"><strong>Autorizado por</strong></p>
+                                <p class="mb-0">&#160;</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ========== Orden entrega a bodega (Confirmado) ========== -->
+    <template id="report_kc_production_entry_confirmed">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-3" style="border:2px solid #000;padding:8px;">
+                            <h2 style="margin:0;">ORDEN DE ENTREGA A BODEGA</h2>
+                            <h3 style="margin:4px 0;" t-field="o.name"/>
+                            <p style="margin:0;font-size:12px;">
+                                Producción confirma · Inventario recibe con Validar
+                            </p>
+                        </div>
+
+                        <table class="table table-sm table-borderless mb-3" style="font-size:12px;">
+                            <tbody>
+                                <tr>
+                                    <td><strong>OV:</strong>
+                                        <span t-if="o.sale_order_id" t-field="o.sale_order_id.name"/>
+                                        <span t-else="">Abastecimiento / Manual</span>
+                                    </td>
+                                    <td><strong>Cliente:</strong>
+                                        <span t-if="o.partner_id" t-field="o.partner_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Centro:</strong>
+                                        <span t-if="o.work_center_id" t-field="o.work_center_id.name"/>
+                                    </td>
+                                    <td><strong>Línea:</strong>
+                                        <span t-if="o.production_line_id" t-field="o.production_line_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha producción:</strong>
+                                        <span t-field="o.date_production" t-options='{"widget": "datetime"}'/>
+                                    </td>
+                                    <td><strong>Estado:</strong> <span t-field="o.state"/></td>
+                                </tr>
+                                <tr t-if="o.plan_line_id">
+                                    <td colspan="2"><strong>Bloque plan:</strong>
+                                        <span t-field="o.plan_line_id.name"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="table table-sm table-bordered" style="font-size:11px;">
+                            <thead>
+                                <tr style="background:#f0f0f0;">
+                                    <th>Producto</th>
+                                    <th>Desc. técnica</th>
+                                    <th>Lote</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th>UdM</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.line_ids" t-as="line">
+                                    <td><span t-field="line.product_id.display_name"/></td>
+                                    <td><span t-field="line.kc_technical_description"/></td>
+                                    <td><span t-if="line.lot_id" t-field="line.lot_id.name"/></td>
+                                    <td class="text-end"><span t-field="line.qty"/></td>
+                                    <td><span t-field="line.uom_id.name"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row mt-5 pt-4">
+                            <div class="col-6 text-center">
+                                <div style="border-top:1px solid #000;margin:0 20px;"/>
+                                <p class="mt-1 mb-0"><strong>Entrega producción</strong></p>
+                                <p class="mb-0" style="font-size:11px;" t-field="o.create_uid.name"/>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div style="border-top:1px solid #000;margin:0 20px;"/>
+                                <p class="mt-1 mb-0"><strong>Recibe bodega</strong></p>
+                                <p class="mb-0">&#160;</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ========== Constancia recepción PT (Validado) ========== -->
+    <template id="report_kc_production_entry_validated">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-3" style="border:2px solid #000;padding:8px;">
+                            <h2 style="margin:0;">CONSTANCIA DE RECEPCIÓN PT</h2>
+                            <h3 style="margin:4px 0;" t-field="o.name"/>
+                            <p style="margin:0;font-size:12px;">
+                                Producto terminado recibido en inventario
+                            </p>
+                        </div>
+
+                        <table class="table table-sm table-borderless mb-3" style="font-size:12px;">
+                            <tbody>
+                                <tr>
+                                    <td><strong>OV:</strong>
+                                        <span t-if="o.sale_order_id" t-field="o.sale_order_id.name"/>
+                                        <span t-else="">Abastecimiento / Manual</span>
+                                    </td>
+                                    <td><strong>Cliente:</strong>
+                                        <span t-if="o.partner_id" t-field="o.partner_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Bodega / Ubicación:</strong>
+                                        <span t-field="o.location_id.display_name"/>
+                                    </td>
+                                    <td><strong>Albarán:</strong>
+                                        <span t-if="o.picking_id" t-field="o.picking_id.name"/>
+                                        <span t-else="">—</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha producción:</strong>
+                                        <span t-field="o.date_production" t-options='{"widget": "datetime"}'/>
+                                    </td>
+                                    <td><strong>Estado:</strong> <span t-field="o.state"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="table table-sm table-bordered" style="font-size:11px;">
+                            <thead>
+                                <tr style="background:#f0f0f0;">
+                                    <th>Producto</th>
+                                    <th>Desc. técnica</th>
+                                    <th>Lote</th>
+                                    <th class="text-end">Cantidad recibida</th>
+                                    <th>UdM</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.line_ids" t-as="line">
+                                    <td><span t-field="line.product_id.display_name"/></td>
+                                    <td><span t-field="line.kc_technical_description"/></td>
+                                    <td><span t-if="line.lot_id" t-field="line.lot_id.name"/></td>
+                                    <td class="text-end"><span t-field="line.qty"/></td>
+                                    <td><span t-field="line.uom_id.name"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row mt-5 pt-4">
+                            <div class="col-6 text-center">
+                                <div style="border-top:1px solid #000;margin:0 20px;"/>
+                                <p class="mt-1 mb-0"><strong>Validado por inventario</strong></p>
+                                <p class="mb-0">&#160;</p>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div style="border-top:1px solid #000;margin:0 20px;"/>
+                                <p class="mt-1 mb-0"><strong>Control / Archivo</strong></p>
+                                <p class="mb-0">&#160;</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

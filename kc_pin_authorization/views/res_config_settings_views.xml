@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_kc_pin" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.kc_pin_authorization</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Autorización por PIN" string="Autorización por PIN"
+                     name="kc_pin_authorization">
+                    <block title="Autorización por PIN"
+                           name="kc_pin_authorization_block">
+                        <setting string="Reglas de autorización"
+                                 help="Defina en qué documento y operación se exige el PIN antes de validar (p. ej. Inventario → recepción / despacho).">
+                            <button name="action_open_pin_rules" type="object"
+                                    string="Configurar reglas" icon="fa-arrow-right"
+                                    class="btn-link"/>
+                        </setting>
+                        <setting string="Auditoría"
+                                 help="Consulte el historial de autorizaciones por PIN (exitosas y fallidas).">
+                            <button name="action_open_pin_logs" type="object"
+                                    string="Ver auditoría" icon="fa-arrow-right"
+                                    class="btn-link"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

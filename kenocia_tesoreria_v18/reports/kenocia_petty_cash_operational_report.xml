@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_petty_cash_operational">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-4">
+                            <h3>Reporte Operativo de Caja Chica</h3>
+                            <h5 t-esc="data.get('company').name"/>
+                            <p>
+                                Período:
+                                <span t-esc="data.get('date_from')"/> al
+                                <span t-esc="data.get('date_to')"/>
+                            </p>
+                        </div>
+
+                        <t t-foreach="data.get('funds', [])" t-as="fund_data">
+                            <div class="mt-4">
+                                <h5 t-esc="fund_data['fund'].name"/>
+                                <small>
+                                    Custodio:
+                                    <span t-esc="fund_data['fund'].custodian_id.display_name"/>
+                                    | Estado:
+                                    <span t-esc="fund_data.get('fund_state_label')"/>
+                                </small>
+                            </div>
+
+                            <table class="table table-sm table-bordered mt-2">
+                                <thead>
+                                    <tr>
+                                        <th>Autorizado</th>
+                                        <th>Recargas período</th>
+                                        <th>Entregado período</th>
+                                        <th>Liquidado período</th>
+                                        <th>Pendiente período</th>
+                                        <th>Disponible actual</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-end">
+                                            <span t-esc="fund_data['fund'].amount_authorized"
+                                                  t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-esc="fund_data['total_recharges']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-esc="fund_data['total_delivered']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-esc="fund_data['total_settled']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-esc="fund_data['total_pending']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-esc="fund_data['fund'].amount_available"
+                                                  t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <t t-if="fund_data['advances']">
+                                <h6 class="mt-3">Anticipos del período</h6>
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Empleado</th>
+                                            <th>Concepto</th>
+                                            <th>Anticipo</th>
+                                            <th>Factura</th>
+                                            <th>Vuelto</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="fund_data['advances']" t-as="line">
+                                            <td t-esc="line.date"/>
+                                            <td t-esc="line.employee_id.display_name"/>
+                                            <td t-esc="line.description"/>
+                                            <td class="text-end">
+                                                <span t-esc="line.amount"
+                                                      t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-esc="line.amount_invoice"
+                                                      t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-esc="line.amount_returned"
+                                                      t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                            </td>
+                                            <td t-esc="fund_data['line_state_labels'].get(line.state, line.state)"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <t t-if="fund_data['recharges']">
+                                <h6 class="mt-3">Recargas del período</h6>
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Referencia</th>
+                                            <th>Banco origen</th>
+                                            <th>N° cheque</th>
+                                            <th>Monto</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="fund_data['recharges']" t-as="rec">
+                                            <td t-esc="rec.date"/>
+                                            <td t-esc="rec.name"/>
+                                            <td t-esc="rec.journal_source_id.display_name"/>
+                                            <td t-esc="rec.reference"/>
+                                            <td class="text-end">
+                                                <span t-esc="rec.amount"
+                                                      t-options="{'widget': 'monetary', 'display_currency': rec.currency_id}"/>
+                                            </td>
+                                            <td t-esc="fund_data['recharge_state_labels'].get(rec.state, rec.state)"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                        </t>
+
+                        <table class="table table-bordered mt-4">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">TOTALES GLOBALES DEL PERÍODO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Total entregado</td>
+                                    <td class="text-end">
+                                        <span t-esc="data.get('total_global_delivered')"
+                                              t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Total liquidado</td>
+                                    <td class="text-end">
+                                        <span t-esc="data.get('total_global_settled')"
+                                              t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total pendiente</strong></td>
+                                    <td class="text-end">
+                                        <strong>
+                                            <span t-esc="data.get('total_global_pending')"
+                                                  t-options="{'widget': 'monetary', 'display_currency': data.get('currency')}"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

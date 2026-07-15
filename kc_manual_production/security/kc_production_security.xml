@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="kc_production_category" model="ir.module.category">
+            <field name="name">Producción Manual KC</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Planificador: planifica y genera RP en borrador; NO confirma ni valida. -->
+        <record id="kc_production_group_planner" model="res.groups">
+            <field name="name">Planificador</field>
+            <field name="category_id" ref="kc_production_category"/>
+            <field name="implied_ids" eval="[(6, 0, [ref('base.group_user')])]"/>
+            <field name="comment">
+                Planifica (backlog/Gantt/abastecimiento) y puede Generar RP
+                dejando el documento en borrador. No confirma ni valida.
+            </field>
+        </record>
+
+        <!-- Operador de Producción: hereda Planificador + confirma OP. -->
+        <record id="kc_production_group_user" model="res.groups">
+            <field name="name">Operador de Producción</field>
+            <field name="category_id" ref="kc_production_category"/>
+            <field name="implied_ids" eval="[(6, 0, [ref('kc_production_group_planner')])]"/>
+            <field name="comment">
+                Planifica, genera RP y confirma producción.
+                No valida recepción en bodega PT.
+            </field>
+        </record>
+
+        <!-- Bodega: valida RP (entra a PT) y gestiona CMP. -->
+        <record id="kc_production_group_bodega" model="res.groups">
+            <field name="name">Operador de Bodega</field>
+            <field name="category_id" ref="kc_production_category"/>
+            <field name="implied_ids" eval="[(6, 0, [ref('base.group_user'), ref('stock.group_stock_user')])]"/>
+            <field name="comment">
+                Ve lo confirmado, valida (recibe PT) y registra consumos.
+                No planifica ni confirma producción.
+            </field>
+        </record>
+
+        <!-- Admin: producción + bodega + stock manager. -->
+        <record id="kc_production_group_manager" model="res.groups">
+            <field name="name">Administrador de Producción</field>
+            <field name="category_id" ref="kc_production_category"/>
+            <field name="implied_ids" eval="[(6, 0, [
+                ref('kc_production_group_user'),
+                ref('kc_production_group_bodega'),
+                ref('stock.group_stock_manager'),
+            ])]"/>
+            <field name="comment">
+                Acceso total: planificar, confirmar, validar, CMP y configuración.
+            </field>
+        </record>
+
+    </data>
+</odoo>

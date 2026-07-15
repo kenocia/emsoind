@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de árbol para alertas de secuencias -->
+        <record id="view_sequence_alert_tree" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn_v18.sequence.alert.tree</field>
+            <field name="model">kc_fiscal_hn.sequence.alert</field>
+            <field name="arch" type="xml">
+                <list string="Alertas de Secuencias Fiscales" decoration-danger="alert_type == 'critical'" decoration-warning="alert_type == 'warning'">
+                    <field name="sequence_id"/>
+                    <field name="alert_type"/>
+                    <field name="usage_percentage" widget="percentage"/>
+                    <field name="current_number"/>
+                    <field name="state"/>
+                    <field name="create_date"/>
+                    <field name="acknowledged_by"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista de formulario para alertas de secuencias -->
+        <record id="view_sequence_alert_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn_v18.sequence.alert.form</field>
+            <field name="model">kc_fiscal_hn.sequence.alert</field>
+            <field name="arch" type="xml">
+                <form string="Alerta de Secuencia Fiscal">
+                    <header>
+                        <button name="action_acknowledge" string="Reconocer" type="object" 
+                                class="btn-secondary"
+                         invisible="state != 'active'"/>
+                        <button name="action_resolve" string="Resolver" type="object" 
+                                class="btn-primary"
+                         invisible="state != 'active'"/>
+                        <button name="action_view_sequence" string="Ver Secuencia" type="object" 
+                                class="btn-info"/>
+                        <button name="action_view_usage" string="Ver Uso" type="object" 
+                                class="btn-info"/>
+                        <field name="state" widget="statusbar" statusbar_visible="active,acknowledged,resolved"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_sequence" type="object" class="oe_stat_button" icon="fa-cogs">
+                                <field name="sequence_id" widget="many2one_avatar"/>
+                            </button>
+                        </div>
+                        <group>
+                            <group string="Información de la Alerta">
+                                <field name="sequence_id"/>
+                                <field name="alert_type"/>
+                                <field name="message"/>
+                                <field name="usage_percentage" widget="percentage"/>
+                            </group>
+                            <group string="Detalles de la Secuencia">
+                                <field name="current_number"/>
+                                <field name="range_start"/>
+                                <field name="range_end"/>
+                                <field name="create_date"/>
+                            </group>
+                        </group>
+                        <group string="Resolución"
+                         invisible="state == 'active'">
+                            <group>
+                                <field name="acknowledged_by"
+                         invisible="state != 'acknowledged'"/>
+                                <field name="acknowledged_date"
+                         invisible="state != 'acknowledged'"/>
+                            </group>
+                            <group>
+                                <field name="resolved_by"
+                         invisible="state != 'resolved'"/>
+                                <field name="resolved_date"
+                         invisible="state != 'resolved'"/>
+                            </group>
+                        </group>
+                        <group string="Notas de Resolución"
+                         invisible="state != 'resolved'">
+                            <field name="resolution_notes" nolabel="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista de búsqueda para alertas de secuencias -->
+        <record id="view_sequence_alert_search" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn_v18.sequence.alert.search</field>
+            <field name="model">kc_fiscal_hn.sequence.alert</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Alertas de Secuencias">
+                    <field name="sequence_id"/>
+                    <field name="alert_type"/>
+                    <field name="state"/>
+                    <field name="acknowledged_by"/>
+                    <filter string="Activas" name="alert_state_active" domain="[('state', '=', 'active')]"/>
+                    <filter string="Reconocidas" name="alert_state_ack" domain="[('state', '=', 'acknowledged')]"/>
+                    <filter string="Resueltas" name="alert_state_resolved" domain="[('state', '=', 'resolved')]"/>
+                    <filter string="Críticas" name="alert_type_critical" domain="[('alert_type', '=', 'critical')]"/>
+                    <filter string="Advertencias" name="alert_type_warning" domain="[('alert_type', '=', 'warning')]"/>
+                    <filter string="Expiradas" name="alert_type_expired" domain="[('alert_type', '=', 'expired')]"/>
+                    <separator/>
+                    <filter string="Secuencia" name="groupby_sequence_id" domain="[]" context="{'group_by': 'sequence_id'}"/>
+                    <filter string="Tipo de Alerta" name="groupby_alert_type" domain="[]" context="{'group_by': 'alert_type'}"/>
+                    <filter string="Estado" name="groupby_state" domain="[]" context="{'group_by': 'state'}"/>
+                    <filter string="Usuario" name="groupby_ack_user" domain="[]" context="{'group_by': 'acknowledged_by'}"/>
+                    <filter string="Fecha" name="groupby_create_day" domain="[]" context="{'group_by': 'create_date:day'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción para alertas de secuencias -->
+        <record id="action_sequence_alert" model="ir.actions.act_window">
+            <field name="name">Alertas de Secuencias Fiscales</field>
+            <field name="res_model">kc_fiscal_hn.sequence.alert</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_sequence_alert_tree"/>
+            <field name="search_view_id" ref="view_sequence_alert_search"/>
+            <field name="context">{'search_default_alert_state_active': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No hay alertas de secuencias fiscales
+                </p>
+                <p>
+                    Las alertas se generan automáticamente cuando las secuencias fiscales 
+                    alcanzan ciertos umbrales de uso o expiran.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo> 

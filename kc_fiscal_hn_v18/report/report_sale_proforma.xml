@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="report_sale_proforma_document">
+            <t t-call="web.basic_layout">
+                <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+                <t t-set="company" t-value="doc.company_id"/>
+                <t t-set="report_pages" t-value="doc._get_sar_proforma_report_pages()"/>
+                <t t-set="total_pages" t-value="len(report_pages)"/>
+
+                <div class="page">
+                    <t t-foreach="enumerate(report_pages)" t-as="page_data">
+                        <t t-set="page_num" t-value="page_data[0]"/>
+                        <t t-set="page_lines" t-value="page_data[1]"/>
+                        <t t-set="is_last_page" t-value="page_num == total_pages - 1"/>
+
+                        <t t-call="kc_fiscal_hn_v18.header_proforma_layout"/>
+
+                        <table style="width:100%; border-collapse:collapse; font-size:11px; color:#111827;"
+                               name="proforma_line_table">
+                            <thead>
+                                <tr>
+                                    <th style="width:34%; text-align:left; font-size:10px; font-weight:600; letter-spacing:0.8px; color:#111827; text-transform:uppercase; padding:6px 4px; border-bottom:2px solid #1a4fa0;">
+                                        Producto / Descripción
+                                    </th>
+                                    <th style="width:10%; text-align:right; font-size:10px; font-weight:600; letter-spacing:0.8px; color:#111827; text-transform:uppercase; padding:6px 4px; border-bottom:2px solid #1a4fa0;">
+                                        Cant.
+                                    </th>
+                                    <th style="width:14%; text-align:right; font-size:10px; font-weight:600; letter-spacing:0.8px; color:#111827; text-transform:uppercase; padding:6px 4px; border-bottom:2px solid #1a4fa0;">
+                                        Precio
+                                    </th>
+                                    <th style="width:14%; text-align:right; font-size:10px; font-weight:600; letter-spacing:0.8px; color:#111827; text-transform:uppercase; padding:6px 4px; border-bottom:2px solid #1a4fa0;">
+                                        Descuento
+                                    </th>
+                                    <th style="width:10%; text-align:center; font-size:10px; font-weight:600; letter-spacing:0.8px; color:#111827; text-transform:uppercase; padding:6px 4px; border-bottom:2px solid #1a4fa0;">
+                                        ISV
+                                    </th>
+                                    <th style="width:18%; text-align:right; font-size:10px; font-weight:600; letter-spacing:0.8px; color:#111827; text-transform:uppercase; padding:6px 4px; border-bottom:2px solid #1a4fa0;">
+                                        Total
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="line_counter" t-value="0"/>
+                                <t t-foreach="page_lines" t-as="line">
+                                    <tr t-att-style="'background-color:#fafbfc; -webkit-print-color-adjust:exact;' if line_counter % 2 == 0 and not line.display_type else 'border-bottom:1px solid #eef0f3;'">
+                                        <t t-if="not line.display_type">
+                                            <td style="padding:5px 4px; border-bottom:1px solid #eef0f3;">
+                                                <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                            </td>
+                                            <td class="text-end" style="padding:5px 4px; border-bottom:1px solid #eef0f3;">
+                                                <span t-field="line.product_uom_qty"/>
+                                            </td>
+                                            <td class="text-end" style="padding:5px 4px; border-bottom:1px solid #eef0f3;">
+                                                <span t-field="line.price_unit"
+                                                      t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                                            </td>
+                                            <td class="text-end" style="padding:5px 4px; border-bottom:1px solid #eef0f3;">
+                                                <t t-set="line_discount_amount"
+                                                   t-value="line.price_unit * line.product_uom_qty * (line.discount or 0.0) / 100.0"/>
+                                                <span t-esc="line_discount_amount"
+                                                      t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                                            </td>
+                                            <td class="text-center" style="padding:5px 4px; border-bottom:1px solid #eef0f3;">
+                                                <t t-set="line_isv_label" t-value="'Exento'"/>
+                                                <t t-foreach="line.tax_id" t-as="tax">
+                                                    <t t-if="tax.amount_type == 'percent'"
+                                                       t-set="line_isv_label"
+                                                       t-value="'%.0f' % tax.amount if tax.amount == int(tax.amount) else ('%.2f' % tax.amount)"/>
+                                                </t>
+                                                <span t-esc="line_isv_label"/>
+                                                <t t-if="line_isv_label != 'Exento'">%</t>
+                                            </td>
+                                            <td class="text-end" style="padding:5px 4px; border-bottom:1px solid #eef0f3; font-weight:600; color:#111827;">
+                                                <span t-field="line.price_total"
+                                                      t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                                            </td>
+                                        </t>
+                                        <t t-if="line.display_type == 'line_section'">
+                                            <td colspan="6" style="padding:5px 4px; font-weight:600; color:#111827; border-bottom:1px solid #eef0f3;">
+                                                <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                            </td>
+                                        </t>
+                                        <t t-if="line.display_type == 'line_note'">
+                                            <td colspan="6" style="padding:5px 4px; color:#111827; border-bottom:1px solid #eef0f3;">
+                                                <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                    <t t-set="line_counter" t-value="line_counter + 1"/>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <t t-if="is_last_page">
+                            <div style="margin-top:16px; page-break-inside:avoid;">
+                                <table style="width:100%; border-collapse:collapse;">
+                                    <tr>
+                                        <td style="width:58%; vertical-align:top; padding-right:12px; font-size:11px; color:#111827;">
+                                            <t t-if="company.banking_information_image">
+                                                <div style="font-size:10px; letter-spacing:0.8px; color:#111827; text-transform:uppercase; margin-bottom:6px;">
+                                                    Cuentas bancarias
+                                                </div>
+                                                <img t-att-src="image_data_uri(company.banking_information_image)"
+                                                     style="max-width:100%; max-height:120px; border:1px dashed #d1d5db; border-radius:4px;"
+                                                     alt="Cuentas bancarias"/>
+                                            </t>
+                                            <t t-if="doc.note">
+                                                <div style="font-size:10px; color:#111827; margin-top:10px;">
+                                                    <div style="font-weight:600; color:#111827; margin-bottom:4px;">Nota</div>
+                                                    <span t-field="doc.note"/>
+                                                </div>
+                                            </t>
+                                            <t t-if="company.terms_conditions_image">
+                                                <div style="margin-top:10px;">
+                                                    <img t-att-src="image_data_uri(company.terms_conditions_image)"
+                                                         style="max-width:100%; max-height:140px;"
+                                                         alt="Términos y condiciones"/>
+                                                </div>
+                                            </t>
+                                        </td>
+                                        <td style="width:42%; vertical-align:top;">
+                                            <t t-call="kc_fiscal_hn_v18.sale_proforma_totals_block"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <t t-call="kc_fiscal_hn_v18.footer_sale_layout"/>
+                            </div>
+                        </t>
+
+                        <t t-if="not is_last_page">
+                            <div style="page-break-before: always;"/>
+                        </t>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_sale_proforma">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="kc_fiscal_hn_v18.report_sale_proforma_document"
+                       t-lang="doc.partner_id.lang"/>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

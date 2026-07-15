@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_pricelist_item_form_view_technical" model="ir.ui.view">
+        <field name="name">product.pricelist.item.form.technical</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_form_view"/>
+        <field name="arch" type="xml">
+            <field name="date_end" position="after">
+                <field name="technical_configuration_id"
+                       invisible="not product_tmpl_id and not product_id"
+                       options="{'no_create_edit': True}"/>
+                <field name="technical_key" readonly="1" invisible="not technical_key"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_pricelist_item_tree_view_from_product_technical" model="ir.ui.view">
+        <field name="name">product.pricelist.item.list.from.product.technical</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_tree_view_from_product"/>
+        <field name="arch" type="xml">
+            <field name="min_quantity" position="after">
+                <field name="technical_configuration_id" optional="show"/>
+                <field name="technical_key" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_pricelist_view_technical" model="ir.ui.view">
+        <field name="name">product.pricelist.form.technical</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='item_ids']/list/field[@name='min_quantity']" position="after">
+                <field name="technical_configuration_id" optional="show"/>
+                <field name="technical_key" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

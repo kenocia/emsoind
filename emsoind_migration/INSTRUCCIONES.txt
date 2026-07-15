@@ -1,0 +1,171 @@
+================================================================================
+EMSOIND — Kit de carga de saldos iniciales (CxC, CxP y Balance de apertura)
+Odoo 18 Enterprise | Producción: EMSOIND_ERP
+================================================================================
+
+ARCHIVOS
+--------
+  plantilla_cxc_apertura.csv      Saldos por cobrar (un documento por fila)
+  plantilla_cxp_apertura.csv      Saldos por pagar (un documento por fila)
+  plantilla_bancos_apertura.csv   Bancos/caja: saldo vs cuenta tránsito (11110/11108)
+  plantilla_balance_inicial.csv   Resto de balance (capital, pasivos, activos fijos)
+  load_opening_balances.py        Script de carga para odoo shell
+
+ORDEN DE CARGA (obligatorio)
+----------------------------
+  1. CxC ya cargado (137 docs) — NO repetir 11201.
+  2. CxP ya cargado (11 docs) — NO repetir 21101.
+  3. Inventario ya cargado por STJ — NO repetir 11113/11116/11120.
+  4. Bancos/caja: plantilla_bancos_apertura.csv → asiento vs tránsito (11110/11108).
+  5. Importar extracto bancario por diario BNK y conciliar.
+  6. Balance inicial resto: plantilla_balance_inicial.csv → opening_balance vs 999999.
+  7. Publicar asiento de apertura y validar 999999 = 0, 11110/11108 = 0.
+
+================================================================================
+REVISIÓN BANCOS Y CAJAS — EMSOIND_ERP (configuración OK)
+================================================================================
+
+  Diario   Tipo   Cuenta   Cuenta bancaria        Suspense   Estado
+  -------  -----  ------   --------------------   --------   ------
+  BNK1     Banco  11103    BAC LPS 730191111      11110      ✓ OK
+  BNK2     Banco  11106    BAC Ahorro 746365961   11110      ✓ OK
+  BNK3     Banco  11105    FICOHSA 200016115807   11110      ✓ OK
+  BNK4     Banco  11104    BAC USD 742412561      11110      ✓ OK (moneda USD)
+  CSH1     Caja   11101    —                      11108      ✓ OK
+  CSH2     Caja   11102    —                      11108      ✓ OK
+
+  Cuenta transferencia interna compañía: 11109
+  Cuenta puente apertura / cierre:        999999
+
+  NOTA BNK4 (USD):
+    - El diario BNK4 tiene moneda USD.
+    - Recomendado: asignar moneda USD a la cuenta 11104 antes de cargar saldo.
+    - En plantilla_balance_inicial.csv ingrese el saldo en DÓLARES (no en lempiras).
+
+  Los bancos NO van en plantilla_balance_inicial.csv ni contra 999999.
+  Se cargan batidos contra cuenta tránsito (ver sección BANCOS abajo).
+
+================================================================================
+BANCOS Y CAJA — MÉTODO TRÁNSITO + EXTRACTO (proceso del contador)
+================================================================================
+
+  Cuentas tránsito configuradas en Odoo:
+    BNK1–BNK4  →  11110  Cuenta Transitoria Bancos
+    CSH1–CSH2  →  11108  Cuenta transitoria efectivo
+
+  PASO 1 — Cargar saldo inicial (batir contra tránsito)
+  -------------------------------------------------------
+  Por cada banco/caja, asiento MISCE al 31/12/2025:
+
+    Débito   cuenta banco (11103, 11105, etc.)   L. [saldo]
+    Crédito  cuenta tránsito (11110 o 11108)     L. [saldo]
+
+  Ref sugerida: OPEN-BNK-BNK1-2025-12-31
+
+  Plantilla: plantilla_bancos_apertura.csv
+  Columnas: diario, cuenta_banco, cuenta_transito, saldo_inicial, fecha
+
+  PASO 2 — Importar extracto bancario
+  ------------------------------------
+  Contabilidad → Dashboard diario BNK → Nuevo extracto
+  - Fecha corte: según extracto del banco
+  - Importar CSV/OFX o captura manual de movimientos
+  - IMPORTANTE: NO repetir línea de "saldo inicial" si ya cargó PASO 1
+    (el extracto trae solo movimientos; el saldo ya está en 11103/11106)
+
+  PASO 3 — Aplicar / conciliar extracto
+  --------------------------------------
+  - Validar extracto (publicar líneas)
+  - Cada línea del extracto va: banco ↔ 11110 (suspense nativo Odoo)
+  - Conciliar movimientos con:
+      · pagos CxC/CxP registrados
+      · transferencias entre bancos (11107)
+      · otros asientos pendientes en 11110
+  - Meta: 11110 queda en CERO por banco al terminar conciliación
+
+  CAJA (CSH1/CSH2): mismo flujo con 11108 en lugar de 11110.
+  Si no hay extracto de caja, basta PASO 1 y conciliar 11108 manualmente.
+
+  BNK4 (USD): saldo en dólares; asignar moneda USD a cuenta 11104 antes de cargar.
+
+================================================================================
+PROCESO POR TIPO DE DIARIO
+================================================================================
+
+  A) MISCE — CxC y CxP (YA APLICADO)
+  ----------------------------------
+  CxC: Débito 11201 / Crédito 999999
+  CxP: Crédito 21101 / Débito 999999
+
+  B) MISCE — Bancos/caja apertura (PENDIENTE)
+  -------------------------------------------
+  Débito cuenta banco/caja / Crédito 11110 o 11108
+
+  C) STJ — Inventario (YA APLICADO)
+  ---------------------------------
+  Débito 11116/11113 / Crédito 11120
+
+  D) Plan cuentas — Resto balance (PENDIENTE)
+  --------------------------------------------
+  Capital, préstamos, activos fijos → opening_balance vs 999999
+  Archivo: plantilla_balance_inicial.csv (SIN bancos ni caja)
+
+================================================================================
+FÓRMULA DE CUADRE (para el contador)
+================================================================================
+
+  Saldos ya cargados vía MISCE dejaron 999999 con:
+    Crédito neto = L. 3,957,107.80
+
+  Para que 999999 quede en CERO al publicar apertura:
+
+    Σ(activos en CSV, positivos) − Σ(pasivos/patrimonio en CSV, |negativos|)
+    = −3,957,107.80
+
+  Ejemplo: si bancos+caja suman L. 500,000 y capital es −L. 4,457,107.80:
+    500,000 − 4,457,107.80 = −3,957,107.80  ✓
+
+  Regla de signos en plantilla_balance_inicial.csv:
+    Activos (banco, caja, activo fijo):     saldo POSITIVO
+    Pasivos y patrimonio:                   saldo NEGATIVO
+    Depreciación acumulada:                 saldo NEGATIVO
+
+================================================================================
+EJECUCIÓN BALANCE INICIAL
+================================================================================
+
+  1. Completar plantilla_balance_inicial.csv (columna saldo_inicial).
+  2. Editar load_opening_balances.py:
+       DRY_RUN = True
+       LOAD_OPENING_BALANCE = True
+       LOAD_CXC = False
+       LOAD_CXP = False
+
+  3. Simular:
+     sudo -u odoo /opt/odoo/venv/bin/python /opt/odoo/src/community/odoo-bin shell \
+       -d EMSOIND_ERP --config=/etc/odoo.conf --no-http \
+       < /opt/odoo/src/custom/emsoind_migration/load_opening_balances.py
+
+  4. Si cuadre OK, ejecutar real:
+       DRY_RUN = False
+       POST_OPENING_MOVE = True   (opcional: publica apertura al final)
+
+  5. Validar en Odoo:
+     - Contabilidad → Asientos → filtrar asiento de apertura (borrador/publicado)
+     - Balance de comprobación: 999999 = 0
+     - Dashboard bancos: saldo inicial visible en cada BNK
+
+================================================================================
+COLUMNAS CSV — Balance inicial
+================================================================================
+
+  cuenta          Código de cuenta (ej. 11103, 31101)
+  saldo_inicial   Saldo al 31/12/2025 con signo contable (ver regla arriba)
+  diario_odoo     Referencia informativa (BNK1, CSH1, etc.)
+  notas           Descripción / instrucción
+
+  NO incluir: 11201, 21101, 11113, 11116, 11120
+
+CONTACTO / SOPORTE
+------------------
+  Carpeta: /opt/odoo/src/custom/emsoind_migration/

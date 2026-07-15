@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Eliminar menú raíz anterior y entradas obsoletas -->
+        <delete model="ir.ui.menu" id="menu_ir_sequence_form_inherit"/>
+        <delete model="ir.ui.menu" id="menu_validation"/>
+        <delete model="ir.ui.menu" id="menu_sequence_control"/>
+        <delete model="ir.ui.menu" id="menu_sequence_alerts"/>
+        <delete model="ir.ui.menu" id="menu_fiscal_validation"/>
+        <delete model="ir.ui.menu" id="menu_sequence_alerts_advanced"/>
+        <delete model="ir.ui.menu" id="menu_sequence_audit"/>
+        <delete model="ir.ui.menu" id="menu_fiscal_books"/>
+        <delete model="ir.ui.menu" id="menu_book_exemptions"/>
+        <delete model="ir.ui.menu" id="menu_generate_book"/>
+        <delete model="ir.ui.menu" id="menu_book_audit"/>
+        <delete model="ir.ui.menu" id="menu_reports"/>
+        <delete model="ir.ui.menu" id="menu_codigos_sar"/>
+        <delete model="ir.ui.menu" id="report_dmc"/>
+        <delete model="ir.ui.menu" id="report_detail_invoice"/>
+        <delete model="ir.ui.menu" id="report_sales"/>
+        <delete model="ir.ui.menu" id="report_sales_sar"/>
+        <delete model="ir.ui.menu" id="report_retentions_sar"/>
+        <delete model="ir.ui.menu" id="report_exemptions_sar"/>
+    </data>
+
+    <data>
+
+    <!-- MENÚ RAÍZ -->
+    <menuitem id="menu_fiscal_hn_root"
+              name="Fiscal HN"
+              web_icon="account,static/description/icon.png"
+              sequence="100"/>
+
+    <!-- 1. DASHBOARD FISCAL -->
+    <menuitem id="menu_fiscal_dashboard"
+              name="Dashboard Fiscal"
+              parent="menu_fiscal_hn_root"
+              action="action_fiscal_dashboard"
+              sequence="1"/>
+
+    <!-- 2. CONFIGURACIONES -->
+    <menuitem id="menu_settings"
+              name="Configuraciones"
+              parent="menu_fiscal_hn_root"
+              sequence="2"/>
+
+    <menuitem id="menu_secuencias_fiscales"
+              name="Secuencias Fiscales"
+              parent="menu_settings"
+              action="action_fiscal_sequences"
+              sequence="1"/>
+
+    <menuitem id="menu_diarios_fiscales"
+              name="Diarios Fiscales"
+              parent="menu_settings"
+              action="action_fiscal_journals"
+              sequence="2"/>
+
+    <menuitem id="menu_preregistro_cai"
+              name="Preregistro CAI"
+              parent="menu_settings"
+              action="action_preregistro_cai"
+              sequence="3"/>
+
+    <menuitem id="menu_alertas_secuencias"
+              name="Alertas de Secuencias"
+              parent="menu_settings"
+              action="action_sequence_alerts_wizard"
+              sequence="4"/>
+
+    <menuitem id="menu_alertas_avanzadas"
+              name="Alertas Avanzadas"
+              parent="menu_settings"
+              action="action_sequence_alerts"
+              sequence="5"/>
+
+    <menuitem id="menu_auditoria_secuencias"
+              name="Auditoría de Secuencias"
+              parent="menu_settings"
+              action="action_sequence_audit"
+              sequence="6"/>
+
+    <menuitem id="menu_codigos_sar"
+              name="Códigos SAR"
+              parent="menu_settings"
+              action="action_codigo_sar"
+              sequence="7"/>
+
+    <menuitem id="menu_impuestos_sar"
+              name="Impuestos SAR"
+              parent="menu_settings"
+              action="action_impuestos_sar"
+              sequence="8"/>
+
+    <menuitem id="menu_salud_fiscal"
+              name="Salud Fiscal"
+              parent="menu_settings"
+              action="action_salud_fiscal"
+              sequence="9"/>
+
+    <!-- 3. VALIDACIONES -->
+    <menuitem id="menu_validaciones"
+              name="Validaciones"
+              parent="menu_fiscal_hn_root"
+              sequence="3"/>
+
+    <menuitem id="menu_validacion_fiscal"
+              name="Validación Fiscal Masiva"
+              parent="menu_validaciones"
+              action="action_fiscal_validation"
+              sequence="1"/>
+
+    <menuitem id="menu_reiniciar_secuencia"
+              name="Reiniciar Secuencia"
+              parent="menu_validaciones"
+              action="action_reset_sequence"
+              sequence="2"/>
+
+    <menuitem id="menu_auditoria_consumidor_final"
+              name="Bloqueos Consumidor Final"
+              parent="menu_validaciones"
+              action="action_consumidor_final_audit"
+              sequence="3"/>
+
+    <!-- 4. LIBROS SAR -->
+    <menuitem id="menu_libros_sar"
+              name="Libros SAR"
+              parent="menu_fiscal_hn_root"
+              sequence="4"/>
+
+    <menuitem id="menu_libro_ventas"
+              name="Libro de Ventas"
+              parent="menu_libros_sar"
+              action="action_book_sales"
+              sequence="1"/>
+
+    <menuitem id="menu_libro_compras"
+              name="Libro de Compras (DMC)"
+              parent="menu_libros_sar"
+              action="action_book_purchases"
+              sequence="2"/>
+
+    <menuitem id="menu_libro_retenciones"
+              name="Libro de Retenciones"
+              parent="menu_libros_sar"
+              action="action_book_retentions"
+              sequence="3"/>
+
+    <!-- 5. INFORMES EXCEL -->
+    <menuitem id="menu_informes_excel"
+              name="Informes Excel"
+              parent="menu_fiscal_hn_root"
+              sequence="5"/>
+
+    <menuitem id="menu_reporte_ventas_netas"
+              name="Ventas Netas"
+              parent="menu_informes_excel"
+              action="action_report_sales"
+              sequence="1"/>
+
+    <menuitem id="menu_reporte_ventas_sar"
+              name="Ventas SAR"
+              parent="menu_informes_excel"
+              action="action_report_sales_sar"
+              sequence="2"/>
+
+    <menuitem id="menu_reporte_dmc"
+              name="DMC Compras"
+              parent="menu_informes_excel"
+              action="action_report_dmc"
+              sequence="3"/>
+
+    <menuitem id="menu_reporte_retenciones"
+              name="Retenciones SAR"
+              parent="menu_informes_excel"
+              action="action_report_retentions_sar"
+              sequence="4"/>
+
+    <menuitem id="menu_reporte_exoneraciones"
+              name="Exoneraciones SAR"
+              parent="menu_informes_excel"
+              action="action_report_exemptions_sar"
+              sequence="5"/>
+
+    <menuitem id="menu_reporte_detalle"
+              name="Detalle Facturas"
+              parent="menu_informes_excel"
+              action="action_report_invoice_details"
+              sequence="6"/>
+
+    <delete model="ir.ui.menu" id="menu_book_sales"/>
+    <delete model="ir.ui.menu" id="menu_book_purchases"/>
+    <delete model="ir.ui.menu" id="menu_book_retentions"/>
+    <delete model="ir.ui.menu" id="menu_fiscal"/>
+
+    <!-- 6. ZONA LIBRE (ZOLI) -->
+    <menuitem id="menu_zoli"
+              name="Zona Libre (ZOLI)"
+              parent="menu_fiscal_hn_root"
+              sequence="6"/>
+
+    <menuitem id="menu_zoli_duca_activos"
+              name="DUCAs Activos"
+              parent="menu_zoli"
+              action="action_zoli_duca_activos"
+              sequence="1"/>
+
+    <!-- MANUAL DE USO -->
+    <menuitem id="menu_manual_uso_fiscal_hn"
+              name="📖 Manual de Uso"
+              parent="menu_fiscal_hn_root"
+              action="action_manual_uso_fiscal_hn"
+              sequence="99"/>
+
+    </data>
+</odoo>

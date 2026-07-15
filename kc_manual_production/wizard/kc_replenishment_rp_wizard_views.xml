@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="kc_replenishment_rp_wizard_view_form" model="ir.ui.view">
+        <field name="name">kc.replenishment.rp.wizard.form</field>
+        <field name="model">kc.replenishment.rp.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generar RP de Abastecimiento">
+                <div class="alert alert-info" role="alert">
+                    Se cargaron los productos cuyo pronóstico está por debajo del
+                    mínimo configurado en las Reglas de Reabastecimiento. Ajusta la
+                    <strong>Cantidad a Producir</strong> o ponla en 0 para excluir una línea.
+                </div>
+                <group>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="production_line_id"
+                           options="{'no_create': True}"/>
+                </group>
+                <field name="line_ids">
+                    <list editable="bottom" create="false">
+                        <field name="product_id"/>
+                        <field name="kc_technical_description" optional="show"/>
+                        <field name="kc_technical_key" optional="hide"/>
+                        <field name="qty_forecast" readonly="1"/>
+                        <field name="product_min_qty" readonly="1"/>
+                        <field name="qty_suggested" readonly="1"/>
+                        <field name="qty_to_produce"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_create_rp" type="object" string="Generar Registro de Producción"
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="kc_replenishment_rp_wizard_action" model="ir.actions.act_window">
+        <field name="name">RP de Abastecimiento</field>
+        <field name="res_model">kc.replenishment.rp.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

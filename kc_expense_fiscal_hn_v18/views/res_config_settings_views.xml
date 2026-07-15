@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_kc_expense_fiscal" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.kc.expense.fiscal</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr_expense.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='expense_outstanding_account_id']/parent::setting" position="after">
+                <setting id="kc_expense_reimbursement_account_setting"
+                         string="Cuenta reembolso empleados"
+                         company_dependent="1"
+                         help="Cuenta por pagar para gastos sin anticipo o excedente del fondo.">
+                    <field name="kc_expense_reimbursement_account_id"/>
+                </setting>
+                <setting id="kc_expense_fund_journal_setting"
+                         string="Diario aplicación fondo"
+                         company_dependent="1"
+                         help="Diario misceláneo para cancelar CxP proveedor contra anticipo o reembolso.">
+                    <field name="kc_expense_fund_journal_id"/>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

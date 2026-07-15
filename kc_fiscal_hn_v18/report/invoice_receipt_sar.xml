@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!--        <record id="invoice_action_report_payment" model="ir.actions.report">-->
+        <!--            <field name="name">Factura SAR Receipt</field>-->
+        <!--            <field name="model">account.move</field>-->
+        <!--            <field name="report_type">qweb-pdf</field>-->
+        <!--            <field name="report_name">kc_fiscal_hn_v18.report_invoice_template</field>-->
+        <!--            <field name="report_file">kc_fiscal_hn_v18.report_invoice_template</field>-->
+        <!--            <field name="print_report_name">(object._get_report_base_filename())</field>-->
+        <!--            <field name="attachment"/>-->
+        <!--            <field name="paperformat_id" ref="paperformat_without_payment_receipt"/>-->
+        <!--            <field name="binding_model_id" ref="account.model_account_move"/>-->
+        <!--            <field name="binding_type">report</field>-->
+        <!--        </record>-->
+
+        <!-- Report Template -->
+        <template id="report_invoice_template" inherit_id="account.report_invoice">
+            <xpath expr="//t[@t-call='account.report_invoice_document']" position="replace">
+                <div>
+                    <t t-call="web.html_container">
+                        <t t-foreach="docs" t-as="o">
+                            <!--                    <t t-set="o" t-value="o.with_context(lang=lang)"/>-->
+                            <div class="row">
+                                <!--                        <t t-if="o.company_id.logo">-->
+                                <!--                            <img t-att-src="'data:image/png;base64,' + o.company_id.logo"-->
+                                <!--                                 alt="Logo" class="receipt-logo"/>-->
+                                <!--                            <br/>-->
+                                <!--                        </t>-->
+                                <div style="font-size:13px; text-align: center;">
+                                    <t t-esc="o.company_id.name"/>
+                                    <br/>
+                                    <t t-esc="o.company_id.street"/>
+                                    <br/>
+                                    <t t-esc="o.company_id.street2 or ''"/>
+                                    <br/>
+                                    <t t-esc="o.company_id.city"/>
+                                    ,
+                                    <t t-esc="o.company_id.state_id.name"/>
+                                    <br/>
+                                    <t t-esc="o.company_id.country_id.name"/>
+                                    <br/>
+                                    RTN:
+                                    <t t-esc="o.company_id.vat or ''"/>
+                                    <br/>
+                                    Phone:
+                                    <t t-esc="o.company_id.phone or ''"/>
+                                    <br/>
+                                    <t t-esc="o.company_id.email or ''"/>
+                                    <br/>
+                                    <br/>
+                                </div>
+                                <div style="border-top:1px dashed black; font-size:16px; text-align:center;">
+                                    Factura #:
+                                    <t t-if="o.name">
+                                        <t t-esc="o.name"/>
+                                    </t>
+                                    <br/>
+                                    Fecha:
+                                    <t t-if="o.invoice_date">
+                                        <t t-esc="o.invoice_date.strftime('%d/%m/%Y')"/>
+                                    </t>
+                                </div>
+                                <div style=" border-top:1px dashed black; font-size:13px; text-align: center;">
+                                    <br/>
+                                    CAI:
+                                    <t t-esc="o.cai or ''"/>
+                                    <br/>
+                                    Fecha Limite Emision:
+                                    <t t-esc="o.fechaLimiteEmision.strftime('%d/%m/%Y') or ''"/>
+                                    <br/>
+                                    Rango Aut. Desde:
+                                    <t t-esc="o.numeroInicial or ''"/>
+                                    <br/>
+                                    Hasta:
+                                    <t t-esc="o.numeroFinal or ''"/>
+                                    <br/>
+                                </div>
+                            </div>
+                            <br/>
+                            <div style="font-size:12px; text-align:center; border-top:1px dashed black;">
+                                Cajero :
+                                <t t-esc='o.invoice_user_id.name'/>
+                                <br/>
+                                <t t-if="o.commercial_partner_id.name">
+                                    Cliente :
+                                    <t t-esc='o.commercial_partner_id.name' style="font-style:bold"/>
+                                </t>
+                                <br/>
+                                <t t-if="o.commercial_partner_id.vat">
+                                    RTN :
+                                    <t t-esc='o.commercial_partner_id.vat' style="font-style:bold"/>
+                                </t>
+                                <br/>
+                            </div>
+                            <br/>
+                            <div>
+                                <table class='receipt-orderlines'
+                                       style="font-size:12px; width:100%;">
+                                    <!-- Primera fila: Producto abarca 4 columnas -->
+                                    <tr style="border-bottom:1px dashed black; font-size:15px;">
+                                        <th style="text-align:left; border-bottom:1px solid black;" colspan="2">
+                                            Descripcion
+                                        </th>
+                                        <th style="text-align:right; border-bottom:1px solid black;" colspan="2">
+                                            Subtotal
+                                        </th>
+                                    </tr>
+                                    <!-- Filas dinámicas para los productos -->
+                                    <t t-if="o.invoice_line_ids">
+                                        <t t-set="lines"
+                                           t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+
+                                        <!-- Para cada línea de producto -->
+                                        <tr t-foreach="lines" t-as="line">
+                                            <tr>
+                                                <!-- Nombre del producto -->
+                                                <td style="padding-top:1%; padding-bottom:1%; text-align:left;"
+                                                    colspan="4">
+                                                    <t t-esc="line.product_id.name" t-options="{'widget': 'text'}"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <!-- Cantidad y unidad -->
+                                                <td style="text-align:right; font-size:12px;">
+                                                    <t t-esc="line.quantity"/>
+                                                    <t t-esc="line.product_uom_id.name"/>
+                                                </td>
+                                                <!-- Precio unitario -->
+                                                <td style="text-align:right; font-size:12px;">
+                                                    <t t-esc="line.currency_id.symbol"/>
+                                                    <t t-esc="line.price_unit"/>
+                                                </td>
+                                                <!-- Subtotal -->
+                                                <td style="text-align:right; font-size:12px;">
+                                                    <t t-esc="line.currency_id.symbol"/>
+                                                    <t t-esc="line.price_subtotal"
+                                                       t-options='{"widget": "float", "precision": 2}'/>
+                                                </td>
+                                            </tr>
+                                        </tr>
+                                    </t>
+                                </table>
+                            </div>
+                            <br/>
+                            <div class="col-12" style="border-top:1px dashed black;">
+                                <table class="table table-sm table-borderless"
+                                       style="page-break-inside: avoid; font-size: 12px; width: 100%;">
+                                    <!--Tax totals-->
+                                    <t t-set="tax_totals" t-value="o.tax_totals"/>
+                                    <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
+                                        <tr class="border-black" style="text-align:right;">
+                                            <td style="width: 70%;">
+                                                <strong>Subtotal:</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-att-class="oe_subtotal_footer_separator"
+                                                      t-esc="o.amount_untaxed"
+                                                      t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black " style="text-align:right;">
+                                            <td>
+                                                <strong>Descuentos y Rebajas otorgados :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-att-class="oe_subtotal_footer_separator"
+                                                      t-esc="o.amount_discount"/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>Importe Exento :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-esc="o.amount_exento"/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>Importe Exonerado :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-esc="o.amount_exonerado"/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>Importe Gravado 15% :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-esc="o.gravado_isv15"/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>Importe Gravado 18% :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span>0.00</span>
+                                            </td>
+                                        </tr>
+                                        <t t-set="subtotal_to_show" t-value="subtotal['name']"/>
+                                        <!--  ISV TOTALES-->
+                                        <t t-foreach="tax_totals['groups_by_subtotal'][subtotal_to_show]"
+                                           t-as="amount_by_group">
+                                            <tr class="border-black o_subtotal" style="text-align:right;">
+                                                <td>
+                                                    <strong t-esc="amount_by_group['tax_group_name']"/>:
+                                                </td>
+                                                <td class="text-end o_price_total" style="text-align:right;">
+                                                    <span class="text-end"
+                                                          t-esc="amount_by_group['formatted_tax_group_amount']"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>ISV 18% :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span>0.00</span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-if="not tax_totals['groups_by_subtotal'][subtotal_to_show]">
+                                        <tr class="border-black" style="text-align:right;">
+                                            <td>
+                                                <strong>Subtotal:</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-att-class="oe_subtotal_footer_separator"
+                                                      t-esc="o.amount_untaxed"
+                                                      t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black" style="text-align:right;">
+                                            <td>
+                                                <strong>Descuentos y Rebajas otorgados :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-att-class="oe_subtotal_footer_separator"
+                                                      t-esc="o.amount_discount"/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>Importe Exento :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-esc="o.amount_exento"/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>Importe Exonerado :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-esc="o.amount_exonerado"/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>Importe Gravado 15% :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-esc="o.gravado_isv15"/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>Importe Gravado 18% :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span>0.00</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>ISV 15% :</strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span t-esc="o.amount_isv15"/>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-black o_subtotal" style="text-align:right;">
+                                            <td>
+                                                <strong>ISV 18% :
+                                                </strong>
+                                            </td>
+                                            <td class="text-end" style="text-align:right;">
+                                                <t t-esc="o.currency_id.symbol"/>
+                                                <span>0.00</span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <!--Total amount with all taxes-->
+                                    <tr class="border-black o_total" style="text-align:right;">
+                                        <td>
+                                            <strong>Total</strong>
+                                        </td>
+                                        <td class="text-end" style="text-align:right;">
+                                            <t t-esc="o.currency_id.symbol"/>
+                                            <span t-esc="o.amount_total"
+                                                  t-options='{"widget": "float", "precision": 2}'/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <br/>
+                            <div style="font-size: 12px; text-align:center;">
+                                <span>Valor en Letra:</span>
+                                <br/>
+                                <span t-field="o.totalAmountString"/>
+                            </div>
+                            <br/>
+                            <div style="text-align: center;  page-break-inside: avoid;">
+                                <div style="font-size: 10px">
+                                    <span>Gracias por su compra!!"</span>
+                                    <br/>
+                                    <span>LA FACTURA ES BENEFICIO DE TODOS "EXIJALA"</span>
+                                    <br/>
+                                    <span>Original: Cliente Copia: Emisor</span>
+                                </div>
+                            </div>
+                        </t>
+                    </t>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

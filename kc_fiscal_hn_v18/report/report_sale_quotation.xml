@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="report_sale_quotation_document">
+            <t t-call="web.basic_layout">
+                <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+                <t t-set="company" t-value="doc.company_id"/>
+                <t t-set="show_delivered" t-value="doc._sale_quotation_show_delivered_column()"/>
+                <t t-set="report_pages" t-value="doc._get_sale_quotation_report_pages()"/>
+                <t t-set="total_pages" t-value="len(report_pages)"/>
+
+                <div class="page">
+                    <t t-foreach="enumerate(report_pages)" t-as="page_data">
+                        <t t-set="page_num" t-value="page_data[0]"/>
+                        <t t-set="page_lines" t-value="page_data[1]"/>
+                        <t t-set="is_last_page" t-value="page_num == total_pages - 1"/>
+
+                        <t t-if="page_num == 0">
+                            <t t-call="kc_fiscal_hn_v18.header_sale_layout"/>
+                        </t>
+
+                        <table style="width:100%; border-collapse:collapse; font-size:11px; color:#111827; margin-bottom:8px;"
+                               name="sale_line_table">
+                            <thead>
+                                <tr style="background-color:#1a4fa0; -webkit-print-color-adjust:exact;">
+                                    <th style="text-align:left; font-size:10px; font-weight:700; letter-spacing:0.8px; color:#ffffff; text-transform:uppercase; padding:8px 6px;">
+                                        Descripción
+                                    </th>
+                                    <th style="width:10%; text-align:right; font-size:10px; font-weight:700; letter-spacing:0.8px; color:#ffffff; text-transform:uppercase; padding:8px 6px;">
+                                        Cant.
+                                    </th>
+                                    <t t-if="show_delivered">
+                                        <th style="width:10%; text-align:right; font-size:10px; font-weight:700; letter-spacing:0.8px; color:#ffffff; text-transform:uppercase; padding:8px 6px;">
+                                            Entregado
+                                        </th>
+                                    </t>
+                                    <th style="width:14%; text-align:right; font-size:10px; font-weight:700; letter-spacing:0.8px; color:#ffffff; text-transform:uppercase; padding:8px 6px;">
+                                        Precio u.
+                                    </th>
+                                    <th style="width:16%; text-align:right; font-size:10px; font-weight:700; letter-spacing:0.8px; color:#ffffff; text-transform:uppercase; padding:8px 6px;">
+                                        Importe
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="line_counter" t-value="0"/>
+                                <t t-foreach="page_lines" t-as="line">
+                                    <tr t-att-style="'border-bottom:1px solid #eef0f3;' + (' background-color:#f8fafc; -webkit-print-color-adjust:exact;' if line_counter % 2 == 0 and not line.display_type else '')">
+                                        <t t-if="not line.display_type">
+                                            <t t-set="line_parts" t-value="doc._sale_quotation_line_code_name(line)"/>
+                                            <td style="padding:7px 6px; vertical-align:top;">
+                                                <div style="font-weight:600; color:#111827; line-height:1.35; white-space:pre-line;"><t t-esc="line_parts.get('name') or line.name"/></div>
+                                                <t t-if="'technical_description' in line._fields and line.technical_description">
+                                                    <div style="font-size:9px; color:#111827; margin-top:2px;">
+                                                        <span t-field="line.technical_description"/>
+                                                    </div>
+                                                </t>
+                                                <t t-if="'lot_id' in line._fields and line.lot_id">
+                                                    <div style="font-size:9px; color:#111827; margin-top:2px;">
+                                                        Lote: <span t-esc="line.lot_id.name"/>
+                                                    </div>
+                                                </t>
+                                            </td>
+                                            <td class="text-end" style="padding:7px 6px; white-space:nowrap; vertical-align:top;">
+                                                <span t-field="line.product_uom_qty"/>
+                                                <span t-if="line.product_uom" style="font-size:9px; color:#6b7280;"> <span t-field="line.product_uom"/></span>
+                                            </td>
+                                            <t t-if="show_delivered">
+                                                <td class="text-end" style="padding:7px 6px; vertical-align:top;">
+                                                    <span t-field="line.qty_delivered"/>
+                                                </td>
+                                            </t>
+                                            <td class="text-end" style="padding:7px 6px; vertical-align:top;">
+                                                <span t-esc="doc._sale_quotation_format_amount(line.price_unit)"/>
+                                            </td>
+                                            <td class="text-end" style="padding:7px 6px; font-weight:700; color:#0c2d5e; vertical-align:top;">
+                                                <span t-esc="doc._sale_quotation_format_amount(line.price_subtotal)"/>
+                                            </td>
+                                        </t>
+                                        <t t-if="line.display_type == 'line_note'">
+                                            <td t-att-colspan="5 if show_delivered else 4"
+                                                style="padding:7px 6px; color:#4b5563; font-style:italic;">
+                                                <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                    <t t-set="line_counter" t-value="line_counter + 1"/>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <t t-if="is_last_page">
+                            <div style="margin-top:14px; page-break-inside:avoid;">
+                                <table style="width:100%; border-collapse:collapse;">
+                                    <tr>
+                                        <td style="width:55%; vertical-align:top; padding-right:14px;">
+                                            <t t-if="company.banking_information_image">
+                                                <div style="font-size:9px; letter-spacing:1px; color:#1a4fa0; text-transform:uppercase; margin-bottom:6px; font-weight:700;">
+                                                    Cuentas bancarias
+                                                </div>
+                                                <img t-att-src="image_data_uri(company.banking_information_image)"
+                                                     style="max-width:100%; max-height:120px; border:1px solid #e5e7eb; border-radius:6px;"
+                                                     alt="Cuentas bancarias"/>
+                                            </t>
+                                            <t t-if="doc.note">
+                                                <div style="font-size:10px; color:#111827; margin-top:10px;">
+                                                    <div style="font-weight:700; color:#0c2d5e; margin-bottom:4px;">Nota</div>
+                                                    <span t-field="doc.note"/>
+                                                </div>
+                                            </t>
+                                            <t t-if="company.terms_conditions_image">
+                                                <div style="margin-top:10px;">
+                                                    <img t-att-src="image_data_uri(company.terms_conditions_image)"
+                                                         style="max-width:100%; max-height:140px;"
+                                                         alt="Términos y condiciones"/>
+                                                </div>
+                                            </t>
+                                        </td>
+                                        <td style="width:45%; vertical-align:top;">
+                                            <t t-call="kc_fiscal_hn_v18.sale_totals_block"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <t t-call="kc_fiscal_hn_v18.footer_sale_layout"/>
+                        </t>
+
+                        <t t-if="not is_last_page">
+                            <div style="page-break-before: always;"/>
+                        </t>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_sale_quotation">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="kc_fiscal_hn_v18.report_sale_quotation_document"
+                       t-lang="doc.partner_id.lang"/>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

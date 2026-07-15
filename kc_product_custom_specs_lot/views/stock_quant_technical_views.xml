@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista dedicada: una fila por ubicación + lote (no agrupado por producto) -->
+    <record id="view_stock_quant_tree_technical_inventory" model="ir.ui.view">
+        <field name="name">stock.quant.tree.technical.inventory</field>
+        <field name="model">stock.quant</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list string="Existencias por lote" create="false" edit="false" delete="false"
+                  default_order="product_id, lot_id, location_id">
+                <field name="location_id" string="Ubicación"/>
+                <field name="product_id" string="Producto"/>
+                <field name="lot_id" string="Lote / Serie"/>
+                <field name="lot_technical_description" string="Especificaciones"/>
+                <field name="quantity" string="A la mano" sum="Total"/>
+                <field name="reserved_quantity" string="Reservado" optional="show" sum="Total"/>
+                <field name="available_quantity" string="Disponible" sum="Total"/>
+                <field name="lot_technical_key" string="Clave técnica" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_stock_quant_search_technical_inventory" model="ir.ui.view">
+        <field name="name">stock.quant.search.technical.inventory</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.quant_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter name="kc_with_lot" string="Con lote"
+                        domain="[('lot_id', '!=', False)]"/>
+                <filter name="kc_with_specs" string="Con especificaciones"
+                        domain="[('lot_technical_description', '!=', False)]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter string="Producto" name="kc_groupby_product"
+                            context="{'group_by': 'product_id'}"/>
+                    <filter string="Lote" name="kc_groupby_lot"
+                            context="{'group_by': 'lot_id'}"/>
+                    <filter string="Ubicación" name="kc_groupby_location"
+                            context="{'group_by': 'location_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_stock_quant_technical_inventory" model="ir.actions.act_window">
+        <field name="name">Existencias por lote y especificación</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_stock_quant_tree_technical_inventory"/>
+        <field name="search_view_id" ref="stock.quant_search_view"/>
+        <field name="domain">[
+            ('location_id.usage', '=', 'internal'),
+            ('quantity', '!=', 0),
+        ]</field>
+        <field name="context">{
+            'search_default_internal_loc': 1,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Sin existencias internas con lote
+            </p>
+            <p>
+                Cada fila es una combinación de <strong>ubicación + producto + lote</strong>
+                con sus especificaciones técnicas. La vista estándar "Existencias" agrupa
+                por producto; use esta para ver el detalle por medidas.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_stock_quant_technical_inventory"
+              name="Existencias por lote y especificación"
+              parent="stock.menu_stock_inventory_control"
+              action="action_stock_quant_technical_inventory"
+              sequence="15"/>
+
+    <!-- Inventario > Existencias (lista por producto, Odoo 18: product_product_stock_tree) -->
+    <record id="product_product_stock_tree_kc_lot_button" model="ir.ui.view">
+        <field name="name">product.product.stock.tree.kc.lot</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="stock.product_product_stock_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@icon='fa-cubes']" position="before">
+                <button name="action_kc_view_stock_by_lot_specs"
+                        string="Por lote"
+                        type="object"
+                        class="btn-link"
+                        icon="fa-list-alt"
+                        invisible="qty_available == 0"
+                        groups="stock.group_production_lot"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

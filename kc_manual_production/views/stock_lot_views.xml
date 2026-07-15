@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Herencia del Formulario de Lote / Número de Serie            -->
+    <!-- Muestra el origen (OV / Registro de Producción) del lote.    -->
+    <!-- ============================================================ -->
+    <record id="kc_view_production_lot_form_inherit" model="ir.ui.view">
+        <field name="name">stock.lot.form.kc.production</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Origen de Producción Manual KC"
+                       invisible="not kc_sale_order_id and not kc_entry_id">
+                    <field name="kc_entry_id" readonly="1"/>
+                    <field name="kc_sale_order_id" readonly="1"/>
+                </group>
+                <group string="Costos técnicos"
+                       invisible="not technical_key and not kc_technical_configuration_id">
+                    <field name="technical_key" readonly="1"/>
+                    <field name="kc_technical_configuration_id" readonly="1"/>
+                    <field name="kc_config_standard_price" readonly="1"/>
+                    <field name="standard_price" readonly="1" string="Costo del lote"/>
+                    <field name="avg_cost" readonly="1" string="Costo promedio (SVL)"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_template_form_kc_simple_production" model="ir.ui.view">
+        <field name="name">product.template.form.kc.simple.production</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="kc_product_custom_specs_lot.view_product_template_form_technical"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='kc_invoice_detail_mode']" position="before">
+                <field name="kc_simple_production"
+                       string="Producción simple (sin atributos técnicos)"/>
+            </xpath>
+            <xpath expr="//field[@name='kc_invoice_detail_mode']" position="attributes">
+                <attribute name="invisible">kc_simple_production</attribute>
+            </xpath>
+            <xpath expr="//field[@name='technical_attribute_line_ids']" position="attributes">
+                <attribute name="invisible">kc_simple_production</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_add_technical_configuration']" position="attributes">
+                <attribute name="invisible">kc_simple_production</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_generate_technical_matrix']" position="attributes">
+                <attribute name="invisible">kc_simple_production</attribute>
+            </xpath>
+            <xpath expr="//field[@name='technical_configuration_ids']" position="attributes">
+                <attribute name="invisible">kc_simple_production or not has_technical_attributes</attribute>
+            </xpath>
+            <xpath expr="//page[@name='technical_attributes']/group[1]" position="after">
+                <div class="alert alert-info" role="alert" invisible="not kc_simple_production">
+                    Este producto se planifica y produce desde la Orden de Venta
+                    sin ficha técnica ni clave. Cada línea de OV genera su propio
+                    plan / RP / lote. No entra en abastecimiento.
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

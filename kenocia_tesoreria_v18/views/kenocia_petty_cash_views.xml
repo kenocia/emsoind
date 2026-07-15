@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_kenocia_petty_cash_form" model="ir.ui.view">
+        <field name="name">kenocia.petty.cash.form</field>
+        <field name="model">kenocia.petty.cash</field>
+        <field name="arch" type="xml">
+            <form string="Fondo de Caja Chica">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,open,closed"/>
+                    <button name="action_open_fund"
+                            string="Abrir Fondo"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_custodian,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+                    <button name="action_register_recharge"
+                            string="Registrar Recarga"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'open'"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+                    <button name="action_close_fund"
+                            string="Cerrar Fondo"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'open'"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="CERRADO"
+                            bg_color="text-bg-secondary"
+                            invisible="state != 'closed'"/>
+                    <widget name="web_ribbon" title="CANCELADO"
+                            bg_color="text-bg-danger"
+                            invisible="state != 'cancelled'"/>
+                    <field name="recharge_in_transit_count" invisible="1"/>
+                    <div class="alert alert-warning mb-3" role="alert"
+                         invisible="recharge_in_transit_count == 0">
+                        Hay recargas en tránsito pendientes de confirmar recepción de efectivo.
+                    </div>
+                    <div name="button_box" class="oe_button_box">
+                        <button type="object" name="action_view_recharges"
+                                class="oe_stat_button" icon="fa-university">
+                            <field name="recharge_count" widget="statinfo" string="Recargas"/>
+                        </button>
+                        <button type="object" name="action_view_pending_lines"
+                                class="oe_stat_button kt_advance_btn" icon="fa-clock-o"
+                                invisible="amount_pending == 0">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="amount_pending" widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                </span>
+                                <span class="o_stat_text">Pendiente liquidar</span>
+                            </div>
+                        </button>
+                        <button type="object" name="action_view_all_lines"
+                                class="oe_stat_button kt_advance_btn" icon="fa-list">
+                            <field name="line_count" widget="statinfo" string="Anticipos"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nombre del fondo..." readonly="state != 'draft'"/></h1>
+                    </div>
+                    <group>
+                        <group string="Configuración del fondo">
+                            <field name="journal_id" readonly="state != 'draft'"/>
+                            <field name="account_bridge_id" readonly="state != 'draft'"/>
+                            <field name="custodian_id" readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="line_count" invisible="1"/>
+                            <field name="recharge_count" invisible="1"/>
+                        </group>
+                        <group string="Período y monto">
+                            <field name="date_from" readonly="state != 'draft'"/>
+                            <field name="date_to" readonly="state != 'draft'"/>
+                            <field name="amount_authorized" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <!-- Tablero de totales -->
+                    <div style="
+                        display: grid;
+                        grid-template-columns: repeat(6, 1fr);
+                        gap: 10px;
+                        margin: 16px 0;
+                    ">
+                        <div style="
+                            background: var(--color-background-secondary, #f5f5f0);
+                            border-radius: 8px;
+                            padding: 14px 12px;
+                            border-left: 3px solid #534AB7;
+                        ">
+                            <div style="
+                                font-size: 11px;
+                                font-weight: 600;
+                                color: #534AB7;
+                                text-transform: uppercase;
+                                letter-spacing: 0.04em;
+                                margin-bottom: 6px;
+                            ">Autorizado</div>
+                            <div style="font-size: 18px; font-weight: 500; color: #1a1a1a;">
+                                <field name="amount_authorized"
+                                       widget="monetary"
+                                       options="{'no_symbol': False}"/>
+                            </div>
+                        </div>
+                        <div style="
+                            background: var(--color-background-secondary, #f5f5f0);
+                            border-radius: 8px;
+                            padding: 14px 12px;
+                            border-left: 3px solid #185FA5;
+                        ">
+                            <div style="
+                                font-size: 11px;
+                                font-weight: 600;
+                                color: #185FA5;
+                                text-transform: uppercase;
+                                letter-spacing: 0.04em;
+                                margin-bottom: 6px;
+                            ">Recargas</div>
+                            <div style="font-size: 18px; font-weight: 500; color: #1a1a1a;">
+                                <field name="recharge_total"
+                                       widget="monetary"/>
+                            </div>
+                        </div>
+                        <div style="
+                            background: var(--color-background-secondary, #f5f5f0);
+                            border-radius: 8px;
+                            padding: 14px 12px;
+                            border-left: 3px solid #BA7517;
+                        ">
+                            <div style="
+                                font-size: 11px;
+                                font-weight: 600;
+                                color: #BA7517;
+                                text-transform: uppercase;
+                                letter-spacing: 0.04em;
+                                margin-bottom: 6px;
+                            ">Entregado</div>
+                            <div style="font-size: 18px; font-weight: 500; color: #1a1a1a;">
+                                <field name="amount_delivered"
+                                       widget="monetary"/>
+                            </div>
+                        </div>
+                        <div style="
+                            background: var(--color-background-secondary, #f5f5f0);
+                            border-radius: 8px;
+                            padding: 14px 12px;
+                            border-left: 3px solid #0F6E56;
+                        ">
+                            <div style="
+                                font-size: 11px;
+                                font-weight: 600;
+                                color: #0F6E56;
+                                text-transform: uppercase;
+                                letter-spacing: 0.04em;
+                                margin-bottom: 6px;
+                            ">Liquidado</div>
+                            <div style="font-size: 18px; font-weight: 500; color: #1a1a1a;">
+                                <field name="amount_settled"
+                                       widget="monetary"/>
+                            </div>
+                        </div>
+                        <div style="
+                            background: var(--color-background-secondary, #f5f5f0);
+                            border-radius: 8px;
+                            padding: 14px 12px;
+                            border-left: 3px solid #D85A30;
+                        ">
+                            <div style="
+                                font-size: 11px;
+                                font-weight: 600;
+                                color: #D85A30;
+                                text-transform: uppercase;
+                                letter-spacing: 0.04em;
+                                margin-bottom: 6px;
+                            ">Pendiente</div>
+                            <div style="font-size: 18px; font-weight: 500; color: #1a1a1a;">
+                                <field name="amount_pending"
+                                       widget="monetary"/>
+                            </div>
+                        </div>
+                        <div style="
+                            background: #EAF3DE;
+                            border-radius: 8px;
+                            padding: 14px 12px;
+                            border-left: 3px solid #3B6D11;
+                        ">
+                            <div style="
+                                font-size: 11px;
+                                font-weight: 600;
+                                color: #3B6D11;
+                                text-transform: uppercase;
+                                letter-spacing: 0.04em;
+                                margin-bottom: 6px;
+                            ">Disponible</div>
+                            <div style="font-size: 20px; font-weight: 500; color: #27500A;">
+                                <field name="amount_available"
+                                       widget="monetary"/>
+                            </div>
+                        </div>
+                    </div>
+                    <notebook>
+                        <page string="Anticipos" name="lines">
+                            <field name="line_ids" readonly="state != 'open'">
+                                <list editable="bottom">
+                                    <field name="date"/>
+                                    <field name="employee_id"/>
+                                    <field name="description"/>
+                                    <field name="amount"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="invoice_id" optional="hide"/>
+                                    <field name="amount_returned" optional="hide"/>
+                                    <button name="action_confirm_delivery"
+                                            string="Entregar"
+                                            type="object"
+                                            icon="fa-money"
+                                            invisible="state != 'draft'"/>
+                                    <button name="action_settle_with_invoice"
+                                            string="Liquidar"
+                                            type="object"
+                                            icon="fa-check"
+                                            invisible="state != 'delivered'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Recargas" name="recargas">
+                            <field name="recharge_ids" readonly="1">
+                                <list create="false" delete="false" edit="false">
+                                    <field name="date"/>
+                                    <field name="name"/>
+                                    <field name="journal_source_id"/>
+                                    <field name="reference"/>
+                                    <field name="amount" sum="Total recargas"/>
+                                    <field name="state" widget="badge"
+                                           decoration-warning="state == 'in_transit'"
+                                           decoration-success="state == 'received'"
+                                           decoration-danger="state == 'cancelled'"/>
+                                    <button name="action_confirm_cash_received"
+                                            string="Confirmar recepción"
+                                            type="object"
+                                            icon="fa-check"
+                                            invisible="state != 'in_transit'"
+                                            groups="kenocia_tesoreria_v18.group_tesoreria_custodian,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notas" name="notes">
+                            <field name="notes" placeholder="Observaciones del fondo..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kenocia_petty_cash_recharge_form" model="ir.ui.view">
+        <field name="name">kenocia.petty.cash.recharge.form</field>
+        <field name="model">kenocia.petty.cash.recharge</field>
+        <field name="arch" type="xml">
+            <form string="Recarga de Caja Chica">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,in_transit,received"/>
+                    <button name="action_send_to_transit"
+                            string="Enviar a Tránsito"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+                    <button name="action_confirm_cash_received"
+                            string="Confirmar Recepción"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'in_transit'"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_custodian,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+                    <button name="action_cancel"
+                            string="Cancelar"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state in ('received', 'cancelled')"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="petty_cash_id" readonly="state != 'draft'"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="journal_source_id" readonly="state != 'draft'"/>
+                            <field name="reference" readonly="state != 'draft'"/>
+                            <field name="payment_bank_id" readonly="1"
+                                   invisible="not payment_bank_id"/>
+                            <field name="move_receipt_id" readonly="1"
+                                   invisible="not move_receipt_id"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kenocia_petty_cash_line_form" model="ir.ui.view">
+        <field name="name">kenocia.petty.cash.line.form</field>
+        <field name="model">kenocia.petty.cash.line</field>
+        <field name="arch" type="xml">
+            <form string="Anticipo de Caja Chica">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,delivered,settled"/>
+                    <button name="action_confirm_delivery"
+                            string="Confirmar entrega"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_custodian,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+                    <button name="action_settle_with_invoice"
+                            string="Liquidar con Factura SAR"
+                            type="object"
+                            class="btn-success"
+                            invisible="state != 'delivered'"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_custodian,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+                    <button name="action_cancel_line"
+                            string="Cancelar"
+                            type="object"
+                            class="btn-danger"
+                            invisible="state in ('settled', 'cancelled')"
+                            groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="LIQUIDADO"
+                            bg_color="text-bg-success"
+                            invisible="state != 'settled'"/>
+                    <div class="alert alert-info mb-3" role="alert"
+                         invisible="state != 'delivered'">
+                        <i class="fa fa-clock-o me-1"/>
+                        Anticipo entregado. Pendiente de liquidar con factura SAR del proveedor.
+                    </div>
+                    <div class="alert alert-success mb-3" role="alert"
+                         invisible="state != 'settled'">
+                        <i class="fa fa-check-circle me-1"/>
+                        Anticipo liquidado correctamente. Factura SAR registrada y pagada.
+                    </div>
+                    <div name="button_box" class="oe_button_box">
+                        <button type="object" name="action_view_settlement_payment"
+                                class="oe_stat_button" icon="fa-money"
+                                invisible="not settlement_payment_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Pago liquidación</span>
+                            </div>
+                        </button>
+                        <button type="object" name="action_view_invoice"
+                                class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="not invoice_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Factura SAR</span>
+                            </div>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="petty_cash_id" readonly="state != 'draft'"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="employee_id" readonly="state != 'draft'"/>
+                            <field name="description" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="amount_pending"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Liquidación"
+                           invisible="state not in ('delivered', 'settled')">
+                        <group>
+                            <field name="invoice_id" readonly="1"/>
+                            <field name="amount_invoice" readonly="1"/>
+                            <field name="amount_returned" readonly="1"
+                                   string="Vuelto devuelto al fondo"/>
+                        </group>
+                        <group>
+                            <field name="amount_pending" readonly="1"/>
+                            <field name="move_settlement_id" readonly="1"
+                                   string="Asiento generado"/>
+                            <field name="settlement_date" readonly="1"
+                                   invisible="not settlement_date"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+</odoo>

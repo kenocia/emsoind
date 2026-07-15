@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de árbol para auditoría de secuencias -->
+        <record id="view_sequence_audit_tree" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn_v18.sequence.audit.tree</field>
+            <field name="model">kc_fiscal_hn.sequence.audit</field>
+            <field name="arch" type="xml">
+                <list string="Auditoría de Secuencias Fiscales">
+                    <field name="sequence_id"/>
+                    <field name="action"/>
+                    <field name="old_number"/>
+                    <field name="new_number"/>
+                    <field name="user_id"/>
+                    <field name="create_date"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista de formulario para auditoría de secuencias -->
+        <record id="view_sequence_audit_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn_v18.sequence.audit.form</field>
+            <field name="model">kc_fiscal_hn.sequence.audit</field>
+            <field name="arch" type="xml">
+                <form string="Auditoría de Secuencia Fiscal">
+                    <header>
+                        <button name="action_view_sequence" string="Ver Secuencia" type="object" 
+                                class="btn-info"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_sequence" type="object" class="oe_stat_button" icon="fa-cogs">
+                                <field name="sequence_id" widget="many2one_avatar"/>
+                            </button>
+                        </div>
+                        <group>
+                            <group string="Información de la Auditoría">
+                                <field name="sequence_id"/>
+                                <field name="action"/>
+                                <field name="user_id"/>
+                                <field name="create_date"/>
+                            </group>
+                            <group string="Cambios Realizados">
+                                <field name="old_number"/>
+                                <field name="new_number"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <group string="Motivo"
+                         invisible="not reason">
+                            <field name="reason" nolabel="1"/>
+                        </group>
+                        <group string="Información Adicional"
+                         invisible="not ip_address">
+                            <field name="ip_address"
+                         invisible="not ip_address"/>
+                            <field name="session_id"
+                         invisible="not session_id"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista de búsqueda para auditoría de secuencias -->
+        <record id="view_sequence_audit_search" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn_v18.sequence.audit.search</field>
+            <field name="model">kc_fiscal_hn.sequence.audit</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Auditoría de Secuencias">
+                    <field name="sequence_id"/>
+                    <field name="action"/>
+                    <field name="user_id"/>
+                    <filter string="Reinicios" name="reset" domain="[('action', '=', 'reset')]"/>
+                    <filter string="Modificaciones" name="modify" domain="[('action', '=', 'modify')]"/>
+                    <filter string="Creaciones" name="create" domain="[('action', '=', 'create')]"/>
+                    <filter string="Eliminaciones" name="delete" domain="[('action', '=', 'delete')]"/>
+                    <separator/>
+                    <filter string="Secuencia" name="groupby_sequence_id" domain="[]" context="{'group_by': 'sequence_id'}"/>
+                    <filter string="Acción" name="groupby_action" domain="[]" context="{'group_by': 'action'}"/>
+                    <filter string="Usuario" name="groupby_user_id" domain="[]" context="{'group_by': 'user_id'}"/>
+                    <filter string="Fecha" name="groupby_create_day" domain="[]" context="{'group_by': 'create_date:day'}"/>
+                    <filter string="Compañía" name="groupby_company" domain="[]" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción para auditoría de secuencias -->
+        <record id="action_sequence_audit" model="ir.actions.act_window">
+            <field name="name">Auditoría de Secuencias Fiscales</field>
+            <field name="res_model">kc_fiscal_hn.sequence.audit</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_sequence_audit_tree"/>
+            <field name="search_view_id" ref="view_sequence_audit_search"/>
+            <field name="context">{'search_default_reset': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No hay registros de auditoría de secuencias fiscales
+                </p>
+                <p>
+                    Aquí se registran todas las acciones realizadas sobre las secuencias fiscales 
+                    para mantener un historial de cambios.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo> 

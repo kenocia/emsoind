@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_expense_sheet_form_advance" model="ir.ui.view">
+        <field name="name">hr.expense.sheet.form.advance</field>
+        <field name="model">hr.expense.sheet</field>
+        <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_form"/>
+        <field name="arch" type="xml">
+            <field name="employee_id" position="after">
+                <field name="kc_advance_id"
+                       readonly="state not in ('draft', 'submit')"/>
+                <field name="kc_fund_applied" invisible="1"/>
+            </field>
+            <button name="action_register_payment" position="attributes">
+                <attribute name="invisible">payment_mode == 'company_account' or state not in ('post', 'done') or payment_state in ('paid', 'in_payment') or kc_fund_applied or kc_advance_id</attribute>
+            </button>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,177 @@
+Buenas tardes equipo,
+
+Con el objetivo de avanzar correctamente en la implementación del nuevo esquema de productos metálicos por especificaciones técnicas dentro de Odoo 18, necesitamos definir y estructurar adecuadamente la información de inventario y precios que será utilizada en el sistema.
+
+Es importante tomar en cuenta que el nuevo modelo NO trabajará con variantes de producto tradicionales, ya que el negocio maneja productos fabricados o vendidos en base a medidas y especificaciones técnicas dinámicas. Por esta razón, el sistema se manejará mediante:
+
+Productos genéricos
+Especificaciones técnicas por línea de venta
+Lotes diferenciados por especificación
+Para poder desarrollar correctamente esta estructura, necesitamos que nos proporcionen la siguiente información:
+
+Productos Genéricos
+Listado de las familias o productos base que manejará la empresa, por ejemplo:
+
+Ducto Portacable Cuadrado
+Codo Ducto Cuadrado
+Bandeja Portacable Escalera
+Lámina
+Perfil
+Accesorios
+Atributos o Especificaciones Técnicas
+Definir qué atributos aplican para cada tipo de producto.
+
+Ejemplos:
+
+Ductos:
+
+Ancho
+Alto
+Longitud
+Lámina
+Calibre
+Codos:
+
+Ancho
+Alto
+Grados
+Lámina
+Calibre
+Bandejas:
+
+Ancho
+Longitud
+Altura
+Superficie
+Calibre
+Valores Permitidos por Atributo
+Necesitamos conocer los valores válidos para cada atributo.
+
+Ejemplos:
+
+Ancho:
+
+2”
+4”
+6”
+8”
+12”
+Longitud:
+
+8Ft
+10Ft
+12Ft
+Calibre:
+
+C24
+C22
+C18
+C16
+Superficie:
+
+Galvanizado
+Pintado
+Acero Inoxidable
+Estructura de Códigos
+Necesitamos definir cómo se construyen actualmente los códigos técnicos o SKU de los productos.
+
+Ejemplo:
+
+DPC-2X2-8FT-LGC22
+
+Esto es importante ya que el sistema generará automáticamente los lotes y referencias técnicas en base a las especificaciones seleccionadas.
+
+Listas de Precios
+Es importante considerar que actualmente manejan 3 tipos de listas de precios:
+
+Precio Detalle
+Precio Contratista
+Precio Distribuidor
+Para cada una de estas listas necesitamos definir:
+
+Cómo varía el precio según las medidas
+Cómo influye el calibre
+Cómo influye el tipo de lámina
+Cómo influye la superficie o acabado
+Si existen combinaciones especiales
+Si el cálculo se basa en:
+longitud
+área
+peso
+combinación de atributos
+tablas predefinidas
+Aunque inicialmente el sistema solo almacenará las especificaciones técnicas y no calculará automáticamente los precios, es importante dejar esta estructura definida desde el inicio para futuras automatizaciones.
+
+Existencias Actuales
+Necesitamos conocer cómo desean manejar el inventario inicial:
+
+Si actualmente ya existen productos fabricados
+Si desean importar existencias iniciales
+Si esas existencias ya tienen especificaciones identificables
+Cómo desean diferenciar productos similares con distintas medidas
+Reportes y Documentos
+Favor validar que las cotizaciones, entregas y facturas deben mostrar:
+
+Especificaciones técnicas
+Código técnico
+Lote
+Medidas
+Tipo de material
+Calibre
+Acabado
+Ejemplos de formación de códigos técnicos
+Para facilitar la identificación de cada producto por especificación, proponemos que los códigos técnicos se formen con una estructura basada en:
+
+Producto + Medidas + Longitud/Grados + Material + Calibre + Fecha/Correlativo
+
+Ejemplos:
+
+Ducto Portacable Cuadrado
+Código base: DPC
+Especificación: Ancho 2”, Alto 2”, Longitud 8Ft, Lámina LG, Calibre C22
+Código técnico sugerido:
+DPC-2X2-8FT-LGC22
+
+Codo Ducto Cuadrado
+Código base: CDC
+Especificación: Ancho 2”, Alto 2”, Grados 90, Lámina LG, Calibre C22
+Código técnico sugerido:
+CDC-2X2-90-LGC22
+
+Bandeja Portacable Escalera
+Código base: BTEL
+Especificación: Ancho 12”, Longitud 8Ft, Calibre C16, Superficie Galvanizado
+Código técnico sugerido:
+BTEL-12-8FT-C16-GALV
+
+Transición Metálica
+Código base: TRM
+Especificación: Ancho mayor 12”, Ancho menor 8”, Fondo 6”, Lámina LG, Calibre C18
+Código técnico sugerido:
+TRM-12X8X6-LGC18
+
+Lámina Cortada
+Código base: LAM
+Especificación: Ancho 48”, Longitud 96”, Calibre C22, Superficie Galvanizado
+Código técnico sugerido:
+LAM-48X96-C22-GALV
+
+En caso de generar lotes de inventario, el sistema podría agregar automáticamente la fecha y un correlativo al final del código.
+
+Ejemplo:
+
+DPC-2X2-8FT-LGC22-20260526-0001
+
+Esto permitiría identificar que se trata de:
+Producto: Ducto Portacable Cuadrado
+Medidas: 2” x 2”
+Longitud: 8Ft
+Material: Lámina LG
+Calibre: C22
+Fecha de creación: 26/05/2026
+Correlativo: 0001
+
+La estructura final debe ser validada por el equipo de inventario para asegurar que los códigos coinciden con la forma en que actualmente identifican, producen y venden sus productos.
+
+Toda esta información es importante para garantizar que el sistema quede correctamente estructurado desde el inicio y que posteriormente pueda crecer hacia módulos de producción, planeación y costos sin necesidad de rehacer la arquitectura.
+

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_kc_fiscal_print_reissue_log_list" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn.print.reissue.log.list</field>
+            <field name="model">kc_fiscal_hn.print.reissue.log</field>
+            <field name="arch" type="xml">
+                <list string="Reautorizaciones SAR" create="false" edit="false" delete="false">
+                    <field name="authorized_date"/>
+                    <field name="action"/>
+                    <field name="document_name"/>
+                    <field name="print_count_at_authorization"/>
+                    <field name="user_id"/>
+                    <field name="reason"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_kc_fiscal_print_reissue_log" model="ir.actions.act_window">
+            <field name="name">Auditoría de reautorizaciones SAR</field>
+            <field name="res_model">kc_fiscal_hn.print.reissue.log</field>
+            <field name="view_mode">list</field>
+            <field name="context">{'create': False, 'edit': False, 'delete': False}</field>
+        </record>
+
+    </data>
+</odoo>

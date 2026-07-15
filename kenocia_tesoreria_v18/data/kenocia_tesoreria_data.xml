@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="seq_kenocia_advance_cxc" model="ir.sequence">
+        <field name="name">Adelantos CXC</field>
+        <field name="code">kenocia.advance.payment.cxc</field>
+        <field name="prefix">ADEL-CXC-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_kenocia_advance_cxp" model="ir.sequence">
+        <field name="name">Adelantos CXP</field>
+        <field name="code">kenocia.advance.payment.cxp</field>
+        <field name="prefix">ADEL-CXP-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_kenocia_petty_cash_recharge" model="ir.sequence">
+        <field name="name">Recargas Caja Chica</field>
+        <field name="code">kenocia.petty.cash.recharge</field>
+        <field name="prefix">REC-CC-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+</odoo>

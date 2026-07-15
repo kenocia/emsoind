@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_expense_view_form_fiscal_hn" model="ir.ui.view">
+        <field name="name">hr.expense.form.fiscal.hn</field>
+        <field name="model">hr.expense</field>
+        <field name="inherit_id" ref="hr_expense.hr_expense_view_form"/>
+        <field name="arch" type="xml">
+            <field name="vendor_id" position="attributes">
+                <attribute name="required">kc_is_fiscal_expense</attribute>
+            </field>
+            <field name="vendor_id" position="after">
+                <field name="kc_is_fiscal_expense" invisible="1"/>
+                <field name="kc_cai_required" invisible="1"/>
+                <field name="kc_document_type"/>
+                <field name="kc_document_number"/>
+                <field name="kc_cai"
+                       invisible="kc_document_type != 'factura'"
+                       required="kc_cai_required"/>
+                <field name="kc_document_date"/>
+            </field>
+            <xpath expr="//sheet" position="inside">
+                <group string="Contabilidad fiscal" invisible="not kc_vendor_bill_id">
+                    <field name="kc_vendor_bill_id"/>
+                    <field name="kc_fund_move_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

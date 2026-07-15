@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_batch_payment_form_kenocia" model="ir.ui.view">
+        <field name="name">account.batch.payment.form.kenocia.tesoreria</field>
+        <field name="model">account.batch.payment</field>
+        <field name="inherit_id" ref="account_batch_payment.view_batch_payment_form"/>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button name="action_kenocia_generate_bank_file"
+                        string="Generar archivo banco"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="not kenocia_bank_format and not journal_id"/>
+            </header>
+            <field name="date" position="after">
+                <field name="kenocia_source"/>
+                <field name="kenocia_sequence_name" invisible="not kenocia_sequence_name" readonly="1"/>
+                <field name="kenocia_bank_format"/>
+                <field name="kenocia_filename" invisible="not kenocia_filename" readonly="1"/>
+                <field name="kenocia_file" filename="kenocia_filename"
+                       invisible="not kenocia_file" readonly="1"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

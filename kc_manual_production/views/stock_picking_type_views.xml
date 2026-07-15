@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Herencia del Tipo de Operación                               -->
+    <!-- Muestra el rol de Producción Manual KC.                      -->
+    <!-- ============================================================ -->
+    <record id="kc_view_picking_type_form_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.type.form.kc.production</field>
+        <field name="model">stock.picking.type</field>
+        <field name="inherit_id" ref="stock.view_picking_type_form"/>
+        <field name="arch" type="xml">
+            <field name="sequence_code" position="after">
+                <field name="kc_production_role"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Acción: Tipos de Operación de Producción Manual KC           -->
+    <!-- Lista los tipos marcados con rol (rp/cmp).                   -->
+    <!-- ============================================================ -->
+    <record id="kc_production_picking_type_action" model="ir.actions.act_window">
+        <field name="name">Tipos de Operación (RP / CMP)</field>
+        <field name="res_model">stock.picking.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('kc_production_role', '!=', False)]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay tipos de operación de Producción Manual configurados.
+            </p>
+            <p>
+                Los tipos RP (entrada de Producto Terminado) y CMP (salida de
+                Materia Prima) se crean automáticamente al instalar el módulo
+                y al validar el primer documento en cada compañía.
+            </p>
+        </field>
+    </record>
+
+</odoo>

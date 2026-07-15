@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Encabezado Cotización / Orden de Venta (independiente de account.move) -->
+        <template id="header_sale_layout" name="Encabezado Cotización Kenocia">
+            <t t-set="company" t-value="doc.company_id"/>
+            <t t-set="partner" t-value="doc.partner_id.commercial_partner_id or doc.partner_id"/>
+            <t t-set="is_quotation" t-value="doc.state in ('draft', 'sent')"/>
+            <t t-set="brand_bg" t-value="'#b45309' if is_quotation else '#0c2d5e'"/>
+
+            <!-- Barra de marca + logo sin cuadro -->
+            <table style="width:100%; border-collapse:collapse; margin-bottom:14px;">
+                <tr>
+                    <td t-att-style="'width:72%; vertical-align:middle; padding:14px 16px; background-color:' + brand_bg + '; border-radius:6px; -webkit-print-color-adjust:exact;'">
+                        <div t-att-style="'font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; font-weight:600; color:' + ('#fde68a' if is_quotation else '#bfdbfe') + ';'">
+                            <t t-if="is_quotation">Cotización</t>
+                            <t t-else="">Orden de venta</t>
+                        </div>
+                        <div style="font-size:24px; font-weight:700; color:#ffffff; letter-spacing:0.5px; line-height:1.1;">
+                            <span t-field="doc.name"/>
+                        </div>
+                        <div style="margin-top:8px;">
+                            <span style="display:inline-block; background-color:rgba(255,255,255,0.15); color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:600; margin-right:6px; -webkit-print-color-adjust:exact;">
+                                <span t-field="doc.date_order" t-options="{'widget': 'date'}"/>
+                            </span>
+                            <t t-if="is_quotation and doc.validity_date">
+                                <span style="display:inline-block; background-color:#fbbf24; color:#78350f; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:700; -webkit-print-color-adjust:exact;">
+                                    Válida hasta <span t-field="doc.validity_date" t-options="{'widget': 'date'}"/>
+                                </span>
+                            </t>
+                            <t t-if="not is_quotation">
+                                <span style="display:inline-block; background-color:#22c55e; color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:700; -webkit-print-color-adjust:exact;">
+                                    Confirmada
+                                </span>
+                            </t>
+                        </div>
+                    </td>
+                    <td style="width:28%; vertical-align:middle; text-align:right; padding:0 0 0 14px;">
+                        <t t-if="company.logo">
+                            <img t-att-src="image_data_uri(company.logo)"
+                                 style="max-height:72px; max-width:100%;" alt="Logo"/>
+                        </t>
+                        <t t-else="">
+                            <div style="font-size:18px; font-weight:700; color:#0c2d5e; letter-spacing:1px;">
+                                <span t-field="company.name"/>
+                            </div>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Emisor compacto + Cliente protagonista -->
+            <table style="width:100%; border-collapse:collapse; margin-bottom:12px;">
+                <tr>
+                    <td style="width:38%; vertical-align:top; padding-right:8px;">
+                        <div style="border-left:3px solid #1a4fa0; padding:4px 0 4px 10px;">
+                            <div style="font-size:9px; letter-spacing:1.2px; color:#6b7280; text-transform:uppercase; margin-bottom:4px; font-weight:600;">
+                                Emisor
+                            </div>
+                            <div style="font-weight:600; color:#111827; font-size:11px; margin-bottom:3px;">
+                                <span t-field="company.name"/>
+                            </div>
+                            <div style="color:#374151; font-size:9px; line-height:1.45;">
+                                <div>
+                                    <span t-field="company.street"/>
+                                    <t t-if="company.street2">, <span t-field="company.street2"/></t>
+                                </div>
+                                <t t-set="emisor_ubicacion" t-value="', '.join([p for p in [company.city or '', company.state_id.name if company.state_id else '', company.country_id.name if company.country_id else ''] if p])"/>
+                                <div t-esc="emisor_ubicacion"/>
+                                <div style="margin-top:3px;">
+                                    RTN <strong style="font-family:'Courier New',monospace;" t-field="company.vat"/>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width:62%; vertical-align:top; padding-left:8px;">
+                        <div style="background-color:#f0f5ff; border:1px solid #c7d7f5; border-radius:6px; padding:12px 14px; -webkit-print-color-adjust:exact;">
+                            <div style="font-size:9px; letter-spacing:1.2px; color:#1a4fa0; text-transform:uppercase; margin-bottom:4px; font-weight:700;">
+                                Cliente
+                            </div>
+                            <div style="font-weight:700; color:#0c2d5e; font-size:14px; margin-bottom:4px; line-height:1.25;">
+                                <span t-field="partner.name"/>
+                            </div>
+                            <t t-if="partner.street or partner.city">
+                                <div style="color:#374151; margin-bottom:4px; font-size:10px;">
+                                    <span t-field="partner.street"/>
+                                    <t t-if="partner.city">, <span t-field="partner.city"/></t>
+                                </div>
+                            </t>
+                            <div style="font-size:11px; color:#111827;">
+                                RTN
+                                <strong t-if="partner.vat"
+                                        style="font-family:'Courier New',monospace; margin-left:4px;"
+                                        t-field="partner.vat"/>
+                                <span t-else="" style="margin-left:4px; color:#9ca3af;">—</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <t t-call="kc_fiscal_hn_v18.sale_conditions_bar"/>
+        </template>
+
+        <!-- Metadatos Factura Proforma (sin datos CAI) -->
+        <template id="sar_proforma_info_grid" name="Metadatos Factura Proforma">
+            <t t-set="proforma_date" t-value="doc.date_order.date() if doc.date_order else False"/>
+            <t t-set="proforma_client_ref" t-value="(doc.client_order_ref or '').strip()"/>
+            <table style="width:100%; max-width:520px; border-collapse:collapse; font-size:10px; color:#111827; line-height:1.55; margin-bottom:8px;">
+                <tr>
+                    <td style="width:50%; vertical-align:top; padding:1px 10px 3px 0;">
+                        <span style="color:#111827;">Fecha de emisión:</span>
+                        <span style="font-weight:600; color:#111827;">
+                            <t t-if="proforma_date" t-esc="proforma_date.strftime('%d/%m/%Y')"/>
+                            <t t-else=""><span style="color:#111827; font-weight:400;">—</span></t>
+                        </span>
+                    </td>
+                    <td style="width:50%; vertical-align:top; padding:1px 0 3px 0;">
+                        <span style="color:#111827;">Orden interna:</span>
+                        <span style="font-weight:600; color:#111827;" t-field="doc.name"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="vertical-align:top; padding:1px 10px 3px 0;">
+                        <span style="color:#111827;">Referencia del cliente:</span>
+                        <span style="font-weight:600; color:#111827;">
+                            <t t-if="proforma_client_ref" t-esc="proforma_client_ref"/>
+                            <t t-else=""><span style="color:#111827; font-weight:400;">—</span></t>
+                        </span>
+                    </td>
+                    <td style="vertical-align:top; padding:1px 0 3px 0;">
+                        <span style="color:#111827;">Vendedor:</span>
+                        <span style="font-weight:600; color:#111827;">
+                            <t t-if="doc.user_id" t-esc="doc.user_id.name"/>
+                            <t t-else=""><span style="color:#111827; font-weight:400;">—</span></t>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <!-- Encabezado Factura Proforma (estilo factura SAR, sin secuencia fiscal) -->
+        <template id="header_proforma_layout" name="Encabezado Factura Proforma">
+            <t t-set="company" t-value="doc.company_id"/>
+            <t t-set="partner" t-value="doc.partner_id.commercial_partner_id or doc.partner_id"/>
+
+            <table style="width:100%; border-collapse:collapse; margin-bottom:12px;">
+                <tr>
+                    <td style="width:70%; vertical-align:top; padding:0;">
+                        <div style="font-size:11px; letter-spacing:1.5px; color:#111827; text-transform:uppercase; margin-bottom:2px;">
+                            Factura Proforma
+                        </div>
+                        <div style="font-size:20px; font-weight:600; color:#111827; margin-bottom:6px;">
+                            <span t-field="doc.name"/>
+                        </div>
+                        <t t-call="kc_fiscal_hn_v18.sar_proforma_info_grid"/>
+                        <span style="display:inline-block; border:1px solid #b45309; color:#b45309; border-radius:10px; padding:2px 8px; font-size:10px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; -webkit-print-color-adjust:exact;">
+                            Documento no fiscal
+                        </span>
+                        <div style="font-size:9px; color:#111827; margin-top:6px; line-height:1.4; max-width:520px;">
+                            Sin valor tributario. No sustituye la factura fiscal SAR.
+                        </div>
+                    </td>
+                    <td style="width:30%; vertical-align:top; text-align:right; padding:0;">
+                        <img t-if="company.logo"
+                             t-att-src="image_data_uri(company.logo)"
+                             style="max-height:70px; max-width:100%;" alt="Logo"/>
+                    </td>
+                </tr>
+            </table>
+
+            <table style="width:100%; border-collapse:collapse; margin-bottom:12px;">
+                <tr>
+                    <td style="width:50%; vertical-align:top; padding-right:6px;">
+                        <div style="background-color:#f7f8fa; border:1px solid #e5e7eb; border-radius:6px; padding:10px 12px; min-height:110px; -webkit-print-color-adjust:exact;">
+                            <div style="font-size:10px; letter-spacing:1px; color:#111827; text-transform:uppercase; margin-bottom:4px;">
+                                Emisor
+                            </div>
+                            <div style="font-weight:600; color:#111827; margin-bottom:4px;">
+                                <span t-field="company.name"/>
+                            </div>
+                            <div style="color:#111827; margin-bottom:2px;">
+                                <span t-field="company.street"/>
+                                <t t-if="company.street2">, <span t-field="company.street2"/></t>
+                            </div>
+                            <div style="color:#111827; margin-bottom:4px;">
+                                <t t-set="emisor_ubicacion" t-value="', '.join([p for p in [company.city or '', company.state_id.name if company.state_id else '', company.country_id.name if company.country_id else ''] if p])"/>
+                                <span t-esc="emisor_ubicacion"/>
+                            </div>
+                            <t t-if="company.phone">
+                                <div style="color:#111827; margin-bottom:2px;">Tel: <span t-field="company.phone"/></div>
+                            </t>
+                            <t t-if="company.email">
+                                <div style="color:#111827; margin-bottom:4px;"><span t-field="company.email"/></div>
+                            </t>
+                            <div style="color:#111827;">
+                                RTN:
+                                <span style="font-family:'Courier New',monospace; font-weight:600; color:#111827;">
+                                    <span t-field="company.vat"/>
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width:50%; vertical-align:top; padding-left:6px;">
+                        <div style="background-color:#f7f8fa; border:1px solid #e5e7eb; border-radius:6px; padding:10px 12px; min-height:110px; -webkit-print-color-adjust:exact;">
+                            <div style="font-size:10px; letter-spacing:1px; color:#111827; text-transform:uppercase; margin-bottom:4px;">
+                                Cliente
+                            </div>
+                            <div style="font-weight:600; color:#111827; margin-bottom:8px;">
+                                <span t-field="partner.name"/>
+                            </div>
+                            <div style="color:#111827; margin-bottom:6px;">
+                                RTN:
+                                <t t-if="partner.vat">
+                                    <span style="font-family:'Courier New',monospace; font-weight:600; color:#111827;">
+                                        <span t-field="partner.vat"/>
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span style="font-weight:600; color:#111827;">—</span>
+                                </t>
+                            </div>
+                            <div style="color:#111827;">
+                                <span style="font-size:9px; letter-spacing:0.8px; color:#111827; text-transform:uppercase;">Referencia del cliente</span>
+                                <div style="font-weight:600; color:#111827; margin-top:2px;">
+                                    <t t-if="doc.client_order_ref"><span t-field="doc.client_order_ref"/></t>
+                                    <t t-else=""><span style="color:#111827; font-weight:400;">—</span></t>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <!-- Totales SAR Factura Proforma -->
+        <template id="sale_proforma_totals_block" name="Totales Factura Proforma SAR">
+            <t t-set="zero_amount" t-value="0.0"/>
+            <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                <tr>
+                    <td style="color:#111827; padding:3px 0;">Descuento</td>
+                    <td class="text-end" style="padding:3px 0; color:#111827;">
+                        <span t-esc="-doc.proforma_amount_discount"
+                              t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:#111827; padding:3px 0;">Importe Exento</td>
+                    <td class="text-end" style="padding:3px 0; color:#111827;">
+                        <span t-field="doc.proforma_amount_exento"
+                              t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:#111827; padding:3px 0;">Importe Exonerado</td>
+                    <td class="text-end" style="padding:3px 0; color:#111827;">
+                        <span t-field="doc.proforma_amount_exonerado"
+                              t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:#111827; padding:3px 0;">Importe Gravado 15%</td>
+                    <td class="text-end" style="padding:3px 0; color:#111827;">
+                        <span t-field="doc.proforma_gravado_isv15"
+                              t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:#111827; padding:3px 0;">Importe Gravado 18%</td>
+                    <td class="text-end" style="padding:3px 0; color:#111827;">
+                        <span t-field="doc.proforma_gravado_isv18"
+                              t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:#111827; padding:3px 0;">ISV 15%</td>
+                    <td class="text-end" style="padding:3px 0; color:#111827;">
+                        <span t-field="doc.proforma_amount_isv15"
+                              t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:#111827; padding:3px 0;">ISV 18%</td>
+                    <td class="text-end" style="padding:3px 0; color:#111827;">
+                        <span t-field="doc.proforma_amount_isv18"
+                              t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color:#111827; padding:3px 0;">Envío</td>
+                    <td class="text-end" style="padding:3px 0; color:#111827;">
+                        <span t-esc="zero_amount"
+                              t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding:6px 0 4px 0; border-top:1px solid #e5e7eb;"/>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding:0;">
+                        <table style="width:100%; border-collapse:collapse; background-color:#0c2d5e; border-radius:4px; -webkit-print-color-adjust:exact;">
+                            <tr>
+                                <td style="padding:8px 10px; font-size:13px; font-weight:600; color:#fff;">
+                                    TOTAL PROFORMA
+                                    <div style="font-size:9px; font-weight:400; color:#b5d4f4; margin-top:2px;">
+                                        Lempiras hondureñas
+                                    </div>
+                                </td>
+                                <td class="text-end" style="padding:8px 10px; font-size:14px; font-weight:600; color:#fff;">
+                                    <span t-field="doc.amount_total"
+                                          t-options="{'widget':'monetary','display_currency':doc.currency_id}"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <div style="margin-top:10px; font-size:10px; color:#111827; border:1px solid #e5e7eb; border-radius:4px; padding:8px; text-align:center; background-color:#f7f8fa; -webkit-print-color-adjust:exact;">
+                <span t-esc="doc.proforma_amount_words"/>
+            </div>
+        </template>
+
+        <!-- Chips de condiciones comerciales -->
+        <template id="sale_conditions_bar" name="Barra condiciones comerciales">
+            <div style="margin-bottom:14px; line-height:2.1;">
+                <t t-if="doc.client_order_ref">
+                    <span style="display:inline-block; background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#6b7280; font-weight:600;">OC · </span>
+                        <span style="color:#111827; font-weight:700;"><span t-field="doc.client_order_ref"/></span>
+                    </span>
+                </t>
+                <t t-if="doc.user_id">
+                    <span style="display:inline-block; background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#6b7280; font-weight:600;">Vendedor · </span>
+                        <span style="color:#111827; font-weight:700;"><span t-field="doc.user_id"/></span>
+                    </span>
+                </t>
+                <t t-if="doc.user_id and doc.user_id.email">
+                    <span style="display:inline-block; background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#6b7280; font-weight:600;">Correo · </span>
+                        <span style="color:#111827; font-weight:700;"><span t-field="doc.user_id.email"/></span>
+                    </span>
+                </t>
+                <t t-if="doc.payment_term_id">
+                    <span style="display:inline-block; background-color:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#1a4fa0; font-weight:600;">Pago · </span>
+                        <span style="color:#0c2d5e; font-weight:700;"><span t-field="doc.payment_term_id"/></span>
+                    </span>
+                </t>
+                <t t-if="'project_id' in doc._fields and doc.project_id">
+                    <span style="display:inline-block; background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#6b7280; font-weight:600;">Proyecto · </span>
+                        <span style="color:#111827; font-weight:700;"><span t-field="doc.project_id"/></span>
+                    </span>
+                </t>
+                <t t-if="'incoterm' in doc._fields and doc.incoterm">
+                    <span style="display:inline-block; background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#6b7280; font-weight:600;">Incoterm · </span>
+                        <span style="color:#111827; font-weight:700;"><span t-field="doc.incoterm.code"/></span>
+                    </span>
+                </t>
+                <t t-if="doc.commitment_date and doc.state not in ('draft', 'sent')">
+                    <span style="display:inline-block; background-color:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:4px 10px; margin:0 6px 6px 0; font-size:10px; -webkit-print-color-adjust:exact;">
+                        <span style="color:#047857; font-weight:600;">Entrega · </span>
+                        <span style="color:#065f46; font-weight:700;">
+                            <span t-field="doc.commitment_date" t-options="{'widget': 'date'}"/>
+                        </span>
+                    </span>
+                </t>
+            </div>
+        </template>
+
+        <!-- Bloque de totales comerciales -->
+        <template id="sale_totals_block" name="Totales Cotización Kenocia">
+            <table style="width:100%; border-collapse:collapse; font-size:11px; color:#111827;">
+                <tr>
+                    <td style="padding:4px 0; color:#6b7280; font-weight:500;">Subtotal</td>
+                    <td class="text-end" style="padding:4px 0; color:#374151;">
+                        <span t-field="doc.amount_untaxed"
+                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                    </td>
+                </tr>
+                <t t-foreach="doc._get_sale_quotation_tax_rows()" t-as="tax_row">
+                    <tr>
+                        <td style="padding:4px 0; color:#6b7280; font-weight:500;"><span t-esc="tax_row['label']"/></td>
+                        <td class="text-end" style="padding:4px 0; color:#374151;">
+                            <span t-esc="doc._sale_quotation_format_amount(tax_row['amount'])"/>
+                        </td>
+                    </tr>
+                </t>
+                <tr>
+                    <td colspan="2" style="padding:10px 0 6px 0; border-top:1px solid #e5e7eb;"/>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding:0;">
+                        <table style="width:100%; border-collapse:collapse; background-color:#0c2d5e; border-radius:6px; -webkit-print-color-adjust:exact;">
+                            <tr>
+                                <td style="padding:12px 14px; vertical-align:middle;">
+                                    <div style="font-size:14px; font-weight:700; color:#fff; letter-spacing:0.5px;">TOTAL</div>
+                                    <div style="font-size:9px; font-weight:400; color:#93c5fd; margin-top:2px;">Lempiras hondureñas</div>
+                                </td>
+                                <td class="text-end" style="padding:12px 14px; font-size:18px; font-weight:700; color:#fff; vertical-align:middle; white-space:nowrap;">
+                                    <span t-field="doc.amount_total"
+                                          t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+        <!-- Pie comercial no fiscal -->
+        <template id="footer_sale_layout" name="Pie Cotización Kenocia">
+            <t t-set="company" t-value="doc.company_id"/>
+            <table style="width:100%; border-collapse:collapse; margin-top:16px; border-top:1px solid #e5e7eb; padding-top:8px;">
+                <tr>
+                    <td style="width:78%; vertical-align:middle; padding:10px 0 4px 0; font-size:9px; color:#6b7280;">
+                        <t t-if="company.phone">
+                            <span t-field="company.phone"/>
+                        </t>
+                        <t t-if="company.email">
+                            <t t-if="company.phone"> · </t>
+                            <span t-field="company.email"/>
+                        </t>
+                        <t t-if="company.website">
+                            <t t-if="company.phone or company.email"> · </t>
+                            <span t-field="company.website"/>
+                        </t>
+                    </td>
+                    <td style="width:22%; vertical-align:middle; text-align:right; padding:10px 0 4px 0; font-size:10px; font-weight:700; color:#0c2d5e;">
+                        <t t-esc="page_num + 1"/> / <t t-esc="total_pages"/>
+                    </td>
+                </tr>
+            </table>
+        </template>
+
+    </data>
+</odoo>

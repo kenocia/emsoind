@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Vista del Asistente de Reversión de CMP                      -->
+    <!-- ============================================================ -->
+    <record id="kc_production_consumption_reversal_wizard_view_form" model="ir.ui.view">
+        <field name="name">kc.production.consumption.reversal.wizard.form</field>
+        <field name="model">kc.production.consumption.reversal.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Revertir Consumo de Materia Prima">
+                <div class="alert alert-warning" role="alert">
+                    Esta acción creará un nuevo Consumo de Materia Prima que revierte
+                    el movimiento de inventario del documento original. El consumo
+                    original NO se modifica (queda como evidencia).
+                </div>
+                <group>
+                    <field name="consumption_id" readonly="1"/>
+                    <field name="reason" placeholder="Indique el motivo de la reversión..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_reversal" string="Confirmar Reversión"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

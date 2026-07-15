@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_kenocia_petty_cash" model="ir.actions.act_window">
+        <field name="name">Fondos de Caja Chica</field>
+        <field name="res_model">kenocia.petty.cash</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Cree el primer fondo de caja chica
+            </p>
+            <p>
+                Gestione anticipos a empleados y liquide facturas SAR
+                con conciliación contable nativa.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_kenocia_petty_cash_line" model="ir.actions.act_window">
+        <field name="name">Anticipos de Caja Chica</field>
+        <field name="res_model">kenocia.petty.cash.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_delivered': 1}</field>
+    </record>
+
+    <record id="action_kenocia_petty_cash_recharges" model="ir.actions.act_window">
+        <field name="name">Recargas Caja Chica</field>
+        <field name="res_model">kenocia.petty.cash.recharge</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Registre recargas bancarias a fondos de caja chica
+            </p>
+            <p>
+                Flujo: Borrador → En tránsito (banco → cuenta puente) →
+                Efectivo recibido (puente → caja chica).
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_tesoreria_petty_cash"
+              name="Caja Chica"
+              parent="menu_kenocia_tesoreria_root"
+              sequence="30"
+              groups="kenocia_tesoreria_v18.group_tesoreria_custodian,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_petty_cash_funds"
+              name="Fondos"
+              parent="menu_tesoreria_petty_cash"
+              action="action_kenocia_petty_cash"
+              sequence="10"
+              groups="kenocia_tesoreria_v18.group_tesoreria_custodian,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_petty_cash_lines"
+              name="Anticipos"
+              parent="menu_tesoreria_petty_cash"
+              action="action_kenocia_petty_cash_line"
+              sequence="20"
+              groups="kenocia_tesoreria_v18.group_tesoreria_custodian,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_kenocia_cxp_recargas_caja"
+              name="Recargas Caja Chica"
+              parent="menu_tesoreria_cxp"
+              action="action_kenocia_petty_cash_recharges"
+              sequence="60"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+</odoo>

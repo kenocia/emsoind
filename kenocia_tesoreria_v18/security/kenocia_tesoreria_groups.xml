@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="ir.module.category" id="module_category_kenocia_tesoreria">
+        <field name="name">Tesorería Kenocia</field>
+        <field name="description">Roles y permisos del módulo de Tesorería Kenocia.</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- Rol CXC: Cobros, adelantos de clientes, depósitos -->
+    <record id="group_tesoreria_cxc" model="res.groups">
+        <field name="name">Tesorería CXC</field>
+        <field name="category_id" ref="module_category_kenocia_tesoreria"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">
+            Acceso a cobros, adelantos de clientes y operaciones CXC.
+            Sin acceso a cheques CXP ni configuración de secuencias.
+        </field>
+    </record>
+
+    <!-- Rol CXP: Pagos, adelantos a proveedores, cheques -->
+    <record id="group_tesoreria_cxp" model="res.groups">
+        <field name="name">Tesorería CXP</field>
+        <field name="category_id" ref="module_category_kenocia_tesoreria"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">
+            Acceso a pagos, adelantos a proveedores, cheques y operaciones CXP.
+            Sin acceso a cobros CXC ni configuración de secuencias.
+        </field>
+    </record>
+
+    <!-- Rol Supervisor: anulaciones, reportes globales, cierre de fondos -->
+    <record id="group_tesoreria_supervisor" model="res.groups">
+        <field name="name">Supervisor de Tesorería</field>
+        <field name="category_id" ref="module_category_kenocia_tesoreria"/>
+        <field name="implied_ids" eval="[
+            (4, ref('group_tesoreria_cxc')),
+            (4, ref('group_tesoreria_cxp')),
+        ]"/>
+        <field name="comment">
+            Supervisa operaciones CXC y CXP. Puede anular cheques,
+            ver reportes globales y cerrar fondos de caja chica.
+        </field>
+    </record>
+
+    <!-- Rol Admin: configuración completa del módulo -->
+    <record id="group_tesoreria_admin" model="res.groups">
+        <field name="name">Administrador de Tesorería</field>
+        <field name="category_id" ref="module_category_kenocia_tesoreria"/>
+        <field name="implied_ids" eval="[(4, ref('group_tesoreria_supervisor'))]"/>
+        <field name="comment">
+            Acceso total: secuencias, configuración, CRUD completo
+            y eliminación de registros de tesorería.
+        </field>
+    </record>
+
+    <!-- Rol Custodio: Caja Chica (Opción B — integrado en Tesorería) -->
+    <record id="group_tesoreria_custodian" model="res.groups">
+        <field name="name">Custodio de Caja Chica</field>
+        <field name="category_id" ref="module_category_kenocia_tesoreria"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">
+            Acceso a fondos de caja chica, anticipos y liquidaciones SAR.
+            Sin acceso a secuencias, cheques de otros diarios ni adelantos CXC/CXP.
+        </field>
+    </record>
+
+    <!-- Administradores / responsables contables ven Tesorería al instalar -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_tesoreria_admin'))]"/>
+    </record>
+
+    <record id="account.group_account_manager" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_tesoreria_supervisor'))]"/>
+    </record>
+
+</odoo>

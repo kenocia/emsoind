@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_company_form_inherit_kc_invoice_report"
+                model="ir.ui.view">
+            <field name="name">
+                res.company.form.inherit.kc.invoice.report
+            </field>
+            <field name="model">res.company</field>
+            <field name="inherit_id"
+                   ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook"
+                       position="inside">
+
+                    <!-- PESTAÑA INFORMACIÓN SAR -->
+                    <page string="Información SAR"
+                          name="informacion_sar">
+
+                        <!-- Clasificación contribuyente -->
+                        <group string="🏢 Clasificación SAR Honduras"
+                               name="clasificacion_sar">
+                            <group>
+                                <field name="tipo_contribuyente"
+                         required="1"/>
+                                <field name="numero_contribuyente_sar"/>
+                                <field name="fecha_clasificacion_sar"/>
+                                <field name="regimen_especial"/>
+                                <field name="es_zoli"
+                                       widget="boolean_toggle"/>
+                            </group>
+                            <group>
+                                <div class="alert alert-success p-2"
+                         invisible="(tipo_contribuyente != 'pequeno' or bool(regimen_especial))">
+                                    <strong>✅ Pequeño Contribuyente</strong>
+                                    <ul class="mb-0 mt-1 small">
+                                        <li>No obligado a DMC</li>
+                                        <li>Libro compras simplificado</li>
+                                        <li>ISV mensual básico</li>
+                                    </ul>
+                                </div>
+                                <div class="alert alert-warning p-2"
+                         invisible="tipo_contribuyente != 'mediano'">
+                                    <strong>⚠️ Mediano Contribuyente</strong>
+                                    <ul class="mb-0 mt-1 small">
+                                        <li>
+                                            <strong>
+                                                Obligado a DMC mensual
+                                            </strong>
+                                        </li>
+                                        <li>
+                                            Plazo: 8 días hábiles del
+                                            mes siguiente
+                                        </li>
+                                        <li>Libro compras DMC completo</li>
+                                    </ul>
+                                </div>
+                                <div class="alert alert-danger p-2"
+                         invisible="tipo_contribuyente != 'grande'">
+                                    <strong>🔴 Grande Contribuyente</strong>
+                                    <ul class="mb-0 mt-1 small">
+                                        <li>
+                                            <strong>
+                                                Obligado a DMC mensual
+                                            </strong>
+                                        </li>
+                                        <li>
+                                            <strong>
+                                                Agente Retención 15% ISV
+                                            </strong>
+                                        </li>
+                                        <li>
+                                            Retiene en: transporte,
+                                            alquiler, maquinaria
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="alert alert-primary p-2"
+                         invisible="not es_zoli">
+                                    <strong>🌎 Empresa Zona Libre (ZOLI)</strong>
+                                    <ul class="mb-0 mt-1 small">
+                                        <li>Control de permanencia DUCA</li>
+                                        <li>Nacionalización (DAI + ISV)</li>
+                                        <li>Límite de ventas locales (50%)</li>
+                                    </ul>
+                                </div>
+                            </group>
+                        </group>
+
+                        <!-- Obligaciones fiscales activas -->
+                        <group string="📊 Obligaciones Fiscales Activas"
+                               name="obligaciones">
+                            <group>
+                                <field name="obligado_dmc"
+                                      
+                                       widget="boolean_toggle"
+                         readonly="1"/>
+                                <field name="es_agente_retencion"
+                                      
+                                       widget="boolean_toggle"
+                         readonly="1"/>
+                                <field name="requiere_libro_dmc"
+                                      
+                                       widget="boolean_toggle"
+                         readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="nivel_control_fiscal"
+                                      
+                                       widget="badge"
+                                       decoration-success=
+                                       "nivel_control_fiscal == 'basico'"
+                                       decoration-warning=
+                                       "nivel_control_fiscal == 'intermedio'"
+                                       decoration-danger=
+                                       "nivel_control_fiscal == 'completo'"
+                         readonly="1"/>
+                            </group>
+                        </group>
+
+                        <!-- Control de exoneración -->
+                        <group string="🧾 Control de Exoneración (Clientes)"
+                               name="control_exoneracion">
+                            <group>
+                                <field name="exoneracion_modo_control"/>
+                                <field name="exoneracion_dias_alerta"/>
+                                <field name="exoneracion_responsable_id"/>
+                            </group>
+                            <group>
+                                <div class="alert alert-info p-2 small mb-0">
+                                    Al confirmar una factura de venta con
+                                    impuesto <strong>exonerado</strong>, el
+                                    sistema verifica que el acuerdo de
+                                    exoneración del cliente esté vigente.
+                                    El modo <strong>Bloqueo duro</strong>
+                                    solo puede ser omitido por el Gerente
+                                    fiscal.
+                                </div>
+                            </group>
+                        </group>
+
+                        <!-- Control Consumidor Final -->
+                        <group string="🛑 Límite de Consumidor Final"
+                               name="control_consumidor_final">
+                            <group>
+                                <field name="consumidor_final_control_activo"/>
+                                <field name="consumidor_final_partner_id"
+                                       invisible="not consumidor_final_control_activo"
+                                       required="consumidor_final_control_activo"
+                                       options="{'no_create': True}"/>
+                                <field name="consumidor_final_monto_maximo"
+                                       invisible="not consumidor_final_control_activo"/>
+                            </group>
+                            <group>
+                                <div class="alert alert-warning p-2 small mb-0"
+                                     invisible="not consumidor_final_control_activo">
+                                    Las órdenes de venta y facturas a nombre
+                                    del contacto <strong>Consumidor Final</strong>
+                                    que superen el monto máximo serán
+                                    <strong>bloqueadas</strong>. El usuario
+                                    deberá registrar un contacto formal con RTN.
+                                    Monto en 0 = sin límite.
+                                </div>
+                            </group>
+                        </group>
+
+                        <!-- Diarios por defecto al crear movimientos -->
+                        <group string="📒 Diarios por defecto (movimientos)"
+                               name="fiscal_default_journals">
+                            <group>
+                                <field name="fiscal_default_sale_journal_id"
+                                       options="{'no_create': True}"/>
+                                <field name="fiscal_default_sale_refund_journal_id"
+                                       options="{'no_create': True}"/>
+                                <field name="fiscal_default_misc_journal_id"
+                                       options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="fiscal_default_purchase_journal_id"
+                                       options="{'no_create': True}"/>
+                                <field name="fiscal_default_purchase_refund_journal_id"
+                                       options="{'no_create': True}"/>
+                            </group>
+                            <div class="alert alert-info p-2 small mb-0" colspan="2">
+                                Define el diario inicial al abrir cada vista
+                                (facturas clientes, NC, proveedores, asientos
+                                directos). No uses valores por defecto globales
+                                en el modelo <code>account.move</code>; se
+                                configuran aquí por compañía.
+                            </div>
+                        </group>
+
+                        <!-- Resolución SAR -->
+                        <group string="📋 Resolución y Registro SAR"
+                               name="resolucion_sar">
+                            <group>
+                                <field name="fiscal_resolution"/>
+                                <field name="fiscal_resolution_date"/>
+                            </group>
+                            <group>
+                                <field name="banking_information_image"
+                                       widget="image"
+                                       class="oe_avatar"
+                                       options="{'size': [128, 128]}"/>
+                                <field name="terms_conditions_image"
+                                       widget="image"
+                                       class="oe_avatar"
+                                       options="{'size': [128, 128]}"/>
+                            </group>
+                        </group>
+
+                        <!-- Régimen Zona Libre (ZOLI) -->
+                        <group string="🌎 Régimen de Zona Libre (ZOLI)"
+                               name="zoli_config"
+                               invisible="not es_zoli">
+                            <group string="Control de Permanencia (DUCA)"
+                                   name="duca_control">
+                                <field name="duca_dias_permanencia"/>
+                                <field name="duca_dias_alerta_previa"/>
+                                <field name="duca_dias_alerta_critica"/>
+                                <field name="duca_modo_vencidos"/>
+                                <field name="duca_responsable_compras_id"/>
+                                <field name="duca_responsable_bodega_id"/>
+                            </group>
+                            <group string="Límite de Ventas Locales"
+                                   name="zoli_limite">
+                                <field name="zoli_limite_local_pct"/>
+                                <field name="zoli_limite_alerta_pct"/>
+                                <div class="alert alert-info p-2 small mb-0">
+                                    La materia prima importada (productos con
+                                    <strong>control DUCA</strong>) vence a los
+                                    días de permanencia configurados; se alerta a
+                                    compras y bodega y se bloquea el uso de lotes
+                                    vencidos. Por ley, las ventas locales
+                                    (nacionalización) no pueden superar el
+                                    <strong>50%</strong> anual (se monitorea en
+                                    el Dashboard Fiscal).
+                                </div>
+                            </group>
+                        </group>
+
+                    </page>
+
+                    <!-- PESTAÑA INFORMACIÓN DE REPORTES -->
+                    <page string="Información de Reportes"
+                          name="report_information">
+                        <group>
+                            <group string="Imágenes para Reportes">
+                                <field name="banking_information_image"
+                                       widget="image"
+                                       class="oe_avatar"/>
+                                <field name="terms_conditions_image"
+                                       widget="image"
+                                       class="oe_avatar"/>
+                            </group>
+                        </group>
+                    </page>
+
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

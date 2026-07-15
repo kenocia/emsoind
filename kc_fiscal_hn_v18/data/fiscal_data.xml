@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+    <!-- ════════════════════════════════════
+         CÓDIGOS SAR HONDURAS
+         ════════════════════════════════════ -->
+
+    <record id="codigo_sar_01"
+            model="kc_fiscal_hn.codigo.sar">
+        <field name="codigo">01</field>
+        <field name="nombre">ISV 15% Ventas</field>
+        <field name="tipo_impuesto">isv</field>
+        <field name="tipo_uso">sale</field>
+        <field name="porcentaje">15.0</field>
+        <field name="base_legal">
+            Ley ISV Honduras — Tasa General
+        </field>
+        <field name="descripcion">
+            Impuesto Sobre Ventas tasa general 15%.
+            Aplica a bienes y servicios en general.
+        </field>
+    </record>
+
+    <record id="codigo_sar_02"
+            model="kc_fiscal_hn.codigo.sar">
+        <field name="codigo">02</field>
+        <field name="nombre">ISV 18% Ventas</field>
+        <field name="tipo_impuesto">isv</field>
+        <field name="tipo_uso">sale</field>
+        <field name="porcentaje">18.0</field>
+        <field name="base_legal">
+            Decreto 51-2003
+        </field>
+        <field name="descripcion">
+            ISV tasa especial 18%. Aplica a bebidas
+            alcohólicas, cigarrillos y armas de fuego.
+        </field>
+    </record>
+
+    <record id="codigo_sar_03"
+            model="kc_fiscal_hn.codigo.sar">
+        <field name="codigo">03</field>
+        <field name="nombre">Exento ISV</field>
+        <field name="tipo_impuesto">exento</field>
+        <field name="tipo_uso">all</field>
+        <field name="porcentaje">0.0</field>
+        <field name="base_legal">
+            Ley ISV Art. 15 — Exenciones
+        </field>
+        <field name="descripcion">
+            Bienes y servicios exentos de ISV.
+            Canasta básica, medicamentos, educación,
+            servicios médicos, transporte público.
+        </field>
+    </record>
+
+    <record id="codigo_sar_04"
+            model="kc_fiscal_hn.codigo.sar">
+        <field name="codigo">04</field>
+        <field name="nombre">Exonerado ISV (OCE)</field>
+        <field name="tipo_impuesto">exonerado</field>
+        <field name="tipo_uso">all</field>
+        <field name="porcentaje">0.0</field>
+        <field name="base_legal">
+            Ley ISV Art. 16 — Exoneraciones
+        </field>
+        <field name="descripcion">
+            Compras con Orden de Compra Exonerada (OCE)
+            emitida por el SAR Honduras.
+            Requiere N° de constancia de exoneración.
+        </field>
+    </record>
+
+    <record id="codigo_sar_05"
+            model="kc_fiscal_hn.codigo.sar">
+        <field name="codigo">05</field>
+        <field name="nombre">Retención ISV 15%</field>
+        <field name="tipo_impuesto">retencion</field>
+        <field name="tipo_uso">purchase</field>
+        <field name="porcentaje">15.0</field>
+        <field name="base_legal">
+            Acuerdo DEI-215-2010
+        </field>
+        <field name="descripcion">
+            Retención ISV 15% aplicada por grandes
+            contribuyentes en pagos por: transporte
+            de carga, alquiler de locales, maquinaria,
+            seguridad, limpieza y mantenimiento.
+        </field>
+    </record>
+
+    <record id="codigo_sar_06"
+            model="kc_fiscal_hn.codigo.sar">
+        <field name="codigo">06</field>
+        <field name="nombre">ISV 15% Compras</field>
+        <field name="tipo_impuesto">isv</field>
+        <field name="tipo_uso">purchase</field>
+        <field name="porcentaje">15.0</field>
+        <field name="base_legal">
+            Ley ISV Honduras — Crédito Fiscal
+        </field>
+        <field name="descripcion">
+            ISV 15% en facturas de compra.
+            Genera crédito fiscal deducible en DMC.
+        </field>
+    </record>
+
+    <record id="codigo_sar_07"
+            model="kc_fiscal_hn.codigo.sar">
+        <field name="codigo">07</field>
+        <field name="nombre">ISV 18% Compras</field>
+        <field name="tipo_impuesto">isv</field>
+        <field name="tipo_uso">purchase</field>
+        <field name="porcentaje">18.0</field>
+        <field name="base_legal">
+            Decreto 51-2003 — Crédito Fiscal
+        </field>
+        <field name="descripcion">
+            ISV 18% en facturas de compra.
+            Genera crédito fiscal deducible en DMC.
+        </field>
+    </record>
+
+    <record id="codigo_sar_08"
+            model="kc_fiscal_hn.codigo.sar">
+        <field name="codigo">08</field>
+        <field name="nombre">Retención ISR 12.5% Servicios</field>
+        <field name="tipo_impuesto">retencion</field>
+        <field name="tipo_uso">purchase</field>
+        <field name="porcentaje">12.5</field>
+        <field name="base_legal">Art. 50 Ley ISR Honduras</field>
+        <field name="descripcion">
+            Retención ISR 12.5% sobre honorarios
+            profesionales, dietas, comisiones,
+            gratificaciones, bonificaciones y
+            remuneraciones por servicios técnicos.
+            Aplica cuando el proveedor NO tiene
+            Constancia de Pago a Cuenta SAR vigente.
+        </field>
+    </record>
+
+    <record id="codigo_sar_09"
+            model="kc_fiscal_hn.codigo.sar">
+        <field name="codigo">09</field>
+        <field name="nombre">Retención ISR 1% Anticipo Bienes</field>
+        <field name="tipo_impuesto">retencion</field>
+        <field name="tipo_uso">purchase</field>
+        <field name="porcentaje">1.0</field>
+        <field name="base_legal">Art. 19 Decreto 17-2010 Honduras</field>
+        <field name="descripcion">
+            Retención anticipo ISR 1% en compras
+            de bienes y servicios. Aplica cuando
+            el proveedor NO tiene Constancia de
+            Pago a Cuenta SAR vigente.
+        </field>
+    </record>
+
+    <record id="codigo_sar_10"
+            model="kc_fiscal_hn.codigo.sar">
+        <field name="codigo">10</field>
+        <field name="nombre">Retención ISR 10% Alquiler</field>
+        <field name="tipo_impuesto">retencion</field>
+        <field name="tipo_uso">purchase</field>
+        <field name="porcentaje">10.0</field>
+        <field name="base_legal">Art. 5 Decreto 17-2010 Honduras</field>
+        <field name="descripcion">
+            Retención ISR 10% sobre pagos de
+            alquiler habitacional a personas
+            naturales con renta mensual superior
+            a L.15,000.
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════
+         SECUENCIAS FISCALES SAR
+         ════════════════════════════════════ -->
+
+    <record id="sequence_fiscal_invoice"
+            model="ir.sequence">
+        <field name="name">
+            Secuencia Fiscal Facturas
+        </field>
+        <field name="code">fiscal.invoice</field>
+        <field name="prefix">
+            FAC/%(range_year)s/
+        </field>
+        <field name="padding">8</field>
+        <field name="implementation">no_gap</field>
+        <field name="use_date_range">True</field>
+        <field name="is_fiscal">True</field>
+        <field name="fiscal_type">invoice</field>
+        <field name="default_dias_alerta">30</field>
+        <field name="default_numeros_alerta">50</field>
+        <field name="auto_alert">True</field>
+        <field name="active">True</field>
+        <field name="company_id"
+               eval="ref('base.main_company')"/>
+    </record>
+
+    <record id="sequence_fiscal_credit_note"
+            model="ir.sequence">
+        <field name="name">
+            Secuencia Fiscal Notas de Crédito
+        </field>
+        <field name="code">fiscal.credit.note</field>
+        <field name="prefix">
+            NC/%(range_year)s/
+        </field>
+        <field name="padding">8</field>
+        <field name="implementation">no_gap</field>
+        <field name="use_date_range">True</field>
+        <field name="is_fiscal">True</field>
+        <field name="fiscal_type">credit_note</field>
+        <field name="default_dias_alerta">30</field>
+        <field name="default_numeros_alerta">50</field>
+        <field name="auto_alert">True</field>
+        <field name="active">True</field>
+        <field name="company_id"
+               eval="ref('base.main_company')"/>
+    </record>
+
+    <record id="sequence_fiscal_debit_note"
+            model="ir.sequence">
+        <field name="name">
+            Secuencia Fiscal Notas de Débito
+        </field>
+        <field name="code">fiscal.debit.note</field>
+        <field name="prefix">
+            ND/%(range_year)s/
+        </field>
+        <field name="padding">8</field>
+        <field name="implementation">no_gap</field>
+        <field name="use_date_range">True</field>
+        <field name="is_fiscal">True</field>
+        <field name="fiscal_type">debit_note</field>
+        <field name="default_dias_alerta">30</field>
+        <field name="default_numeros_alerta">50</field>
+        <field name="auto_alert">True</field>
+        <field name="active">True</field>
+        <field name="company_id"
+               eval="ref('base.main_company')"/>
+    </record>
+
+    <record id="sequence_fiscal_boleta"
+            model="ir.sequence">
+        <field name="name">
+            Secuencia Fiscal Boletas de Compra
+        </field>
+        <field name="code">fiscal.boleta</field>
+        <field name="prefix">
+            BOL/%(range_year)s/
+        </field>
+        <field name="padding">8</field>
+        <field name="implementation">no_gap</field>
+        <field name="use_date_range">True</field>
+        <field name="is_fiscal">True</field>
+        <field name="fiscal_type">receipt</field>
+        <field name="default_dias_alerta">30</field>
+        <field name="default_numeros_alerta">50</field>
+        <field name="auto_alert">True</field>
+        <field name="active">True</field>
+        <field name="company_id"
+               eval="ref('base.main_company')"/>
+    </record>
+
+    <record id="sequence_fiscal_retencion"
+            model="ir.sequence">
+        <field name="name">
+            Secuencia Fiscal Retenciones
+        </field>
+        <field name="code">fiscal.retencion</field>
+        <field name="prefix">
+            RET/%(range_year)s/
+        </field>
+        <field name="padding">8</field>
+        <field name="implementation">no_gap</field>
+        <field name="use_date_range">True</field>
+        <field name="is_fiscal">True</field>
+        <field name="fiscal_type">retention</field>
+        <field name="default_dias_alerta">30</field>
+        <field name="default_numeros_alerta">50</field>
+        <field name="auto_alert">True</field>
+        <field name="active">True</field>
+        <field name="company_id"
+               eval="ref('base.main_company')"/>
+    </record>
+
+    <record id="sequence_fiscal_guide"
+            model="ir.sequence">
+        <field name="name">
+            Secuencia Fiscal Guías de Remisión
+        </field>
+        <field name="code">stock.picking.guide</field>
+        <field name="prefix">
+            GR/%(range_year)s/
+        </field>
+        <field name="padding">8</field>
+        <field name="implementation">no_gap</field>
+        <field name="use_date_range">True</field>
+        <field name="is_fiscal">True</field>
+        <field name="fiscal_type">other</field>
+        <field name="default_dias_alerta">30</field>
+        <field name="default_numeros_alerta">50</field>
+        <field name="auto_alert">True</field>
+        <field name="active">True</field>
+        <field name="company_id"
+               eval="ref('base.main_company')"/>
+    </record>
+
+    <!-- ════════════════════════════════════
+         DIARIOS CONTABLES HONDURAS
+         ════════════════════════════════════ -->
+
+    <record id="journal_sales_hn" model="account.journal">
+        <field name="name">Ventas</field>
+        <field name="code">VEN</field>
+        <field name="type">sale</field>
+        <field name="document_fiscal">client</field>
+        <field name="fiscal_sequence_id" ref="sequence_fiscal_invoice"/>
+        <field name="company_id" eval="ref('base.main_company')"/>
+        <field name="sequence" eval="1"/>
+    </record>
+
+    <record id="journal_credit_note_hn" model="account.journal">
+        <field name="name">Notas de Crédito Clientes</field>
+        <field name="code">NCC</field>
+        <field name="type">sale</field>
+        <field name="document_fiscal">credit</field>
+        <field name="fiscal_sequence_id" ref="sequence_fiscal_credit_note"/>
+        <field name="company_id" eval="ref('base.main_company')"/>
+        <field name="sequence" eval="2"/>
+    </record>
+
+    <record id="journal_debit_note_hn" model="account.journal">
+        <field name="name">Notas de Débito Clientes</field>
+        <field name="code">NDC</field>
+        <field name="type">sale</field>
+        <field name="document_fiscal">debit</field>
+        <field name="fiscal_sequence_id" ref="sequence_fiscal_debit_note"/>
+        <field name="company_id" eval="ref('base.main_company')"/>
+        <field name="sequence" eval="3"/>
+    </record>
+
+    <record id="journal_purchases_fa_hn" model="account.journal">
+        <field name="name">Compras Nacionales (FA)</field>
+        <field name="code">CFA</field>
+        <field name="type">purchase</field>
+        <field name="document_fiscal">vendors</field>
+        <field name="company_id" eval="ref('base.main_company')"/>
+        <field name="sequence" eval="10"/>
+    </record>
+
+    <record id="journal_boleta_compra_hn" model="account.journal">
+        <field name="name">Boletas de Compra</field>
+        <field name="code">BOL</field>
+        <field name="type">purchase</field>
+        <field name="document_fiscal">boleta</field>
+        <field name="fiscal_sequence_id" ref="sequence_fiscal_boleta"/>
+        <field name="company_id" eval="ref('base.main_company')"/>
+        <field name="sequence" eval="11"/>
+    </record>
+
+    <record id="journal_compras_extranjera_hn" model="account.journal">
+        <field name="name">Compras Extranjera (FE)</field>
+        <field name="code">CFE</field>
+        <field name="type">purchase</field>
+        <field name="document_fiscal">extranjera</field>
+        <field name="company_id" eval="ref('base.main_company')"/>
+        <field name="sequence" eval="12"/>
+    </record>
+
+    <record id="journal_importaciones_hn" model="account.journal">
+        <field name="name">Importaciones (DUA/FYDUCA)</field>
+        <field name="code">IMP</field>
+        <field name="type">purchase</field>
+        <field name="document_fiscal">importacion</field>
+        <field name="company_id" eval="ref('base.main_company')"/>
+        <field name="sequence" eval="13"/>
+    </record>
+
+    <record id="journal_retencion_hn" model="account.journal">
+        <field name="name">Comprobantes de Retención</field>
+        <field name="code">RET</field>
+        <field name="type">purchase</field>
+        <field name="document_fiscal">retention</field>
+        <field name="fiscal_sequence_id" ref="sequence_fiscal_retencion"/>
+        <field name="company_id" eval="ref('base.main_company')"/>
+        <field name="sequence" eval="13"/>
+    </record>
+
+    <record id="journal_nc_proveedores_hn" model="account.journal">
+        <field name="name">Notas de Crédito Proveedores</field>
+        <field name="code">NCP</field>
+        <field name="type">purchase</field>
+        <field name="document_fiscal">credit</field>
+        <field name="company_id" eval="ref('base.main_company')"/>
+        <field name="sequence" eval="14"/>
+    </record>
+
+    <!-- ════════════════════════════════════
+         SECUENCIAS DE REFERENCIA DE CONTACTOS
+         (no fiscales; correlativo por tipo)
+         ════════════════════════════════════ -->
+
+    <record id="seq_partner_contac" model="ir.sequence">
+        <field name="name">Referencia Contacto — Persona</field>
+        <field name="code">kc_fiscal_hn.partner.contac</field>
+        <field name="prefix">CONTAC-</field>
+        <field name="padding">4</field>
+        <field name="implementation">no_gap</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_partner_empnac" model="ir.sequence">
+        <field name="name">Referencia Contacto — Empresa Nacional</field>
+        <field name="code">kc_fiscal_hn.partner.empnac</field>
+        <field name="prefix">EMPNAC</field>
+        <field name="padding">4</field>
+        <field name="implementation">no_gap</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_partner_empext" model="ir.sequence">
+        <field name="name">Referencia Contacto — Empresa Extranjera</field>
+        <field name="code">kc_fiscal_hn.partner.empext</field>
+        <field name="prefix">EMPEXT</field>
+        <field name="padding">4</field>
+        <field name="implementation">no_gap</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    </data>
+
+    <data noupdate="0">
+        <record id="cron_activar_rango_cai" model="ir.cron">
+            <field name="name">Activar Rango CAI Fiscal HN</field>
+            <field name="model_id" ref="base.model_ir_sequence"/>
+            <field name="state">code</field>
+            <field name="code">model.sudo()._cron_activar_siguiente_rango()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="nextcall" eval="
+                (DateTime.now() + timedelta(days=1)).replace(
+                    hour=6, minute=0, second=0
+                ).strftime('%Y-%m-%d %H:%M:%S')
+            "/>
+        </record>
+        <record id="cron_alertas_constancias" model="ir.cron">
+            <field name="name">Alertas Constancias Pago a Cuenta SAR</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="state">code</field>
+            <field name="code">model.sudo()._cron_verificar_constancias()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="user_id" ref="base.user_root"/>
+        </record>
+        <record id="cron_alertas_exoneracion" model="ir.cron">
+            <field name="name">Alertas Vencimiento Exoneración SAR</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="state">code</field>
+            <field name="code">model.sudo()._cron_alertas_exoneracion()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="user_id" ref="base.user_root"/>
+        </record>
+        <record id="cron_duca_alertas" model="ir.cron">
+            <field name="name">Alertas Vencimiento Lotes DUCA (ZOLI)</field>
+            <field name="model_id" ref="stock.model_stock_lot"/>
+            <field name="state">code</field>
+            <field name="code">model.sudo()._cron_duca_alertas()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="nextcall" eval="
+                (DateTime.now() + timedelta(days=1)).replace(
+                    hour=7, minute=0, second=0
+                ).strftime('%Y-%m-%d %H:%M:%S')
+            "/>
+        </record>
+
+        <!-- Migración: referencia interna para contactos existentes -->
+        <function model="res.partner" name="_init_refs_fiscal_hn"/>
+        <!-- Migración: normalizar code/name de secuencias fiscales (XML multilínea) -->
+        <function model="ir.sequence" name="_init_normalize_fiscal_codes"/>
+    </data>
+
+    <!-- Catálogo de impuestos fiscales HN. Fuera de noupdate para que se
+         (re)cree en cada actualización si faltan; el método es idempotente. -->
+    <data>
+        <function model="account.tax" name="_init_fiscal_hn_taxes"/>
+    </data>
+</odoo>

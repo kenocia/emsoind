@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_category_form_emsoind" model="ir.ui.view">
+        <field name="name">res.partner.category.form.emsoind</field>
+        <field name="model">res.partner.category</field>
+        <field name="inherit_id" ref="base.view_partner_category_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@col='4']" position="after">
+                <group string="Control EMSOIND" col="2">
+                    <field name="use_in_sales"/>
+                    <field name="use_in_purchases"/>
+                    <field name="require_sales_fields"/>
+                    <field name="require_purchase_fields"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_category_list_emsoind" model="ir.ui.view">
+        <field name="name">res.partner.category.list.emsoind</field>
+        <field name="model">res.partner.category</field>
+        <field name="inherit_id" ref="base.view_partner_category_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='color']" position="after">
+                <field name="use_in_sales" optional="show"/>
+                <field name="use_in_purchases" optional="show"/>
+                <field name="require_sales_fields" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

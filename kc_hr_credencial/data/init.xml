@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Asigna credencial a los empleados existentes sin ella.
+         Idempotente: solo afecta empleados sin id_credencial. Se ejecuta en
+         cada instalación/actualización del módulo. -->
+    <function model="hr.employee" name="_init_credencial"/>
+</odoo>

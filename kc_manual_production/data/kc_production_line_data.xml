@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        Líneas de producción EMSOIND. noupdate=1: el usuario puede editar
+        operadores y secuencia sin que una actualización las sobrescriba.
+    -->
+    <record id="kc_production_line_comercializacion" model="kc.production.line">
+        <field name="name">Linea Comercializacion</field>
+        <field name="code">COM</field>
+        <field name="sequence">10</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="kc_production_line_rotulacion" model="kc.production.line">
+        <field name="name">Linea Rotulacion</field>
+        <field name="code">ROT</field>
+        <field name="sequence">20</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="kc_production_line_metalmecanica" model="kc.production.line">
+        <field name="name">Linea Metalmecanica</field>
+        <field name="code">MET</field>
+        <field name="sequence">30</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+</odoo>

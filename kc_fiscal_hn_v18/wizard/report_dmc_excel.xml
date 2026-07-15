@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="kc_fiscal_hn_wizard_dmc_form_view" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn_wizard_dcm_form_view</field>
+        <field name="model">kc_fiscal_hn.wizard.dmc</field>
+        <field name="arch" type="xml">
+            <form string="Declaracion DMC">
+                <group>
+                    <field name="company_id"
+                         invisible="1"/>
+                    <field name="has_book_available"
+                         invisible="1"/>
+                    <field name="available_book_purchases_ids"
+                         invisible="1"/>
+                    <group string="Período">
+                        <field name="fecha_desde"/>
+                        <field name="fecha_hasta"/>
+                    </group>
+                </group>
+                <group string="Fuente de datos"
+                         invisible="not has_book_available">
+                    <field name="data_source" widget="radio"/>
+                </group>
+                <group string="Facturas en vivo"
+                         invisible="data_source != 'live'">
+                    <field name="live_document_state"/>
+                </group>
+                <group string="Libro SAR / Declaración"
+                         invisible="(data_source != 'book' or not has_book_available)">
+                    <field name="book_purchases_id"
+                           string="Libro / Declaración DMC"
+                           domain="[('id', 'in', available_book_purchases_ids)]"
+                           options="{'no_create': True, 'no_open': False}"
+                         required="data_source == 'book'"/>
+                    <field name="book_period_label"
+                         readonly="1"/>
+                    <field name="book_state_display"
+                         readonly="1"/>
+                    <field name="book_declaration_date"
+                         readonly="1"/>
+                    <field name="book_declared_by"
+                         readonly="1"/>
+                </group>
+                <group string="Facturas en vivo"
+                         invisible="bool(has_book_available)">
+                    <field name="data_source"
+                         invisible="1"/>
+                    <field name="live_document_state"/>
+                </group>
+                <footer>
+                    <button string="Cancel" special="cancel" class="btn-seconday"/>
+                    <button name="print_report" type="object" string="Imprimir Reporte" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="kc_fiscal_hn_dmc_view_action" model="ir.actions.act_window">
+        <field name="name">Declaracion DMC</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">kc_fiscal_hn.wizard.dmc</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="kc_fiscal_hn_wizard_dmc_form_view"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="view_dmc_excel_form" model="ir.ui.view">
+        <field name="name">view_dmc_excel_form</field>
+        <field name="model">kc_fiscal_hn.dmc.excel</field>
+        <field name="arch" type="xml">
+            <form string="Declaracion DMC">
+                <group>
+                    <field name="excel_file" filename="file_name"
+                         readonly="1"/>
+                    <field name="file_name"
+                         invisible="1"/>
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>

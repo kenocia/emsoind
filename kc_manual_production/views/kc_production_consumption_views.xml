@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Vista Formulario: Consumo de Materia Prima (CMP)             -->
+    <!-- ============================================================ -->
+    <record id="kc_production_consumption_view_form" model="ir.ui.view">
+        <field name="name">kc.production.consumption.form</field>
+        <field name="model">kc.production.consumption</field>
+        <field name="arch" type="xml">
+            <form string="Consumo de Materia Prima">
+                <header>
+                    <button name="action_confirm" string="Confirmar" type="object"
+                            class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_validate" string="Validar" type="object"
+                            class="oe_highlight" invisible="state != 'confirmed'"/>
+                    <button name="action_cancel" string="Cancelar" type="object"
+                            invisible="state not in ('draft', 'confirmed')"/>
+                    <button name="action_draft" string="Volver a Borrador" type="object"
+                            invisible="state != 'cancel'"/>
+                    <button name="action_open_reversal_wizard" string="Revertir" type="object"
+                            invisible="state != 'done' or is_reversal or reversed_by_id"
+                            groups="kc_manual_production.kc_production_group_manager,stock.group_stock_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,done"/>
+                </header>
+                <sheet>
+                    <!-- Campos técnicos para condiciones de visibilidad -->
+                    <field name="is_reversal" invisible="1"/>
+                    <field name="reversed_by_id" invisible="1"/>
+                    <field name="kc_analytic_inherited" invisible="1"/>
+                    <!-- Banner: este consumo fue revertido -->
+                    <div class="alert alert-warning" role="alert" invisible="not reversed_by_id">
+                        Este consumo fue revertido por:
+                        <field name="reversed_by_id" readonly="1" nolabel="1" class="oe_inline"/>
+                    </div>
+                    <!-- Banner: este consumo ES una reversión -->
+                    <div class="alert alert-info" role="alert" invisible="not is_reversal">
+                        Este consumo es una <strong>reversión</strong> de:
+                        <field name="reversal_of_id" readonly="1" nolabel="1" class="oe_inline"/>
+                    </div>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_sale_order" type="object"
+                                class="oe_stat_button" icon="fa-shopping-cart"
+                                invisible="not sale_order_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Orden de Venta</span>
+                            </div>
+                        </button>
+                        <button name="action_view_picking" type="object"
+                                class="oe_stat_button" icon="fa-truck"
+                                invisible="not picking_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Albarán</span>
+                            </div>
+                        </button>
+                        <button name="action_view_stock_moves" type="object"
+                                class="oe_stat_button" icon="fa-exchange"
+                                invisible="not picking_id">
+                            <field name="move_line_count" widget="statinfo"
+                                   string="Movimientos"/>
+                        </button>
+                        <button name="action_view_entry" type="object"
+                                class="oe_stat_button" icon="fa-industry"
+                                invisible="not entry_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Registro Prod.</span>
+                            </div>
+                        </button>
+                        <button name="action_view_account_moves" type="object"
+                                class="oe_stat_button" icon="fa-book"
+                                invisible="account_move_count == 0"
+                                groups="kc_manual_production.kc_production_group_manager,stock.group_stock_manager">
+                            <field name="account_move_count" widget="statinfo"
+                                   string="Asiento Contable"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="available_entry_ids" invisible="1"/>
+                            <field name="consumption_mode"
+                                   readonly="state != 'draft'"
+                                   widget="radio"
+                                   options="{'horizontal': true}"/>
+                            <field name="production_line_id"
+                                   readonly="state != 'draft'"
+                                   required="consumption_mode == 'daily'"
+                                   invisible="consumption_mode != 'daily'"/>
+                            <field name="work_center_id"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
+                            <field name="consumption_date"
+                                   readonly="state != 'draft'"
+                                   required="consumption_mode == 'daily'"
+                                   invisible="consumption_mode != 'daily'"/>
+                            <field name="entry_id"
+                                   readonly="state != 'draft'"
+                                   invisible="consumption_mode == 'daily'"/>
+                            <field name="consumption_completeness"
+                                   widget="radio"
+                                   options="{'horizontal': True}"
+                                   readonly="state != 'draft'"
+                                   invisible="not entry_id or consumption_mode == 'daily'"/>
+                            <field name="sale_order_id"
+                                   readonly="state != 'draft'"/>
+                            <field name="partner_id"
+                                   readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="date_consumption"
+                                   readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   readonly="state != 'draft'"/>
+                            <field name="warehouse_id"
+                                   readonly="state != 'draft'"/>
+                            <field name="picking_type_id"/>
+                            <field name="location_id"/>
+                            <field name="analytic_distribution"
+                                   widget="analytic_distribution"
+                                   readonly="state == 'done'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Materias Primas" name="lines">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="product_tracking" column_invisible="1"/>
+                                    <field name="service_value_manual" column_invisible="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="kc_allowed_product_ids" column_invisible="1"/>
+                                    <field name="line_type"/>
+                                    <field name="product_id" widget="many2one"/>
+                                    <field name="lot_id"
+                                           domain="[('product_id', '=', product_id)]"
+                                           required="line_type != 'service' and product_tracking == 'lot'"
+                                           readonly="line_type == 'service' or product_tracking != 'lot'"
+                                           invisible="line_type == 'service'"/>
+                                    <field name="qty_available" readonly="1"
+                                           invisible="line_type == 'service'"/>
+                                    <field name="qty"/>
+                                    <field name="uom_id"/>
+                                    <field name="service_value"
+                                           invisible="line_type != 'service'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notas" name="notes">
+                            <field name="notes" placeholder="Notas internas..."/>
+                            <group invisible="not is_reversal">
+                                <field name="notes_reversal" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Vista Lista: Consumo de Materia Prima (CMP)                  -->
+    <!-- ============================================================ -->
+    <record id="kc_production_consumption_view_list" model="ir.ui.view">
+        <field name="name">kc.production.consumption.list</field>
+        <field name="model">kc.production.consumption</field>
+        <field name="arch" type="xml">
+            <list string="Consumos de Materia Prima"
+                  decoration-success="state == 'done'"
+                  decoration-muted="state == 'cancel'"
+                  decoration-info="state == 'confirmed'">
+                <field name="name"/>
+                <field name="consumption_mode" optional="show"/>
+                <field name="production_line_id" optional="show"/>
+                <field name="consumption_date" optional="show"/>
+                <field name="entry_id"/>
+                <field name="sale_order_id"/>
+                <field name="partner_id"/>
+                <field name="date_consumption"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-info="state == 'confirmed'"
+                       decoration-muted="state == 'cancel'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Vista Búsqueda: Consumo de Materia Prima (CMP)               -->
+    <!-- ============================================================ -->
+    <record id="kc_production_consumption_view_search" model="ir.ui.view">
+        <field name="name">kc.production.consumption.search</field>
+        <field name="model">kc.production.consumption</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Consumos de MP">
+                <field name="name"/>
+                <field name="production_line_id"/>
+                <field name="consumption_date"/>
+                <field name="entry_id"/>
+                <field name="sale_order_id"/>
+                <field name="partner_id"/>
+                <separator/>
+                <filter name="filter_daily" string="Consumo diario"
+                        domain="[('consumption_mode', '=', 'daily')]"/>
+                <filter name="filter_legacy" string="General"
+                        domain="[('consumption_mode', '=', 'legacy')]"/>
+                <separator/>
+                <filter name="filter_draft" string="Borrador"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_confirmed" string="Confirmado"
+                        domain="[('state', '=', 'confirmed')]"/>
+                <filter name="filter_done" string="Validado"
+                        domain="[('state', '=', 'done')]"/>
+                <filter name="filter_cancel" string="Cancelado"
+                        domain="[('state', '=', 'cancel')]"/>
+                <separator/>
+                <filter name="filter_no_entry" string="Sin Registro de Producción"
+                        domain="[('entry_id', '=', False)]"/>
+                <separator/>
+                <filter name="filter_today" string="Hoy"
+                        domain="[('date_consumption', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')),
+                                 ('date_consumption', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter name="filter_this_month" string="Este Mes"
+                        domain="[('date_consumption', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_partner" string="Cliente"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Estado"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_sale_order" string="Orden de Venta"
+                            context="{'group_by': 'sale_order_id'}"/>
+                    <filter name="group_entry" string="Registro de Producción"
+                            context="{'group_by': 'entry_id'}"/>
+                    <filter name="group_production_line" string="Línea de Producción"
+                            context="{'group_by': 'production_line_id'}"/>
+                    <filter name="group_consumption_mode" string="Modo de consumo"
+                            context="{'group_by': 'consumption_mode'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Acción: Consumos de Materia Prima                            -->
+    <!-- ============================================================ -->
+    <record id="kc_production_consumption_action" model="ir.actions.act_window">
+        <field name="name">Consumo de Componentes</field>
+        <field name="res_model">kc.production.consumption</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kc_production_consumption_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Registra tu primer Consumo de Materia Prima
+            </p>
+            <p>
+                Registra la salida de Materia Prima del inventario al costo, con
+                validación de stock disponible por lote.
+            </p>
+        </field>
+    </record>
+
+</odoo>

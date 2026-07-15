@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- FORM: pestaña DUCA en el lote -->
+        <record id="view_stock_lot_form_duca" model="ir.ui.view">
+            <field name="name">stock.lot.form.duca</field>
+            <field name="model">stock.lot</field>
+            <field name="inherit_id" ref="stock.view_production_lot_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/notebook" position="inside">
+                    <page string="Zona Libre (DUCA)"
+                          name="duca"
+                          invisible="not es_duca">
+                        <div class="alert alert-danger"
+                             invisible="duca_estado != 'vencido'">
+                            <strong>Lote VENCIDO.</strong> No puede usarse sin
+                            autorización expresa de gerencia.
+                        </div>
+                        <div class="alert alert-warning"
+                             invisible="duca_estado not in ('proximo', 'critico')">
+                            <strong>Lote próximo a vencer.</strong> Gestione su
+                            nacionalización, reexportación o destrucción.
+                        </div>
+                        <group>
+                            <group string="Datos del DUCA">
+                                <field name="es_duca" invisible="1"/>
+                                <field name="duca_number"/>
+                                <field name="duca_fecha_ingreso"/>
+                                <field name="duca_fecha_vencimiento" readonly="1"/>
+                                <field name="duca_dias_para_vencer" readonly="1"/>
+                                <field name="duca_estado" widget="badge"
+                                       decoration-success="duca_estado == 'vigente'"
+                                       decoration-warning="duca_estado == 'proximo'"
+                                       decoration-danger="duca_estado in ('critico', 'vencido')"
+                                       readonly="1"/>
+                                <field name="duca_stock_disponible" readonly="1"/>
+                            </group>
+                            <group string="Documento DUCA">
+                                <field name="duca_documento"
+                                       filename="duca_documento_filename"/>
+                                <field name="duca_documento_filename" invisible="1"/>
+                            </group>
+                        </group>
+                        <group string="Autorización de uso (lote vencido)"
+                               invisible="duca_estado != 'vencido'">
+                            <group>
+                                <field name="duca_autorizado_vencido" readonly="1"/>
+                                <field name="duca_autorizado_por_id" readonly="1"/>
+                                <field name="duca_fecha_autorizacion" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="duca_motivo_autorizacion"/>
+                                <button name="action_autorizar_uso_vencido"
+                                        type="object"
+                                        string="Autorizar uso (Gerencia)"
+                                        class="btn-warning"
+                                        groups="kc_fiscal_hn_v18.group_zoli_gerencia"
+                                        invisible="duca_autorizado_vencido"/>
+                            </group>
+                        </group>
+                        <group string="Nacionalización">
+                            <field name="duca_cantidad_nacionalizada" readonly="1"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- LIST: reporte de DUCAs activos -->
+        <record id="view_stock_lot_list_duca" model="ir.ui.view">
+            <field name="name">stock.lot.list.duca</field>
+            <field name="model">stock.lot</field>
+            <field name="arch" type="xml">
+                <list string="DUCAs Activos"
+                      decoration-danger="duca_estado == 'vencido'"
+                      decoration-warning="duca_estado in ('proximo', 'critico')"
+                      create="false">
+                    <field name="duca_number"/>
+                    <field name="name"/>
+                    <field name="product_id"/>
+                    <field name="duca_fecha_ingreso"/>
+                    <field name="duca_fecha_vencimiento"/>
+                    <field name="duca_dias_para_vencer"/>
+                    <field name="duca_stock_disponible"/>
+                    <field name="duca_cantidad_nacionalizada" optional="hide"/>
+                    <field name="duca_estado" widget="badge"
+                           decoration-success="duca_estado == 'vigente'"
+                           decoration-warning="duca_estado == 'proximo'"
+                           decoration-danger="duca_estado in ('critico', 'vencido')"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- PIVOT -->
+        <record id="view_stock_lot_pivot_duca" model="ir.ui.view">
+            <field name="name">stock.lot.pivot.duca</field>
+            <field name="model">stock.lot</field>
+            <field name="arch" type="xml">
+                <pivot string="DUCAs Activos">
+                    <field name="duca_estado" type="row"/>
+                    <field name="product_id" type="row"/>
+                    <field name="duca_stock_disponible" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- SEARCH -->
+        <record id="view_stock_lot_search_duca" model="ir.ui.view">
+            <field name="name">stock.lot.search.duca</field>
+            <field name="model">stock.lot</field>
+            <field name="arch" type="xml">
+                <search string="DUCAs">
+                    <field name="duca_number"/>
+                    <field name="product_id"/>
+                    <filter name="vigente" string="Vigentes"
+                            domain="[('duca_estado', '=', 'vigente')]"/>
+                    <filter name="proximo" string="Próximos a vencer"
+                            domain="[('duca_estado', 'in', ('proximo', 'critico'))]"/>
+                    <filter name="vencido" string="Vencidos"
+                            domain="[('duca_estado', '=', 'vencido')]"/>
+                    <separator/>
+                    <filter name="con_stock" string="Con stock disponible"
+                            domain="[('duca_stock_disponible', '>', 0)]"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter name="group_estado" string="Estado"
+                                context="{'group_by': 'duca_estado'}"/>
+                        <filter name="group_product" string="Producto"
+                                context="{'group_by': 'product_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ACTION -->
+        <record id="action_zoli_duca_activos" model="ir.actions.act_window">
+            <field name="name">DUCAs Activos</field>
+            <field name="res_model">stock.lot</field>
+            <field name="view_mode">list,pivot,form</field>
+            <field name="search_view_id" ref="view_stock_lot_search_duca"/>
+            <field name="domain">[('es_duca', '=', True)]</field>
+            <field name="context">{'search_default_con_stock': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No hay lotes DUCA registrados
+                </p>
+                <p>
+                    Los lotes DUCA se generan al recibir materia prima importada
+                    (productos con control DUCA) en empresas de Zona Libre.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

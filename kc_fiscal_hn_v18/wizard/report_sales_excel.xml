@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="kc_fiscal_hn_wizard_sales_form_view" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn_wizard_sales_form_view</field>
+        <field name="model">kc_fiscal_hn.wizard.sales</field>
+        <field name="arch" type="xml">
+            <form string="Ventas Netas">
+                <group>
+                    <field name="company_id"
+                         invisible="1"/>
+                    <group>
+                        <field name="fecha_desde"/>
+                        <field name="fecha_hasta"/>
+                    </group>
+                    <group>
+                        <field name="state"/>
+                        <!--                        <field name="payment_state"/>-->
+                    </group>
+                </group>
+                <footer>
+                    <button string="Cancel" special="cancel" class="btn-seconday"/>
+                    <button name="print_report" type="object" string="Imprimir Reporte" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <!--Acciones -->
+    <record id="kc_fiscal_hn_sales_view_action" model="ir.actions.act_window">
+        <field name="name">Ventas Netas</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">kc_fiscal_hn.wizard.sales</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="kc_fiscal_hn_wizard_sales_form_view"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="viewsales_excel_form" model="ir.ui.view">
+        <field name="name">view_sales_excel_form</field>
+        <field name="model">kc_fiscal_hn.sales.excel</field>
+        <field name="arch" type="xml">
+            <form string="Ventas Netas">
+                <group>
+                    <field name="excel_file" filename="file_name"
+                         readonly="1"/>
+                    <field name="file_name"
+                         invisible="1"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+</odoo>

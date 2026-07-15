@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_kenocia_sequence" model="ir.actions.act_window">
+        <field name="name">Secuencias Bancarias</field>
+        <field name="res_model">kenocia.sequence</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure la primera secuencia bancaria
+            </p>
+            <p>
+                Defina correlativos por diario y tipo de transacción
+                (cheque, depósito, débito, transferencia).
+            </p>
+        </field>
+    </record>
+
+    <record id="action_kenocia_payment_cxc" model="ir.actions.act_window">
+        <field name="name">Cobros CXC</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('payment_type', '=', 'inbound')]</field>
+        <field name="context">{
+            'default_payment_type': 'inbound',
+            'default_partner_type': 'customer',
+        }</field>
+    </record>
+
+    <record id="action_kenocia_payment_cxp" model="ir.actions.act_window">
+        <field name="name">Pagos CXP</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('payment_type', '=', 'outbound')]</field>
+        <field name="context">{
+            'default_payment_type': 'outbound',
+            'default_partner_type': 'supplier',
+        }</field>
+    </record>
+
+    <record id="action_kenocia_advance_cxc" model="ir.actions.act_window">
+        <field name="name">Adelantos de Clientes</field>
+        <field name="res_model">kenocia.advance.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('advance_type', '=', 'customer')]</field>
+        <field name="context">{
+            'default_advance_type': 'customer',
+        }</field>
+    </record>
+
+    <record id="action_kenocia_advance_cxp" model="ir.actions.act_window">
+        <field name="name">Adelantos a Proveedores</field>
+        <field name="res_model">kenocia.advance.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('advance_type', '=', 'supplier')]</field>
+        <field name="context">{
+            'default_advance_type': 'supplier',
+        }</field>
+    </record>
+
+</odoo>

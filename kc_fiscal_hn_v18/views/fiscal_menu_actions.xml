@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- action_fiscal_sequences definida en views/ir_sequence.xml -->
+
+    <record id="action_fiscal_validation" model="ir.actions.act_window">
+        <field name="name">Validación Fiscal Masiva</field>
+        <field name="res_model">kc_fiscal_hn.wizard.fiscal_validation</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_fiscal_validation_wizard_form"/>
+    </record>
+
+    <record id="action_report_sales" model="ir.actions.act_window">
+        <field name="name">Ventas Netas</field>
+        <field name="res_model">kc_fiscal_hn.wizard.sales</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="kc_fiscal_hn_wizard_sales_form_view"/>
+    </record>
+
+    <record id="action_report_dmc" model="ir.actions.act_window">
+        <field name="name">DMC Compras</field>
+        <field name="res_model">kc_fiscal_hn.wizard.dmc</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="kc_fiscal_hn_wizard_dmc_form_view"/>
+    </record>
+
+    <record id="action_report_invoice_details" model="ir.actions.act_window">
+        <field name="name">Detalle Facturas</field>
+        <field name="res_model">kc_fiscal_hn.wizard.invoice.details</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="kc_fiscal_hn_wizard_invoice_details_form_view"/>
+    </record>
+
+    <record id="action_sequence_alerts" model="ir.actions.act_window">
+        <field name="name">Alertas Avanzadas</field>
+        <field name="res_model">kc_fiscal_hn.sequence.alert</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_sequence_alert_tree"/>
+        <field name="search_view_id" ref="view_sequence_alert_search"/>
+        <field name="context">{'search_default_alert_state_active': 1}</field>
+    </record>
+
+    <record id="action_salud_fiscal" model="ir.actions.act_window">
+        <field name="name">Salud Fiscal</field>
+        <field name="res_model">kc_fiscal_hn.wizard.sequence_alerts</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_sequence_alerts_wizard_form"/>
+    </record>
+
+</odoo>

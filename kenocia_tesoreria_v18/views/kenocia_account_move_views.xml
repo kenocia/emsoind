@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_move_kenocia_advances" model="ir.ui.view">
+        <field name="name">account.move.kenocia.advances</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button type="object" name="action_view_advances"
+                        class="oe_stat_button kt_advance_btn" icon="fa-credit-card"
+                        invisible="advance_count == 0">
+                    <field name="advance_count" widget="statinfo" string="Adelantos"/>
+                </button>
+                <button type="object" name="action_apply_advances"
+                        class="oe_stat_button kt_advance_btn" icon="fa-link"
+                        invisible="state != 'posted' or advance_available_count == 0">
+                    <div class="o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="advance_available_count"/>
+                        </span>
+                        <span class="o_stat_text">Aplicar Adelantos</span>
+                    </div>
+                </button>
+                <field name="advance_count" invisible="1"/>
+                <field name="advance_available_count" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Documento compartido OC / RFQ (estilo OV Kenocia) -->
+        <template id="report_purchase_document_kenocia">
+            <t t-call="web.basic_layout">
+                <t t-set="doc" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                <t t-set="company" t-value="doc.company_id"/>
+                <t t-set="show_discount" t-value="doc._purchase_report_show_discount()"/>
+                <t t-set="report_pages" t-value="doc._get_purchase_report_pages()"/>
+                <t t-set="total_pages" t-value="len(report_pages)"/>
+                <t t-set="col_count" t-value="5 if show_discount else 4"/>
+
+        <div class="page" style="padding-top:2px; overflow:visible;">
+                    <t t-foreach="enumerate(report_pages)" t-as="page_data">
+                        <t t-set="page_num" t-value="page_data[0]"/>
+                        <t t-set="page_lines" t-value="page_data[1]"/>
+                        <t t-set="is_last_page" t-value="page_num == total_pages - 1"/>
+
+                        <t t-if="page_num == 0">
+                            <t t-call="kc_fiscal_hn_v18.header_purchase_layout"/>
+                        </t>
+
+                        <table style="width:100%; border-collapse:collapse; font-size:11px; color:#111827; margin-bottom:8px;"
+                               name="purchase_line_table">
+                            <thead>
+                                <tr style="background-color:#1a4fa0; -webkit-print-color-adjust:exact;">
+                                    <th style="text-align:left; font-size:10px; font-weight:700; letter-spacing:0.8px; color:#ffffff; text-transform:uppercase; padding:8px 6px;">
+                                        Descripción
+                                    </th>
+                                    <th style="width:12%; text-align:right; font-size:10px; font-weight:700; letter-spacing:0.8px; color:#ffffff; text-transform:uppercase; padding:8px 6px;">
+                                        Cant.
+                                    </th>
+                                    <th style="width:14%; text-align:right; font-size:10px; font-weight:700; letter-spacing:0.8px; color:#ffffff; text-transform:uppercase; padding:8px 6px;">
+                                        Precio u.
+                                    </th>
+                                    <th t-if="show_discount"
+                                        style="width:10%; text-align:right; font-size:10px; font-weight:700; letter-spacing:0.8px; color:#ffffff; text-transform:uppercase; padding:8px 6px;">
+                                        Desc.
+                                    </th>
+                                    <th style="width:16%; text-align:right; font-size:10px; font-weight:700; letter-spacing:0.8px; color:#ffffff; text-transform:uppercase; padding:8px 6px;">
+                                        Importe
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="line_counter" t-value="0"/>
+                                <t t-foreach="page_lines" t-as="line">
+                                    <tr t-att-style="'border-bottom:1px solid #eef0f3;' + (' background-color:#f8fafc; -webkit-print-color-adjust:exact;' if line_counter % 2 == 0 and not line.display_type else '')">
+                                        <t t-if="not line.display_type">
+                                            <td style="padding:7px 6px; vertical-align:top;">
+                                                <div style="font-weight:600; color:#111827; line-height:1.35; white-space:pre-line;">
+                                                    <t t-esc="doc._purchase_line_display_name(line)"/>
+                                                </div>
+                                            </td>
+                                            <td class="text-end" style="padding:7px 6px; white-space:nowrap; vertical-align:top;">
+                                                <span t-field="line.product_qty"/>
+                                                <span t-if="line.product_uom" style="font-size:9px; color:#6b7280;">
+                                                    <span t-field="line.product_uom"/>
+                                                </span>
+                                            </td>
+                                            <td class="text-end" style="padding:7px 6px; vertical-align:top;">
+                                                <span t-esc="doc._purchase_format_amount(line.price_unit)"/>
+                                            </td>
+                                            <td t-if="show_discount" class="text-end" style="padding:7px 6px; vertical-align:top;">
+                                                <span t-esc="'%s%%' % (line.discount or 0.0)"/>
+                                            </td>
+                                            <td class="text-end" style="padding:7px 6px; font-weight:700; color:#0c2d5e; vertical-align:top;">
+                                                <span t-field="line.price_subtotal"
+                                                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                            </td>
+                                        </t>
+                                        <t t-if="line.display_type == 'line_note'">
+                                            <td t-att-colspan="col_count"
+                                                style="padding:7px 6px; color:#4b5563; font-style:italic;">
+                                                <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                    <t t-set="line_counter" t-value="line_counter + 1"/>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <t t-if="is_last_page">
+                            <div style="margin-top:14px; page-break-inside:avoid;">
+                                <table style="width:100%; border-collapse:collapse;">
+                                    <tr>
+                                        <td style="width:55%; vertical-align:top; padding-right:14px;">
+                                            <t t-if="doc.dest_address_id">
+                                                <div style="font-size:9px; letter-spacing:1px; color:#1a4fa0; text-transform:uppercase; font-weight:700; margin-bottom:6px;">
+                                                    Dirección de entrega
+                                                </div>
+                                                <div style="font-size:10px; color:#374151; margin-bottom:10px; line-height:1.45;">
+                                                    <div style="font-weight:600; color:#111827;" t-field="doc.dest_address_id.name"/>
+                                                    <div t-field="doc.dest_address_id"
+                                                         t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': True}"/>
+                                                </div>
+                                            </t>
+                                            <t t-if="doc.notes">
+                                                <div style="font-weight:700; color:#0c2d5e; margin-bottom:4px; font-size:10px;">Nota</div>
+                                                <div style="font-size:10px; color:#374151; margin-bottom:10px;">
+                                                    <span t-field="doc.notes"/>
+                                                </div>
+                                            </t>
+                                        </td>
+                                        <td style="width:45%; vertical-align:top;">
+                                            <t t-call="kc_fiscal_hn_v18.purchase_totals_block"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <t t-call="kc_fiscal_hn_v18.purchase_signatures_block"/>
+                                <t t-call="kc_fiscal_hn_v18.footer_purchase_layout"/>
+                            </div>
+                        </t>
+
+                        <t t-if="not is_last_page">
+                            <div style="page-break-before: always;"/>
+                        </t>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+        <!-- Sustituye el PDF estándar de Orden de compra -->
+        <template id="report_purchaseorder_document_kenocia"
+                  inherit_id="purchase.report_purchaseorder_document">
+            <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+                <t t-call="kc_fiscal_hn_v18.report_purchase_document_kenocia"/>
+            </xpath>
+        </template>
+
+        <!-- Sustituye el PDF estándar de Solicitud de cotización -->
+        <template id="report_purchasequotation_document_kenocia"
+                  inherit_id="purchase.report_purchasequotation_document">
+            <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+                <t t-call="kc_fiscal_hn_v18.report_purchase_document_kenocia"/>
+            </xpath>
+        </template>
+
+    </data>
+</odoo>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="kc_production_backlog_mass_plan_wizard_view_form" model="ir.ui.view">
+        <field name="name">kc.production.backlog.mass.plan.wizard.form</field>
+        <field name="model">kc.production.backlog.mass.plan.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Planificar selección">
+                <group>
+                    <group>
+                        <field name="production_line_id"/>
+                        <field name="work_center_id" options="{'no_create': True}"/>
+                        <field name="line_count" invisible="1"/>
+                    </group>
+                    <group>
+                        <field name="date_planned_start"/>
+                        <field name="date_planned_end"/>
+                    </group>
+                </group>
+                <div class="alert alert-info" role="alert">
+                    Planificación <strong>completa</strong> de cada línea (cantidad = pendiente).
+                    Mismo centro y mismas fechas. Los bloques se crean en estado
+                    <strong>Confirmado</strong>.
+                </div>
+                <field name="line_ids" nolabel="1">
+                    <list create="0" delete="0" edit="0">
+                        <field name="sale_order_id" force_save="1"/>
+                        <field name="partner_id" optional="show" force_save="1"/>
+                        <field name="product_id" force_save="1"/>
+                        <field name="technical_description" force_save="1"/>
+                        <field name="technical_key" optional="show" force_save="1"/>
+                        <field name="ov_qty" force_save="1"/>
+                        <field name="pending_qty" force_save="1"/>
+                        <field name="backlog_id" column_invisible="1" force_save="1"/>
+                        <field name="sale_order_line_id" column_invisible="1" force_save="1"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm_plans" type="object"
+                            string="Crear y confirmar planes"
+                            class="btn-primary"/>
+                    <button name="action_print_preview" type="object"
+                            string="Imprimir preview"
+                            class="btn-secondary"/>
+                    <button string="Cancelar" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción de menú Acciones (selección múltiple) -->
+    <record id="kc_production_backlog_mass_plan_action" model="ir.actions.server">
+        <field name="name">Planificar selección</field>
+        <field name="model_id" ref="model_kc_production_backlog"/>
+        <field name="binding_model_id" ref="model_kc_production_backlog"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_open_mass_plan_wizard()</field>
+    </record>
+
+</odoo>

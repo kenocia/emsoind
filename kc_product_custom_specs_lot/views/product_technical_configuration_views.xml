@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_technical_configuration_view_list" model="ir.ui.view">
+        <field name="name">product.technical.configuration.list</field>
+        <field name="model">product.technical.configuration</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="product_tmpl_id"/>
+                <field name="configuration_key"/>
+                <field name="technical_key" optional="hide"/>
+                <field name="legacy_sku" optional="show"/>
+                <field name="standard_price" optional="show"/>
+                <field name="weight" optional="show" string="Peso (kg)"/>
+                <field name="area_sqft" optional="show" string="Área (FT²)"/>
+                <field name="technical_description" optional="hide"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="product_technical_configuration_view_form" model="ir.ui.view">
+        <field name="name">product.technical.configuration.form</field>
+        <field name="model">product.technical.configuration</field>
+        <field name="arch" type="xml">
+            <form string="Configuración técnica">
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="product_tmpl_id"
+                                   options="{'no_create': True}"/>
+                            <field name="legacy_sku"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="configuration_key" readonly="1"/>
+                            <field name="technical_key" readonly="1"/>
+                            <field name="standard_price"/>
+                            <field name="weight"/>
+                            <field name="area_sqft"/>
+                        </group>
+                    </group>
+                    <group string="Descripción">
+                        <field name="technical_description" nolabel="1" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Especificaciones" name="technical_values">
+                            <field name="technical_value_ids">
+                                <list editable="bottom" create="false" delete="false">
+                                    <field name="sequence" widget="handle" force_save="1"/>
+                                    <field name="attribute_id" readonly="1" force_save="1"/>
+                                    <field name="display_type" column_invisible="True"/>
+                                    <field name="allowed_value_ids" column_invisible="True"/>
+                                    <field name="required" readonly="1" force_save="1"/>
+                                    <field name="value_id"
+                                           invisible="display_type not in ('selection', 'radio')"
+                                           domain="[('id', 'in', allowed_value_ids)]"/>
+                                    <field name="value_text"
+                                           invisible="display_type != 'text'"/>
+                                    <field name="value_number"
+                                           invisible="display_type != 'numeric'"/>
+                                    <field name="uom_id"
+                                           invisible="display_type != 'numeric'"
+                                           force_save="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Precios" name="pricelist_items">
+                            <field name="pricelist_item_ids" readonly="1">
+                                <list>
+                                    <field name="pricelist_id"/>
+                                    <field name="fixed_price"/>
+                                    <field name="min_quantity"/>
+                                    <field name="date_start" optional="hide"/>
+                                    <field name="date_end" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_technical_configuration_view_search" model="ir.ui.view">
+        <field name="name">product.technical.configuration.search</field>
+        <field name="model">product.technical.configuration</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="configuration_key"
+                       string="Clave de configuración"
+                       filter_domain="[('configuration_key', 'ilike', self)]"/>
+                <field name="legacy_sku"
+                       string="SKU legacy"
+                       filter_domain="[('legacy_sku', 'ilike', self)]"/>
+                <field name="technical_key"
+                       string="Clave técnica"
+                       filter_domain="[('technical_key', 'ilike', self)]"/>
+                <field name="product_tmpl_id"
+                       string="Producto (código)"
+                       filter_domain="[('product_tmpl_id.default_code', 'ilike', self)]"/>
+                <field name="technical_description"
+                       string="Descripción"
+                       filter_domain="[('technical_description', 'ilike', self)]"/>
+                <filter string="Activas" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Con costo" name="with_cost"
+                        domain="[('standard_price', '>', 0)]"/>
+                <filter string="Sin costo" name="no_cost"
+                        domain="[('standard_price', '=', 0)]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter string="Producto" name="group_product" context="{'group_by': 'product_tmpl_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="product_technical_configuration_view_list_cost_matrix" model="ir.ui.view">
+        <field name="name">product.technical.configuration.list.cost.matrix</field>
+        <field name="model">product.technical.configuration</field>
+        <field name="arch" type="xml">
+            <list string="Matriz de costos" editable="bottom" create="false" delete="false"
+                  default_order="configuration_key">
+                <field name="configuration_key"/>
+                <field name="product_tmpl_id" optional="show"/>
+                <field name="legacy_sku" optional="show"/>
+                <field name="technical_description" optional="show"/>
+                <field name="standard_price" string="Costo estándar"/>
+                <field name="weight" string="Peso (kg)"/>
+                <field name="area_sqft" string="Área (FT²)"/>
+                <field name="technical_key" optional="hide"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_product_technical_configuration_export_costs" model="ir.actions.server">
+        <field name="name">Exportar costos (CSV)</field>
+        <field name="model_id" ref="model_product_technical_configuration"/>
+        <field name="binding_model_id" ref="model_product_technical_configuration"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_export_costs_csv()</field>
+    </record>
+
+    <record id="action_product_technical_configuration" model="ir.actions.act_window">
+        <field name="name">Configuraciones técnicas</field>
+        <field name="res_model">product.technical.configuration</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Defina combinaciones técnicas (matriz) por producto genérico.
+            </p>
+            <p>
+                Cada configuración representa una fila del catálogo y se usa para
+                asignar precios por matriz completa en listas de precios.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_product_technical_configuration_cost_matrix" model="ir.actions.act_window">
+        <field name="name">Matriz de costos por configuración</field>
+        <field name="res_model">product.technical.configuration</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="product_technical_configuration_view_list_cost_matrix"/>
+        <field name="search_view_id" ref="product_technical_configuration_view_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Busque por clave de configuración y actualice costos en línea.
+            </p>
+            <p>
+                También puede exportar/importar costos masivamente desde el menú
+                <em>Importar costos de matriz</em>.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_product_technical_configuration"
+              name="Configuraciones técnicas"
+              parent="sale.menu_sale_config"
+              action="action_product_technical_configuration"
+              sequence="45"/>
+
+    <menuitem id="menu_product_technical_configuration_cost_matrix"
+              name="Matriz de costos"
+              parent="stock.menu_stock_config_settings"
+              action="action_product_technical_configuration_cost_matrix"
+              sequence="46"
+              groups="stock.group_stock_manager"/>
+
+    <menuitem id="menu_product_technical_configuration_cost_import"
+              name="Importar costos de matriz"
+              parent="stock.menu_stock_config_settings"
+              action="action_kc_technical_configuration_cost_import"
+              sequence="47"
+              groups="stock.group_stock_manager"/>
+</odoo>

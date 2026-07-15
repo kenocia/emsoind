@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="invoice_extension" inherit_id="account.report_invoice_document">
+            <xpath expr="//div[hasclass('page')]" position="after">
+                <p name="cai">
+                    CAI:
+                    <span t-field="o.cai"/>
+                </p>
+                <p name="fechaLimiteEmision">
+                    LIMITE DE EMISION:
+                    <span t-field="o.fechaLimiteEmision" t-options='{"format": "MM/dd/yyyy"}'/>
+                </p>
+                <p name="numeroInicial">
+                    RANGO AUTORIZADO:
+                    <span t-field="o.numeroInicial"/>
+                    -
+                    <span t-field="o.numeroFinal"/>
+                </p>
+            </xpath>
+<!--            <xpath expr="//t/div[@t-if='o.partner_id.vat']" position="after">-->
+<!--                <p name="rtn">-->
+<!--                    RTN: <span t-field="o.vat"/>-->
+<!--                </p>-->
+<!--            </xpath>-->
+        </template>
+    </data>
+</odoo>

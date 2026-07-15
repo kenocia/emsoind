@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_kenocia_tesoreria_root"
+              name="Tesorería"
+              action="action_kenocia_treasury_dashboard"
+              sequence="45"
+              web_icon="kenocia_tesoreria_v18,static/description/icon.png"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin,kenocia_tesoreria_v18.group_tesoreria_custodian"/>
+
+    <menuitem id="menu_tesoreria_dashboard"
+              name="Dashboard"
+              parent="menu_kenocia_tesoreria_root"
+              action="action_kenocia_treasury_dashboard"
+              sequence="1"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin,kenocia_tesoreria_v18.group_tesoreria_custodian"/>
+
+    <menuitem id="menu_tesoreria_cxc"
+              name="Cobros CXC"
+              parent="menu_kenocia_tesoreria_root"
+              sequence="10"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxc_payments"
+              name="Cobros"
+              parent="menu_tesoreria_cxc"
+              action="action_kenocia_payment_cxc"
+              sequence="10"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxc_cheque"
+              name="Cheques"
+              parent="menu_tesoreria_cxc"
+              action="action_kenocia_payment_cxc_cheque"
+              sequence="15"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxc_transfer"
+              name="Transferencias"
+              parent="menu_tesoreria_cxc"
+              action="action_kenocia_payment_cxc_transfer"
+              sequence="16"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxc_cash"
+              name="Efectivo"
+              parent="menu_tesoreria_cxc"
+              action="action_kenocia_payment_cxc_cash"
+              sequence="17"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxc_advances"
+              name="Adelantos de Clientes"
+              parent="menu_tesoreria_cxc"
+              action="action_kenocia_advance_cxc"
+              sequence="20"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxp"
+              name="Pagos CXP"
+              parent="menu_kenocia_tesoreria_root"
+              sequence="20"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxp_payments"
+              name="Pagos"
+              parent="menu_tesoreria_cxp"
+              action="action_kenocia_payment_cxp"
+              sequence="10"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxp_cheque"
+              name="Cheques"
+              parent="menu_tesoreria_cxp"
+              action="action_kenocia_payment_cxp_cheque"
+              sequence="15"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxp_transfer"
+              name="Transferencias"
+              parent="menu_tesoreria_cxp"
+              action="action_kenocia_payment_cxp_transfer"
+              sequence="16"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxp_cash"
+              name="Efectivo"
+              parent="menu_tesoreria_cxp"
+              action="action_kenocia_payment_cxp_cash"
+              sequence="17"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_cxp_advances"
+              name="Adelantos a Proveedores"
+              parent="menu_tesoreria_cxp"
+              action="action_kenocia_advance_cxp"
+              sequence="20"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_manual"
+              name="Manual / Ayuda"
+              parent="menu_kenocia_tesoreria_root"
+              action="action_kenocia_treasury_manual"
+              sequence="85"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin,kenocia_tesoreria_v18.group_tesoreria_custodian"/>
+
+    <menuitem id="menu_tesoreria_config"
+              name="Configuración"
+              parent="menu_kenocia_tesoreria_root"
+              sequence="90"
+              groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_sequences"
+              name="Secuencias Bancarias"
+              parent="menu_tesoreria_config"
+              action="action_kenocia_sequence"
+              sequence="10"
+              groups="kenocia_tesoreria_v18.group_tesoreria_cxc,kenocia_tesoreria_v18.group_tesoreria_cxp,kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_journals"
+              name="Diarios banco y caja"
+              parent="menu_tesoreria_config"
+              action="action_kenocia_journal_bank_cash"
+              sequence="20"
+              groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_bank_accounts"
+              name="Cuentas banco y efectivo"
+              parent="menu_tesoreria_config"
+              action="action_kenocia_chart_bank_cash"
+              sequence="30"
+              groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_advance_accounts"
+              name="Cuentas de anticipo"
+              parent="menu_tesoreria_config"
+              action="action_kenocia_advance_accounts"
+              sequence="40"
+              groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin"/>
+
+    <menuitem id="menu_tesoreria_reconcile"
+              name="Conciliación manual"
+              parent="menu_tesoreria_config"
+              action="action_kenocia_reconcile_manual"
+              sequence="50"
+              groups="kenocia_tesoreria_v18.group_tesoreria_supervisor,kenocia_tesoreria_v18.group_tesoreria_admin,account.group_account_user"/>
+
+</odoo>

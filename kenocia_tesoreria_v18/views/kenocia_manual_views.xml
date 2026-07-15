@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_kenocia_treasury_manual" model="ir.actions.client">
+        <field name="name">Manual / Ayuda</field>
+        <field name="tag">kenocia_tesoreria_v18.manual_action</field>
+    </record>
+
+</odoo>

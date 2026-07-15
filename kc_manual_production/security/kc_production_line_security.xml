@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Reglas de visibilidad por línea de producción (RP) -->
+    <record id="kc_production_entry_line_planner_rule" model="ir.rule">
+        <field name="name">KC RP: planificador solo ve sus líneas</field>
+        <field name="model_id" ref="model_kc_production_entry"/>
+        <field name="domain_force">[('production_line_id.user_ids', 'in', user.id)]</field>
+        <field name="groups" eval="[(4, ref('kc_production_group_planner'))]"/>
+    </record>
+
+    <record id="kc_production_entry_line_user_rule" model="ir.rule">
+        <field name="name">KC RP: operador solo ve sus líneas</field>
+        <field name="model_id" ref="model_kc_production_entry"/>
+        <field name="domain_force">[('production_line_id.user_ids', 'in', user.id)]</field>
+        <field name="groups" eval="[(4, ref('kc_production_group_user'))]"/>
+    </record>
+
+    <record id="kc_production_entry_line_manager_rule" model="ir.rule">
+        <field name="name">KC RP: administrador ve todos</field>
+        <field name="model_id" ref="model_kc_production_entry"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('kc_production_group_manager'))]"/>
+    </record>
+
+    <record id="kc_production_entry_line_stock_manager_rule" model="ir.rule">
+        <field name="name">KC RP: stock manager ve todos</field>
+        <field name="model_id" ref="model_kc_production_entry"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+    </record>
+
+</odoo>

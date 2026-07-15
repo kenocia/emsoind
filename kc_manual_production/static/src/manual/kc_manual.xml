@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="kc_manual_production.ProductionManual">
+        <div class="kc_manual o_action">
+
+            <div class="kc_manual_header">
+                <h2>Manual de Usuario — Planta KC</h2>
+                <p class="text-muted">
+                    Guía operativa según su perfil. Solo verá las secciones que puede operar
+                    con los permisos de su usuario.
+                </p>
+                <div t-if="state.ready" class="kc_note_box">
+                    <strong>Su perfil:</strong>
+                    <t t-esc="state.roleLabel"/>.
+                    <t t-esc="state.roleHint"/>
+                </div>
+            </div>
+
+            <t t-if="!state.ready">
+                <div class="kc_manual_content">
+                    <p class="text-muted">Cargando manual según su acceso…</p>
+                </div>
+            </t>
+
+            <t t-else="">
+            <ul class="nav nav-tabs kc_manual_tabs" role="tablist">
+                <li t-if="state.can.flujo" class="nav-item">
+                    <a href="#" class="nav-link"
+                       t-att-class="state.activeTab === 'flujo' ? 'active' : ''"
+                       t-on-click.prevent="() => this.setActiveTab('flujo')">
+                        Flujo operativo
+                    </a>
+                </li>
+                <li t-if="state.can.control" class="nav-item">
+                    <a href="#" class="nav-link"
+                       t-att-class="state.activeTab === 'control' ? 'active' : ''"
+                       t-on-click.prevent="() => this.setActiveTab('control')">
+                        Resumen de Producción
+                    </a>
+                </li>
+                <li t-if="state.can.planificacion" class="nav-item">
+                    <a href="#" class="nav-link"
+                       t-att-class="state.activeTab === 'planificacion' ? 'active' : ''"
+                       t-on-click.prevent="() => this.setActiveTab('planificacion')">
+                        Planificación
+                    </a>
+                </li>
+                <li t-if="state.can.backlog" class="nav-item">
+                    <a href="#" class="nav-link"
+                       t-att-class="state.activeTab === 'backlog' ? 'active' : ''"
+                       t-on-click.prevent="() => this.setActiveTab('backlog')">
+                        Órdenes pendientes de planificar
+                    </a>
+                </li>
+                <li t-if="state.can.produccion" class="nav-item">
+                    <a href="#" class="nav-link"
+                       t-att-class="state.activeTab === 'produccion' ? 'active' : ''"
+                       t-on-click.prevent="() => this.setActiveTab('produccion')">
+                        <t t-if="state.isPlannerOnly">Órdenes de Producción</t>
+                        <t t-else="">Operador de Producción</t>
+                    </a>
+                </li>
+                <li t-if="state.can.bodega" class="nav-item">
+                    <a href="#" class="nav-link"
+                       t-att-class="state.activeTab === 'bodega' ? 'active' : ''"
+                       t-on-click.prevent="() => this.setActiveTab('bodega')">
+                        Operador de Bodega
+                    </a>
+                </li>
+                <li t-if="state.can.gerente" class="nav-item">
+                    <a href="#" class="nav-link"
+                       t-att-class="state.activeTab === 'gerente' ? 'active' : ''"
+                       t-on-click.prevent="() => this.setActiveTab('gerente')">
+                        Gerente / Administrador
+                    </a>
+                </li>
+                <li t-if="state.can.config" class="nav-item">
+                    <a href="#" class="nav-link"
+                       t-att-class="state.activeTab === 'config' ? 'active' : ''"
+                       t-on-click.prevent="() => this.setActiveTab('config')">
+                        Configuración e Instalación
+                    </a>
+                </li>
+            </ul>
+
+            <div class="kc_manual_content">
+
+                <!-- ========== FLUJO OPERATIVO ========== -->
+                <div t-if="state.activeTab === 'flujo'" class="kc_tab_pane">
+                    <h3>Flujo operativo</h3>
+
+                    <!-- Planificador -->
+                    <t t-if="state.isPlannerOnly">
+                        <p>
+                            Con su perfil de <strong>Planificador</strong> opera hasta
+                            dejar la OP en <em>borrador</em>. Producción confirma y Bodega valida.
+                        </p>
+                        <ol class="kc_steps">
+                            <li>
+                                <strong>Demanda:</strong>
+                                <em>Operaciones → Órdenes Pendientes de Planificar</em>
+                                (saldos reales de OV; si ya hay plan activo, la línea no aparece).
+                            </li>
+                            <li>
+                                <strong>Planificar:</strong> individual, masivo
+                                (<em>Planificar selección</em>) o
+                                <em>Planificar Abastecimiento</em>.
+                            </li>
+                            <li>
+                                <strong>Agenda:</strong>
+                                <em>Operaciones → Planificación</em> (Gantt por centro).
+                            </li>
+                            <li>
+                                <strong>Generar OP:</strong> desde el plan. Queda en borrador;
+                                usted <strong>no confirma</strong> ni valida.
+                            </li>
+                            <li>
+                                <strong>Seguimiento:</strong> Resumen (pestaña Planificación)
+                                e impresión de plan semanal / calendario mensual.
+                            </li>
+                        </ol>
+                    </t>
+
+                    <!-- Operador de producción -->
+                    <t t-elif="state.isOperator">
+                        <p>
+                            Su ciclo: <strong>planificar → generar OP → Confirmar</strong>.
+                            Bodega valida recepción y cierra el consumo diario.
+                        </p>
+                        <ol class="kc_steps">
+                            <li>
+                                <strong>Demanda / Plan:</strong> pendientes, Gantt y abastecimiento.
+                            </li>
+                            <li>
+                                <strong>Generar OP</strong> desde el plan (o crear OP).
+                            </li>
+                            <li>
+                                <strong>Confirmar</strong> la OP → pasa a
+                                <em>Confirmadas (pendiente validar)</em>.
+                            </li>
+                            <li>
+                                <strong>Seguimiento:</strong> Resumen de Producción y menú
+                                <em>Producción validada</em> (histórico).
+                            </li>
+                        </ol>
+                    </t>
+
+                    <!-- Bodega -->
+                    <t t-elif="state.isBodegaOnly">
+                        <p>
+                            Su ciclo: <strong>Validar OP</strong> (entra PT) y
+                            <strong>cerrar consumo diario (CMP)</strong> por línea.
+                        </p>
+                        <ol class="kc_steps">
+                            <li>
+                                Abrir <em>Operaciones → A validar en bodega</em>.
+                            </li>
+                            <li>
+                                Revisar y pulsar <strong>Validar</strong> → PT al stock con lote.
+                            </li>
+                            <li>
+                                Crear/validar el <strong>consumo diario</strong> del día
+                                (Resumen → Operación o Consumo de Componentes).
+                            </li>
+                            <li>
+                                Sin cierre CMP, el día queda “huérfano” y puede bloquear el siguiente.
+                            </li>
+                        </ol>
+                    </t>
+
+                    <!-- Administrador / vista completa -->
+                    <t t-else="">
+                        <p>
+                            Ciclo completo:
+                            <strong>demanda → plan → producir → validar en bodega → cerrar consumo del día</strong>.
+                        </p>
+                        <ol class="kc_steps">
+                            <li>
+                                <strong>Demanda:</strong> la OV confirmada genera líneas en
+                                <em>Operaciones → Órdenes Pendientes de Planificar</em>
+                                (solo saldos reales; si ya hay plan activo, la línea no aparece).
+                            </li>
+                            <li>
+                                <strong>Planificar:</strong> individual, masivo o abastecimiento
+                                (con configuración técnica).
+                            </li>
+                            <li>
+                                <strong>Agenda:</strong>
+                                <em>Operaciones → Planificación</em> (Gantt por centro).
+                            </li>
+                            <li>
+                                <strong>Producir:</strong> <em>Generar OP</em> → Producción
+                                <strong>Confirma</strong>.
+                            </li>
+                            <li>
+                                <strong>Bodega:</strong> <strong>Validar</strong> (recibe PT) y
+                                cierra el <strong>consumo diario</strong>.
+                            </li>
+                            <li>
+                                <strong>Seguimiento:</strong> Resumen de Producción y pestaña
+                                Producción en la OV.
+                            </li>
+                        </ol>
+                    </t>
+
+                    <h4>Mapa de menús (según su acceso)</h4>
+                    <table class="table table-sm table-bordered kc_perm_table">
+                        <thead>
+                            <tr><th>Menú</th><th>Para qué</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr t-if="state.can.control">
+                                <td>Resumen de Producción</td>
+                                <td>Tablero: Operación / Planificación / Cumplimiento</td>
+                            </tr>
+                            <tr t-if="state.can.backlog">
+                                <td>Operaciones → Órdenes Pendientes de Planificar</td>
+                                <td>Qué falta planificar / fabricar</td>
+                            </tr>
+                            <tr t-if="state.can.planificacion">
+                                <td>Operaciones → Planificación</td>
+                                <td>Gantt por centro de trabajo</td>
+                            </tr>
+                            <tr t-if="state.can.produccion">
+                                <td>Operaciones → Órdenes de Producción</td>
+                                <td>
+                                    <t t-if="state.can.confirmOp">Crear y confirmar OP</t>
+                                    <t t-else="">Generar OP en borrador (no confirma)</t>
+                                </td>
+                            </tr>
+                            <tr t-if="state.can.bodega">
+                                <td>Operaciones → A validar en bodega</td>
+                                <td>Cola de recepción PT</td>
+                            </tr>
+                            <tr t-if="state.can.cmp">
+                                <td>Operaciones → Consumo de Componentes</td>
+                                <td>CMP diario, general o abastecimiento</td>
+                            </tr>
+                            <tr t-if="state.can.planificacion">
+                                <td>Reportes → Planificación</td>
+                                <td>PDF semanal por centro / calendario mensual</td>
+                            </tr>
+                            <tr t-if="state.can.config">
+                                <td>Configuración</td>
+                                <td>Líneas, centros y tipos de operación</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="kc_note_box">
+                        <strong>Siglas internas:</strong> en código y PDF aún puede verse “RP” / “CMP”.
+                        En menús: <em>Orden de Producción</em> y <em>Consumo de Componentes</em>.
+                    </div>
+                </div>
+
+                <!-- ========== RESUMEN DE PRODUCCIÓN ========== -->
+                <div t-if="state.activeTab === 'control' and state.can.control" class="kc_tab_pane">
+                    <h3>Resumen de Producción</h3>
+                    <p>
+                        Pantalla principal: <strong>Planta KC → Resumen de Producción</strong>.
+                        Tres pestañas con filtros compartidos (Línea, Centro, período).
+                    </p>
+
+                    <t t-if="state.isPlannerOnly">
+                        <div class="kc_alert_box">
+                            <span class="kc_alert_icon">ℹ</span>
+                            <div>
+                                Enfoque recomendado: pestaña <strong>Planificación</strong>
+                                (carga, retrasos, ocupación, backlog) y
+                                <strong>Cumplimiento</strong>.
+                                La pestaña Operación es más de bodega/cierre diario.
+                            </div>
+                        </div>
+                    </t>
+
+                    <h4>Pestaña 1 — Operación</h4>
+                    <p>Cierre diario y cola de OP.</p>
+                    <table class="table table-sm table-bordered kc_perm_table">
+                        <thead>
+                            <tr><th>Indicador</th><th>Significado</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Líneas al día (hoy)</td>
+                                <td>Líneas con consumo diario <strong>validado hoy</strong>.</td>
+                            </tr>
+                            <tr>
+                                <td>Consumos abiertos / Líneas bloqueadas</td>
+                                <td>CMP pendientes; un día abierto bloquea el siguiente.</td>
+                            </tr>
+                            <tr>
+                                <td>OP / Unidades PT</td>
+                                <td>Órdenes validadas y unidades en el rango del filtro.</td>
+                            </tr>
+                            <tr>
+                                <td>OP en cola / Días huérfanos</td>
+                                <td>Confirmadas sin validar; días con OP validada sin CMP.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Pestaña 2 — Planificación</h4>
+                    <ul>
+                        <li>Planes activos, retrasados y sobrecargados.</li>
+                        <li>Centros activos / en mantenimiento.</li>
+                        <li>Backlog pendiente + ocupación por centro.</li>
+                    </ul>
+
+                    <h4>Pestaña 3 — Cumplimiento</h4>
+                    <ul>
+                        <li>% plan vs producido, variación y gráfico por centro.</li>
+                    </ul>
+
+                    <h4>Filtros</h4>
+                    <ul>
+                        <li><strong>Línea</strong> y <strong>Centro</strong> (aplican a las tres pestañas).</li>
+                        <li>Hoy / Esta Semana / Este Mes / Personalizado.</li>
+                    </ul>
+
+                    <div t-if="state.can.cmp" class="kc_alert_box">
+                        <span class="kc_alert_icon">⚠</span>
+                        <div>
+                            <strong>Regla de bloqueo:</strong> un CMP diario abierto en un día
+                            anterior impide abrir el del día siguiente hasta validarlo o cancelarlo.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== PLANIFICACIÓN ========== -->
+                <div t-if="state.activeTab === 'planificacion' and state.can.planificacion" class="kc_tab_pane">
+                    <h3>Planificación (Gantt por centro)</h3>
+                    <p>
+                        <strong>Operaciones → Planificación</strong> muestra bloques por
+                        <strong>Centro de Trabajo</strong>. No se crean bloques libres en el Gantt:
+                        se planifica desde pendientes, masivo o abastecimiento.
+                    </p>
+
+                    <t t-if="state.isBodegaOnly">
+                        <div class="kc_note_box">
+                            Con perfil de Bodega esta vista es de <strong>consulta</strong>.
+                            La planificación la hacen Planificador u Operador de Producción.
+                        </div>
+                    </t>
+
+                    <t t-if="!state.isBodegaOnly">
+                        <h4>Flujo recomendado (desde OV)</h4>
+                        <ol class="kc_steps">
+                            <li>Abrir <strong>Órdenes Pendientes de Planificar</strong>.</li>
+                            <li>
+                                Planificar por fila o Acciones → <strong>Planificar selección</strong>
+                                (misma línea de producción; crea planes Confirmados).
+                            </li>
+                            <li>Revisar carga en el Gantt; imprimir planificación si aplica.</li>
+                            <li>
+                                <strong>Generar OP</strong>.
+                                <t t-if="state.can.confirmOp"> Luego confirme la OP.</t>
+                                <t t-else=""> Queda en borrador; Producción confirmará.</t>
+                            </li>
+                        </ol>
+
+                        <h4>Abastecimiento (sin OV)</h4>
+                        <ol class="kc_steps">
+                            <li><strong>Operaciones → Planificar Abastecimiento</strong>.</li>
+                            <li>Producto + <strong>Configuración técnica</strong>.</li>
+                            <li>Guardar / confirmar plan → Generar OP.</li>
+                        </ol>
+                    </t>
+
+                    <h4>Estados del plan</h4>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr><th>Estado</th><th>Significado</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Borrador</td><td>Aún no confirmado.</td></tr>
+                            <tr><td>Confirmado</td><td>Listo para generar OP.</td></tr>
+                            <tr><td>En progreso</td><td>OP vinculada en curso.</td></tr>
+                            <tr><td>Hecho</td><td>OP validada.</td></tr>
+                            <tr><td>Cancelado</td><td>Descartado (no cuenta en % cumplimiento).</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="kc_alert_box">
+                        <span class="kc_alert_icon">ℹ</span>
+                        <div>
+                            Productos con ficha técnica o marcados como
+                            <em>Producción simple</em>. Retraso y sobrecarga se ven en el Resumen
+                            (pestaña Planificación) y en el Gantt.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== ÓRDENES PENDIENTES ========== -->
+                <div t-if="state.activeTab === 'backlog' and state.can.backlog" class="kc_tab_pane">
+                    <h3>Órdenes Pendientes de Planificar</h3>
+                    <p>
+                        Líneas de OV confirmadas con <strong>saldo a fabricar</strong>.
+                        No se listan líneas cubiertas por stock/producción ni las que ya tienen
+                        un <strong>plan activo</strong> (borrador / confirmado / en progreso).
+                    </p>
+
+                    <h4>Columnas clave</h4>
+                    <ul>
+                        <li><strong>Cantidad OV / Stock compatible / Ya producido / Pendiente</strong>.</li>
+                        <li><strong>Descripción técnica</strong> de la línea de venta.</li>
+                        <li><strong>Estado:</strong> Pendiente, Parcial, En curso (OP abierta).</li>
+                    </ul>
+
+                    <h4>Acciones</h4>
+                    <ul>
+                        <li><strong>Planificar</strong> (por fila) — un bloque con la qty pendiente.</li>
+                        <li><strong>Planificar selección</strong> (Acciones) — varias líneas de la
+                            <em>misma</em> línea de producción; bloquea si alguna tiene OP en curso.</li>
+                    </ul>
+
+                    <div class="kc_alert_box">
+                        <span class="kc_alert_icon">⚠</span>
+                        <div>
+                            Un plan activo oculta la fila del backlog. Para replanificar, cancele
+                            el plan en Gantt. Una OP <em>Validada</em> con saldo sí permite otra OP
+                            (producción parcial).
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== PRODUCCIÓN / OP ========== -->
+                <div t-if="state.activeTab === 'produccion' and state.can.produccion" class="kc_tab_pane">
+                    <h3>Orden de Producción (OP / RP)</h3>
+                    <p>
+                        Documenta la entrada de Producto Terminado con lote. Cada OP pertenece a una
+                        <strong>Línea de Producción</strong> y, si viene del plan, a un
+                        <strong>Centro de Trabajo</strong>.
+                    </p>
+
+                    <t t-if="state.isPlannerOnly">
+                        <div class="kc_alert_box">
+                            <span class="kc_alert_icon">ℹ</span>
+                            <div>
+                                Como <strong>Planificador</strong> puede <em>Generar OP</em>
+                                dejando el documento en <strong>borrador</strong>.
+                                No tiene el botón Confirmar: eso lo hace el Operador de Producción.
+                            </div>
+                        </div>
+                    </t>
+
+                    <h4>Flujo desde plan / OV</h4>
+                    <ol class="kc_steps">
+                        <li>Desde el plan: <strong>Generar OP</strong>, o
+                            <strong>Operaciones → Órdenes de Producción → Nuevo</strong>.</li>
+                        <li>Revisar línea, centro, producto y descripción técnica.</li>
+                        <li t-if="state.can.confirmOp">
+                            <strong>Confirmar</strong> — genera lote y folio; queda pendiente de validar.
+                        </li>
+                        <li t-else="">
+                            Guardar el borrador. Producción <strong>Confirmará</strong> después.
+                        </li>
+                        <li t-if="state.can.confirmOp">
+                            Bodega <strong>Valida</strong> y recibe el PT (otro rol).
+                        </li>
+                    </ol>
+
+                    <div t-if="state.can.confirmOp" class="kc_note_box">
+                        Use <strong>Confirmadas (pendiente validar)</strong> para ver lo enviado a bodega.
+                    </div>
+
+                    <h4>Abastecimiento</h4>
+                    <ol class="kc_steps">
+                        <li>Planificar Abastecimiento o asistente <strong>RP de Abastecimiento</strong>.</li>
+                        <li>
+                            <t t-if="state.can.confirmOp">Confirmar OP; bodega valida después.</t>
+                            <t t-else="">Generar OP en borrador; Producción confirma.</t>
+                        </li>
+                    </ol>
+
+                    <div class="kc_alert_box">
+                        <span class="kc_alert_icon">⚠</span>
+                        <div>
+                            <strong>Errores comunes</strong>
+                            <ul>
+                                <li><em>Sin productos al elegir OV:</em> categoría / línea no coinciden
+                                    o falta rastreo por lote.</li>
+                                <li><em>No deja crear:</em> hay OP en borrador/confirmado para esa
+                                    línea de OV, o falta ficha técnica / producción simple.</li>
+                                <li><em>No ve OP:</em> no está asignado a la línea en Configuración.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== BODEGA ========== -->
+                <div t-if="state.activeTab === 'bodega' and state.can.bodega" class="kc_tab_pane">
+                    <h3>Recepción de producción (Validar OP)</h3>
+                    <p>
+                        Las OP confirmadas aparecen en
+                        <strong>Operaciones → A validar en bodega</strong>.
+                        <strong>Validar</strong> recibe el PT al inventario.
+                    </p>
+                    <ol class="kc_steps">
+                        <li>Abrir OP en estado <em>Confirmado</em>.</li>
+                        <li>Revisar productos, cantidades y lote.</li>
+                        <li><strong>Validar</strong> — el stock de PT aumenta.</li>
+                    </ol>
+
+                    <h3>Consumo de Componentes (CMP)</h3>
+                    <p>
+                        Documenta salida de materiales hacia producción.
+                        El modo principal del tablero es el <strong>consumo diario</strong>.
+                    </p>
+
+                    <h4>Modos</h4>
+                    <table class="table table-sm table-bordered kc_perm_table">
+                        <thead>
+                            <tr><th>Modo</th><th>Uso</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Consumo diario</strong></td>
+                                <td>Cierre por línea y fecha. Un CMP por línea y día.</td>
+                            </tr>
+                            <tr>
+                                <td>Abastecimiento</td>
+                                <td>Desde solicitudes de compra.</td>
+                            </tr>
+                            <tr>
+                                <td>General</td>
+                                <td>Libre o vinculado a una OP.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>CMP diario — pasos</h4>
+                    <ol class="kc_steps">
+                        <li><strong>Resumen → Operación</strong> → Crear consumo,
+                            o <strong>Consumo de Componentes → Nuevo</strong>.</li>
+                        <li>Modo diario + línea + fecha.</li>
+                        <li>Materias Primas: tipo MP / Insumo / Servicio.</li>
+                        <li>Confirmar → Validar (cierra el día).</li>
+                    </ol>
+
+                    <div class="kc_alert_box">
+                        <span class="kc_alert_icon">⚠</span>
+                        <div>
+                            <ul>
+                                <li><em>Stock insuficiente:</em> revise lote y Disponible.</li>
+                                <li><em>No puede crear el de hoy:</em> cierre el CMP de ayer.</li>
+                                <li><em>Ya existe para línea/fecha:</em> solo uno diario por día.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== GERENTE ========== -->
+                <div t-if="state.activeTab === 'gerente' and state.can.gerente" class="kc_tab_pane">
+                    <h3>Gerente / Administrador</h3>
+
+                    <h4>Resumen de Producción</h4>
+                    <ul>
+                        <li><strong>Operación:</strong> cierre CMP, huérfanos, OP en cola.</li>
+                        <li><strong>Planificación:</strong> retrasos, sobrecarga, ocupación, backlog.</li>
+                        <li><strong>Cumplimiento:</strong> % plan vs producido y variación.</li>
+                        <li>Filtros Línea / Centro / fechas compartidos.</li>
+                    </ul>
+
+                    <h4>Seguimiento en la OV</h4>
+                    <p>Pestaña <strong>Producción</strong> / Producción Manual:</p>
+                    <ul>
+                        <li>Avance por producto: OV / planificado / confirmado / validado / pendiente.</li>
+                        <li>Resumen por línea de producción y alertas.</li>
+                    </ul>
+
+                    <h4>Reportes</h4>
+                    <ul>
+                        <li>Producciones / Consumos por período.</li>
+                        <li>Plan semanal por centro y calendario mensual.</li>
+                    </ul>
+
+                    <h4>Líneas y centros</h4>
+                    <ul>
+                        <li><strong>Operadores asignados</strong> y categorías PT por línea.</li>
+                        <li><strong>Centros de Trabajo</strong> (capacidad / eficiencia).</li>
+                    </ul>
+
+                    <h4>Reversiones</h4>
+                    <p>Solo gerencia revierte OP/CMP validados. Cada compañía ve solo sus datos.</p>
+                </div>
+
+                <!-- ========== CONFIG ========== -->
+                <div t-if="state.activeTab === 'config' and state.can.config" class="kc_tab_pane">
+                    <h3>Configuración e Instalación</h3>
+
+                    <h4>Checklist</h4>
+                    <ol class="kc_steps">
+                        <li>Instalar <strong>kc_manual_production</strong>
+                            (+ <strong>kc_product_custom_specs_lot</strong>).</li>
+                        <li>Tipos de operación OP/CMP por compañía.</li>
+                        <li>Líneas de Producción: operadores y categorías PT.</li>
+                        <li>Centros de Trabajo (se crea <em>General</em> por línea).</li>
+                        <li>Categorías MP e INSUMOS para el CMP.</li>
+                        <li>Grupos: Planificador, Operador de Producción, Bodega, Administrador.</li>
+                        <li>PT con rastreo por lotes; ficha técnica o producción simple cuando aplique.</li>
+                    </ol>
+
+                    <h4>Matriz de permisos</h4>
+                    <table class="table table-sm table-bordered kc_perm_table">
+                        <thead>
+                            <tr>
+                                <th>Función</th>
+                                <th>Planificador</th>
+                                <th>Op. Producción</th>
+                                <th>Op. Bodega</th>
+                                <th>Administrador</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Planificar / Gantt / backlog</td>
+                                <td>Sí</td>
+                                <td>Sí</td>
+                                <td>Consulta</td>
+                                <td>Total</td>
+                            </tr>
+                            <tr>
+                                <td>OP — generar (borrador)</td>
+                                <td>Sí</td>
+                                <td>Sí</td>
+                                <td>Lectura</td>
+                                <td>Total</td>
+                            </tr>
+                            <tr>
+                                <td>OP — confirmar</td>
+                                <td>No</td>
+                                <td>Sí</td>
+                                <td>No</td>
+                                <td>Sí</td>
+                            </tr>
+                            <tr>
+                                <td>OP — validar (recibir)</td>
+                                <td>No</td>
+                                <td>No</td>
+                                <td>Sí</td>
+                                <td>Sí</td>
+                            </tr>
+                            <tr>
+                                <td>Consumo diario (CMP)</td>
+                                <td>No</td>
+                                <td>Lectura</td>
+                                <td>Sí</td>
+                                <td>Sí</td>
+                            </tr>
+                            <tr>
+                                <td>Resumen de Producción</td>
+                                <td>Sí</td>
+                                <td>Sus líneas</td>
+                                <td>Todas</td>
+                                <td>Total</td>
+                            </tr>
+                            <tr>
+                                <td>Configuración / reversiones</td>
+                                <td>No</td>
+                                <td>No</td>
+                                <td>No</td>
+                                <td>Sí</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Reglas clave</h4>
+                    <ul>
+                        <li>OP en borrador/confirmado bloquea otra OP concurrente de la misma línea OV.</li>
+                        <li>Plan activo oculta la línea del backlog de pendientes.</li>
+                        <li>Un consumo diario por línea + fecha; el abierto bloquea el día siguiente.</li>
+                        <li>Día huérfano: OP validada sin consumo diario validado.</li>
+                    </ul>
+
+                    <div class="kc_note_box">
+                        Módulo transitorio sin MRP. Los movimientos de inventario y lotes permanecen
+                        en Odoo estándar si se desinstala el módulo.
+                    </div>
+                </div>
+
+            </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kc_pin_authorization_user,kc.pin.authorization.user,model_kc_pin_authorization,base.group_user,1,1,1,1
+access_kc_pin_authorization_log_user,kc.pin.authorization.log.user,model_kc_pin_authorization_log,base.group_user,1,0,0,0
+access_kc_pin_authorization_log_manager,kc.pin.authorization.log.manager,model_kc_pin_authorization_log,base.group_system,1,1,1,1
+access_kc_pin_authorization_rule_user,kc.pin.authorization.rule.user,model_kc_pin_authorization_rule,base.group_user,1,0,0,0
+access_kc_pin_authorization_rule_manager,kc.pin.authorization.rule.manager,model_kc_pin_authorization_rule,base.group_system,1,1,1,1

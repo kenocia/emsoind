@@ -1,0 +1,65 @@
+.o_preregistro_cai_wizard {
+    .o_form_sheet {
+        padding: 1.5rem 1.75rem;
+    }
+
+    .o_preregistro_stepper {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+
+        .badge {
+            min-width: 9rem;
+            padding: 0.55rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+    }
+
+    .o_preregistro_section {
+        margin-bottom: 1.25rem;
+        padding: 1rem 1.25rem;
+        border: 1px solid var(--border-color, var(--bs-border-color));
+        border-radius: 0.5rem;
+    }
+
+    .o_preregistro_compact {
+        margin-bottom: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.375rem;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .o_preregistro_cai_value {
+        word-break: break-all;
+        white-space: normal;
+        max-width: 100%;
+    }
+
+    .o_preregistro_field_hint {
+        margin-top: 0.25rem;
+        font-size: 0.82rem;
+    }
+
+    .o_preregistro_preview_box {
+        margin-top: 0.5rem;
+        padding: 1rem 1.25rem;
+        border-radius: 0.375rem;
+        line-height: 1.8;
+
+        p {
+            margin-bottom: 0.35rem;
+        }
+    }
+
+    .o_group .o_inner_group {
+        margin-bottom: 0.75rem;
+    }
+
+    .o_field_widget.o_readonly_modifier {
+        min-height: 1.5rem;
+    }
+}

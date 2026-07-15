@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Códigos SAR Honduras (tabla maestra) -->
+        <record id="codigo_sar_01" model="kc_fiscal_hn.codigo.sar">
+            <field name="codigo">01</field>
+            <field name="nombre">ISV 15% Ventas</field>
+            <field name="tipo_impuesto">isv</field>
+            <field name="tipo_uso">sale</field>
+            <field name="porcentaje">15.0</field>
+            <field name="descripcion">
+                Impuesto Sobre Ventas tasa general 15%.
+                Aplica a bienes y servicios en general.
+            </field>
+            <field name="base_legal">Ley del ISV Honduras</field>
+        </record>
+
+        <record id="codigo_sar_02" model="kc_fiscal_hn.codigo.sar">
+            <field name="codigo">02</field>
+            <field name="nombre">ISV 18% Ventas</field>
+            <field name="tipo_impuesto">isv</field>
+            <field name="tipo_uso">sale</field>
+            <field name="porcentaje">18.0</field>
+            <field name="descripcion">
+                Impuesto Sobre Ventas tasa especial 18%.
+                Aplica a bebidas alcohólicas, cigarrillos
+                y armas de fuego (Decreto 51-2003).
+            </field>
+            <field name="base_legal">Decreto 51-2003</field>
+        </record>
+
+        <record id="codigo_sar_03" model="kc_fiscal_hn.codigo.sar">
+            <field name="codigo">03</field>
+            <field name="nombre">Exento ISV</field>
+            <field name="tipo_impuesto">exento</field>
+            <field name="tipo_uso">all</field>
+            <field name="porcentaje">0.0</field>
+            <field name="descripcion">
+                Bienes y servicios exentos de ISV.
+                Canasta básica, medicamentos, educación,
+                servicios médicos, transporte público.
+            </field>
+            <field name="base_legal">Ley del ISV Art. 15</field>
+        </record>
+
+        <record id="codigo_sar_04" model="kc_fiscal_hn.codigo.sar">
+            <field name="codigo">04</field>
+            <field name="nombre">Exonerado ISV</field>
+            <field name="tipo_impuesto">exonerado</field>
+            <field name="tipo_uso">all</field>
+            <field name="porcentaje">0.0</field>
+            <field name="descripcion">
+                Compras exoneradas con Orden de Compra
+                Exonerada (OCE) emitida por el SAR.
+                Requiere N° de constancia de exoneración.
+            </field>
+            <field name="base_legal">Ley del ISV Art. 16</field>
+        </record>
+
+        <record id="codigo_sar_05" model="kc_fiscal_hn.codigo.sar">
+            <field name="codigo">05</field>
+            <field name="nombre">Retención ISV</field>
+            <field name="tipo_impuesto">retencion</field>
+            <field name="tipo_uso">purchase</field>
+            <field name="porcentaje">15.0</field>
+            <field name="descripcion">
+                Retención del ISV aplicada por agentes
+                de retención (grandes contribuyentes)
+                en pagos por servicios específicos.
+            </field>
+            <field name="base_legal">Acuerdo DEI-215-2010</field>
+        </record>
+
+        <record id="codigo_sar_06" model="kc_fiscal_hn.codigo.sar">
+            <field name="codigo">06</field>
+            <field name="nombre">ISV 15% Compras</field>
+            <field name="tipo_impuesto">isv</field>
+            <field name="tipo_uso">purchase</field>
+            <field name="porcentaje">15.0</field>
+            <field name="descripcion">
+                ISV 15% en facturas de compra.
+                Genera crédito fiscal deducible.
+            </field>
+            <field name="base_legal">Ley del ISV Honduras</field>
+        </record>
+
+        <record id="codigo_sar_07" model="kc_fiscal_hn.codigo.sar">
+            <field name="codigo">07</field>
+            <field name="nombre">ISV 18% Compras</field>
+            <field name="tipo_impuesto">isv</field>
+            <field name="tipo_uso">purchase</field>
+            <field name="porcentaje">18.0</field>
+            <field name="descripcion">
+                ISV 18% en facturas de compra.
+                Bebidas alcohólicas, cigarrillos, armas.
+                Genera crédito fiscal deducible.
+            </field>
+            <field name="base_legal">Decreto 51-2003</field>
+        </record>
+
+    </data>
+</odoo>

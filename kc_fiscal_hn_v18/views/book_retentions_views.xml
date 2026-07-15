@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_book_retentions_list" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn.book.retentions.list</field>
+        <field name="model">kc_fiscal_hn.book.retentions</field>
+        <field name="arch" type="xml">
+            <list string="Libro de Retenciones" create="0" delete="0">
+                <header>
+                    <button name="action_marcar_declarado" type="object"
+                            string="Marcar declarado" class="btn-primary"/>
+                    <button name="action_marcar_rectificado" type="object"
+                            string="Marcar rectificado"/>
+                    <button name="action_exportar_excel" type="object"
+                            string="Exportar Excel"/>
+                </header>
+                <field name="es_agente_retencion"
+                         column_invisible="True"/>
+                <field name="tipo_contribuyente"
+                         column_invisible="True"/>
+                <field name="is_fiscal_locked"
+                         column_invisible="True"/>
+                <field name="alerta_vencimiento" widget="badge" optional="show"
+                       decoration-danger="alerta_vencimiento == 'vencido'"
+                       decoration-warning="alerta_vencimiento in ('urgente', 'proximo')"/>
+                <field name="fecha"
+                         readonly="1"/>
+                <field name="numero_factura"
+                         readonly="1"/>
+                <field name="rtn_proveedor"
+                         readonly="1"/>
+                <field name="proveedor"
+                         readonly="1"/>
+                <field name="base_imponible" sum="Total"
+                         readonly="1"/>
+                <field name="tipo_retencion"
+                         readonly="1"/>
+                <field name="tipo_servicio_retencion"
+                      
+                       optional="show"
+                         readonly="1"/>
+                <field name="porcentaje_retencion"
+                         readonly="1"/>
+                <field name="monto_retenido" sum="Total"
+                         readonly="1"/>
+                <field name="comprobante_entregado" optional="hide"/>
+                <field name="fecha_entrega_comprobante" optional="hide"/>
+                <field name="metodo_entrega" optional="hide"/>
+                <field name="estado" widget="badge"
+                         readonly="1"/>
+                <field name="fecha_vencimiento" optional="hide"/>
+                <field name="fecha_declaracion"/>
+                <field name="declarado_por"/>
+                <field name="notas_rectificacion"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_book_retentions_form" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn.book.retentions.form</field>
+        <field name="model">kc_fiscal_hn.book.retentions</field>
+        <field name="arch" type="xml">
+            <form string="Línea Libro Retenciones">
+                <header>
+                    <div class="alert alert-danger mb-0 w-100"
+                         invisible="alerta_vencimiento != 'vencido'">
+                        <strong>RETENCIÓN VENCIDA</strong> —
+                        Fecha límite:
+                        <field name="fecha_vencimiento"
+                               nolabel="1"
+                         readonly="1"/>
+                        — Presente inmediatamente en el SAR.
+                    </div>
+                    <div class="alert alert-danger mb-0 w-100"
+                         invisible="alerta_vencimiento != 'urgente'">
+                        <strong>Retención vence en
+                        <field name="dias_para_vencer"
+                               nolabel="1"
+                         readonly="1"/>
+                        días</strong> —
+                        <field name="fecha_vencimiento"
+                               nolabel="1"
+                         readonly="1"/>
+                    </div>
+                    <div class="alert alert-warning mb-0 w-100"
+                         invisible="alerta_vencimiento != 'proximo'">
+                        Retención vence el
+                        <field name="fecha_vencimiento"
+                               nolabel="1"
+                         readonly="1"/>
+                        (primeros 8 días hábiles del mes siguiente)
+                    </div>
+                </header>
+                <sheet>
+                    <field name="company_id"
+                         invisible="1"/>
+                    <field name="es_agente_retencion"
+                         invisible="1"/>
+                    <field name="alerta_vencimiento"
+                         invisible="1"/>
+                    <div class="alert alert-info mb-3" role="alert"
+                         invisible="bool(es_agente_retencion)">
+                        <strong>Información:</strong>
+                        Su empresa está clasificada como
+                        <field name="tipo_contribuyente"
+                               nolabel="1"
+                         readonly="1"/>
+                        contribuyente.<br/>
+                        Solo los <strong>grandes contribuyentes</strong>
+                        son agentes de retención del ISV 15%.<br/>
+                        Si fue reclasificado, actualice la clasificación en
+                        <strong>Ajustes → Compañías → Información SAR</strong>.
+                    </div>
+                    <div class="alert alert-warning mb-3" role="alert"
+                         invisible="estado != 'declarado'">
+                        Esta línea ya fue declarada ante el SAR.
+                        Solo puede editar las notas de rectificación.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="fecha"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="numero_factura"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="rtn_proveedor"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="proveedor"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="estado"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="periodo_desde"
+                         readonly="1"/>
+                            <field name="periodo_hasta"
+                         readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="base_imponible"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="tipo_retencion"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="tipo_servicio_retencion"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="porcentaje_retencion"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="monto_retenido"
+                         readonly="bool(is_fiscal_locked)"/>
+                            <field name="fecha_declaracion"/>
+                            <field name="declarado_por"/>
+                            <field name="is_fiscal_locked"
+                         invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Verificación ISV vs Retenciones">
+                        <group>
+                            <field name="total_monto_retenido"
+                                  
+                                   class="fw-bold text-danger"
+                         readonly="1"/>
+                            <field name="retencion_declarada_isv"/>
+                        </group>
+                        <group>
+                            <field name="diferencia_retencion_isv"
+                         invisible="not retencion_declarada_isv"
+                         readonly="1"/>
+                            <field name="consistencia_retencion"
+                                  
+                                   widget="badge"
+                                  
+                                   decoration-success=
+                                   "consistencia_retencion == 'ok'"
+                                   decoration-warning=
+                                   "consistencia_retencion == 'diferencia'"
+                         invisible="not retencion_declarada_isv"
+                         readonly="1"/>
+                        </group>
+                        <div class="col-12">
+                            <div class="alert alert-danger"
+                                 invisible=
+                                 "consistencia_retencion != 'diferencia'">
+                                Diferencia detectada. El SAR cruza
+                                las retenciones con la Declaración ISV.
+                                Corrija antes de declarar.
+                            </div>
+                            <div class="alert alert-success"
+                                 invisible=
+                                 "consistencia_retencion != 'ok'">
+                                Retenciones consistentes con ISV.
+                            </div>
+                        </div>
+                    </group>
+                    <group string="Entrega del Comprobante">
+                        <group>
+                            <field name="comprobante_entregado"/>
+                            <field name="fecha_entrega_comprobante"/>
+                            <field name="metodo_entrega"/>
+                        </group>
+                        <group>
+                            <field name="email_proveedor"/>
+                        </group>
+                    </group>
+                    <group string="Rectificación">
+                        <field name="notas_rectificacion"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_book_retentions" model="ir.actions.act_window">
+        <field name="name">Libro de Retenciones SAR</field>
+        <field name="res_model">kc_fiscal_hn.book.retentions</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

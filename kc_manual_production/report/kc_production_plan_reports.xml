@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="paperformat_kc_plan_landscape" model="report.paperformat">
+        <field name="name">KC Planificación Horizontal</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">12</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">8</field>
+        <field name="margin_right">8</field>
+        <field name="header_line" eval="False"/>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- ========== Plan semanal ========== -->
+    <record id="action_report_kc_plan_week" model="ir.actions.report">
+        <field name="name">Plan semanal por centro</field>
+        <field name="model">kc.production.plan.week.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kc_manual_production.report_kc_plan_week_document</field>
+        <field name="report_file">kc_manual_production.report_kc_plan_week_document</field>
+        <field name="print_report_name">'Plan Semanal %s - %s' % (object.date_from, object.date_to)</field>
+        <field name="paperformat_id" ref="paperformat_kc_plan_landscape"/>
+    </record>
+
+    <template id="report_kc_plan_week_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-3">
+                            <h2 style="margin:0;">PLAN SEMANAL DE PRODUCCIÓN</h2>
+                            <p style="margin:4px 0;font-size:13px;">
+                                <strong>Semana laboral:</strong>
+                                <span t-field="doc.date_from"/> — <span t-field="doc.date_to"/>
+                                <t t-if="doc.work_center_id">
+                                    · <strong>Centro:</strong> <span t-field="doc.work_center_id.name"/>
+                                </t>
+                                <t t-else=""> · Todos los centros</t>
+                            </p>
+                        </div>
+
+                        <t t-set="grouped" t-value="doc.get_lines_by_day_and_center()"/>
+                        <t t-foreach="grouped.keys()" t-as="center">
+                            <h4 style="margin:14px 0 6px;border-bottom:2px solid #333;padding-bottom:3px;">
+                                Centro: <t t-esc="center.name"/>
+                            </h4>
+                            <t t-foreach="sorted(grouped[center].keys())" t-as="day">
+                                <p style="margin:8px 0 2px;font-weight:bold;background:#eee;padding:3px 6px;">
+                                    <t t-esc="day.strftime('%A %d/%m/%Y')"/>
+                                </p>
+                                <table class="table table-sm table-bordered" style="font-size:11px;width:100%;">
+                                    <thead>
+                                        <tr style="background:#f5f5f5;">
+                                            <th>Ref. plan</th>
+                                            <th>OV</th>
+                                            <th>Cliente</th>
+                                            <th>Producto</th>
+                                            <th>Descripción técnica</th>
+                                            <th class="text-end">Qty</th>
+                                            <th>Estado</th>
+                                            <th>RP</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="grouped[center][day]" t-as="line">
+                                            <td><span t-field="line.name"/></td>
+                                            <td>
+                                                <span t-if="line.sale_order_id" t-field="line.sale_order_id.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-if="line.sale_order_id" t-esc="line.sale_order_id.partner_id.name"/>
+                                            </td>
+                                            <td><span t-field="line.product_id.display_name"/></td>
+                                            <td>
+                                                <span t-esc="line.technical_description or line.sol_technical_description or ''"/>
+                                            </td>
+                                            <td class="text-end"><span t-field="line.planned_qty"/></td>
+                                            <td><span t-field="line.state"/></td>
+                                            <td>
+                                                <span t-if="line.entry_id" t-field="line.entry_id.name"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                        </t>
+
+                        <div class="row mt-4 pt-3" style="font-size:11px;">
+                            <div class="col-4 text-center">
+                                <div style="border-top:1px solid #000;margin:0 12px;"/>
+                                <p class="mt-1 mb-0">Planificación</p>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div style="border-top:1px solid #000;margin:0 12px;"/>
+                                <p class="mt-1 mb-0">Producción</p>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div style="border-top:1px solid #000;margin:0 12px;"/>
+                                <p class="mt-1 mb-0">Recibido</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ========== Calendario mensual ========== -->
+    <record id="action_report_kc_plan_month" model="ir.actions.report">
+        <field name="name">Calendario mensual de producción</field>
+        <field name="model">kc.production.plan.month.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kc_manual_production.report_kc_plan_month_document</field>
+        <field name="report_file">kc_manual_production.report_kc_plan_month_document</field>
+        <field name="print_report_name">'Calendario %s-%s' % (object.month, object.year)</field>
+        <field name="paperformat_id" ref="paperformat_kc_plan_landscape"/>
+    </record>
+
+    <template id="report_kc_plan_month_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-3">
+                            <h2 style="margin:0;">CALENDARIO MENSUAL DE PRODUCCIÓN</h2>
+                            <p style="margin:4px 0;font-size:13px;">
+                                <strong>Mes:</strong>
+                                <span t-field="doc.month"/> <span t-field="doc.year"/>
+                                <t t-if="doc.partner_id">
+                                    · <strong>Cliente:</strong> <span t-field="doc.partner_id.name"/>
+                                </t>
+                                <t t-if="doc.work_center_id">
+                                    · <strong>Centro:</strong> <span t-field="doc.work_center_id.name"/>
+                                </t>
+                            </p>
+                            <p style="font-size:11px;margin:0;">
+                                Estados:
+                                <t t-if="doc.include_planned"> Planificado </t>
+                                <t t-if="doc.include_confirmed"> · Confirmado </t>
+                                <t t-if="doc.include_validated"> · Validado </t>
+                            </p>
+                        </div>
+
+                        <t t-set="by_day" t-value="doc.get_rows_by_day()"/>
+                        <t t-foreach="sorted(by_day.keys())" t-as="day">
+                            <p style="margin:10px 0 2px;font-weight:bold;background:#eee;padding:3px 6px;">
+                                <t t-esc="day.strftime('%A %d/%m/%Y')"/>
+                            </p>
+                            <table class="table table-sm table-bordered" style="font-size:10px;width:100%;">
+                                <thead>
+                                    <tr style="background:#f5f5f5;">
+                                        <th>Estado</th>
+                                        <th>Cliente</th>
+                                        <th>Producto</th>
+                                        <th>Desc. técnica</th>
+                                        <th class="text-end">Qty</th>
+                                        <th>Centro</th>
+                                        <th>OV</th>
+                                        <th>Referencia</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="by_day[day]" t-as="row">
+                                        <td><t t-esc="row['status']"/></td>
+                                        <td><t t-esc="row['partner']"/></td>
+                                        <td><t t-esc="row['product']"/></td>
+                                        <td><t t-esc="row['tech']"/></td>
+                                        <td class="text-end"><t t-esc="row['qty']"/></td>
+                                        <td><t t-esc="row['center']"/></td>
+                                        <td><t t-esc="row['sale']"/></td>
+                                        <td><t t-esc="row['ref']"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ========== Preview planificación masiva (wizard) ========== -->
+    <record id="action_report_kc_mass_plan_preview" model="ir.actions.report">
+        <field name="name">Preview planificación masiva</field>
+        <field name="model">kc.production.backlog.mass.plan.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kc_manual_production.report_kc_mass_plan_preview</field>
+        <field name="report_file">kc_manual_production.report_kc_mass_plan_preview</field>
+        <field name="print_report_name">'Preview Planificacion'</field>
+        <field name="paperformat_id" ref="paperformat_kc_plan_landscape"/>
+    </record>
+
+    <template id="report_kc_mass_plan_preview">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-3">
+                            <h2 style="margin:0;">PLANIFICACIÓN MASIVA (PREVIEW)</h2>
+                            <p style="margin:4px 0;font-size:13px;">
+                                <strong>Línea:</strong>
+                                <span t-field="doc.production_line_id.name"/>
+                                · <strong>Centro:</strong>
+                                <span t-field="doc.work_center_id.name"/>
+                            </p>
+                            <p style="margin:0;font-size:12px;">
+                                <strong>Inicio:</strong>
+                                <span t-field="doc.date_planned_start"/>
+                                — <strong>Fin:</strong>
+                                <span t-field="doc.date_planned_end"/>
+                            </p>
+                            <p style="margin:4px 0;font-size:11px;color:#666;">
+                                Documento de preview — los bloques aún no están creados.
+                            </p>
+                        </div>
+                        <table class="table table-sm table-bordered" style="font-size:11px;width:100%;">
+                            <thead>
+                                <tr style="background:#f5f5f5;">
+                                    <th>OV</th>
+                                    <th>Cliente</th>
+                                    <th>Producto</th>
+                                    <th>Descripción técnica</th>
+                                    <th class="text-end">Qty OV</th>
+                                    <th class="text-end">A planificar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc._kc_valid_lines()" t-as="line">
+                                    <tr>
+                                        <td><span t-field="line.sale_order_id.name"/></td>
+                                        <td><span t-field="line.partner_id.name"/></td>
+                                        <td><span t-field="line.product_id.display_name"/></td>
+                                        <td><span t-esc="line.technical_description or ''"/></td>
+                                        <td class="text-end"><span t-field="line.ov_qty"/></td>
+                                        <td class="text-end"><span t-field="line.pending_qty"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <div class="row mt-4 pt-3" style="font-size:11px;">
+                            <div class="col-4 text-center">
+                                <div style="border-top:1px solid #000;margin:0 12px;"/>
+                                <p class="mt-1 mb-0">Planificación</p>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div style="border-top:1px solid #000;margin:0 12px;"/>
+                                <p class="mt-1 mb-0">Producción</p>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div style="border-top:1px solid #000;margin:0 12px;"/>
+                                <p class="mt-1 mb-0">Recibido</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ========== Imprimir selección de planes (Gantt/lista) ========== -->
+    <record id="action_report_kc_plan_selection" model="ir.actions.report">
+        <field name="name">Imprimir planificación</field>
+        <field name="model">kc.production.plan.line</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kc_manual_production.report_kc_plan_selection</field>
+        <field name="report_file">kc_manual_production.report_kc_plan_selection</field>
+        <field name="print_report_name">'Planificacion seleccion'</field>
+        <field name="paperformat_id" ref="paperformat_kc_plan_landscape"/>
+        <field name="binding_model_id" ref="model_kc_production_plan_line"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_kc_plan_selection">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="text-center mb-3">
+                        <h2 style="margin:0;">PLANIFICACIÓN DE PRODUCCIÓN</h2>
+                        <p style="margin:4px 0;font-size:12px;">
+                            Selección de <t t-esc="len(docs)"/> bloque(s)
+                        </p>
+                    </div>
+                    <table class="table table-sm table-bordered" style="font-size:11px;width:100%;">
+                        <thead>
+                            <tr style="background:#f5f5f5;">
+                                <th>Ref.</th>
+                                <th>Centro</th>
+                                <th>OV</th>
+                                <th>Cliente</th>
+                                <th>Producto</th>
+                                <th>Descripción técnica</th>
+                                <th class="text-end">Qty</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs" t-as="line">
+                                <td><span t-field="line.name"/></td>
+                                <td><span t-field="line.work_center_id.name"/></td>
+                                <td>
+                                    <span t-if="line.sale_order_id" t-field="line.sale_order_id.name"/>
+                                </td>
+                                <td>
+                                    <span t-if="line.partner_id" t-field="line.partner_id.name"/>
+                                </td>
+                                <td><span t-field="line.product_id.display_name"/></td>
+                                <td>
+                                    <span t-esc="line.technical_description or line.sol_technical_description or ''"/>
+                                </td>
+                                <td class="text-end"><span t-field="line.planned_qty"/></td>
+                                <td><span t-field="line.date_planned_start"/></td>
+                                <td><span t-field="line.date_planned_end"/></td>
+                                <td><span t-field="line.state"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="row mt-4 pt-3" style="font-size:11px;">
+                        <div class="col-4 text-center">
+                            <div style="border-top:1px solid #000;margin:0 12px;"/>
+                            <p class="mt-1 mb-0">Planificación</p>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div style="border-top:1px solid #000;margin:0 12px;"/>
+                            <p class="mt-1 mb-0">Producción</p>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div style="border-top:1px solid #000;margin:0 12px;"/>
+                            <p class="mt-1 mb-0">Recibido</p>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

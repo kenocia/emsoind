@@ -1,0 +1,828 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_fiscal_dashboard_form" model="ir.ui.view">
+        <field name="name">kc_fiscal_hn.dashboard.form</field>
+        <field name="model">kc_fiscal_hn.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard Fiscal SAR Honduras"
+                  class="o_fiscal_dashboard_form"
+                  create="0"
+                  delete="0"
+                  duplicate="0">
+                <sheet class="o_fiscal_dashboard_sheet">
+
+                    <!-- Barra superior: título + filtros rápidos -->
+                    <div class="o_fiscal_dash_header row align-items-start mb-3 g-2">
+                        <div class="col-lg-5">
+                            <h2 class="mb-1 fw-bold">
+                                <i class="fa fa-bar-chart me-2 text-primary"/>
+                                Dashboard Fiscal SAR
+                            </h2>
+                            <div class="small">
+                                <field name="data_source"
+                                       nolabel="1"
+                                      
+                                       widget="badge"
+                         readonly="1"/>
+                                <span
+                                      class="text-success ms-2"
+                         invisible="not periodo_declarado">
+                                    Declarado por
+                                    <field name="declarado_por" nolabel="1"
+                         readonly="1"/>
+                                    el
+                                    <field name="fecha_declaracion" nolabel="1"
+                         readonly="1"/>
+                                </span>
+                                <span
+                                      class="text-warning ms-2"
+                         invisible="bool(periodo_declarado)">
+                                    Período en tiempo real
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="o_fiscal_filter_bar row g-2 justify-content-lg-end align-items-end">
+                                <div class="col-auto">
+                                    <span class="o_form_label fw-bold small d-block">Desde</span>
+                                    <field name="date_from" nolabel="1"/>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="o_form_label fw-bold small d-block">Hasta</span>
+                                    <field name="date_to" nolabel="1"/>
+                                </div>
+                                <div class="col-auto" groups="base.group_multi_company">
+                                    <span class="o_form_label fw-bold small d-block">Empresa</span>
+                                    <field name="company_id" nolabel="1"/>
+                                </div>
+                                <div class="col-auto">
+                                    <button name="action_compute_dashboard"
+                                            type="object"
+                                            string="Calcular KPIs"
+                                            class="btn btn-primary"
+                                            icon="fa-refresh"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secuencias fiscales (multi-selección) -->
+                    <div class="card o_fiscal_card mb-3">
+                        <div class="card-body py-2">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-lg-7">
+                                    <span class="o_form_label fw-bold small d-block mb-1">
+                                        Secuencias fiscales
+                                        <span class="text-muted fw-normal">
+                                            (ventas, compras, puntos de impresión)
+                                        </span>
+                                    </span>
+                                    <field name="fiscal_sequence_ids"
+                                           nolabel="1"
+                                           widget="many2many_tags"
+                                          
+                                           placeholder="Seleccione secuencias..."
+                                           options="{'no_create': True}"
+                         readonly="bool(all_sequences)"/>
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-lg-end mt-2 mt-lg-0">
+                                        <field name="all_sequences" nolabel="1"/>
+                                        <span class="mb-0 small fw-bold">
+                                            Todas las secuencias
+                                        </span>
+                                        <button name="action_select_all_sequences"
+                                                type="object"
+                                                string="Seleccionar todas"
+                                                class="btn btn-sm btn-outline-primary"
+                                                icon="fa-check-square-o"/>
+                                        <button name="action_clear_sequence_filter"
+                                                type="object"
+                                                string="Limpiar"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                icon="fa-times"/>
+                                    </div>
+                                    <div class="small text-muted text-lg-end mt-1">
+                                        <field name="secuencias_seleccionadas" nolabel="1"/>
+                                        secuencia(s) en alcance
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Banner tipo contribuyente + alerta DMC -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <field name="tipo_contribuyente"
+                         invisible="1"/>
+                            <field name="obligado_dmc"
+                         invisible="1"/>
+                            <field name="es_agente_retencion"
+                         invisible="1"/>
+                            <field name="libro_mes_generado"
+                         invisible="1"/>
+                            <field name="libro_mes_declarado"
+                         invisible="1"/>
+                            <div class="alert alert-success d-flex align-items-center py-2"
+                         invisible="tipo_contribuyente != 'pequeno'">
+                                <i class="fa fa-check-circle me-2" title="Pequeño contribuyente"/>
+                                <span>
+                                    <strong>Pequeño Contribuyente</strong>
+                                    — Control básico activo.
+                                    No obligado a presentar DMC.
+                                </span>
+                            </div>
+                            <div class="alert alert-danger d-flex align-items-center py-2"
+                         invisible="(not obligado_dmc or bool(libro_mes_declarado))">
+                                <i class="fa fa-exclamation-triangle me-2" title="DMC pendiente"/>
+                                <span>
+                                    <strong>DMC pendiente de declarar</strong>
+                                    — Debe presentar la DMC en los primeros
+                                    8 días hábiles del mes siguiente.
+                                    <button name="action_view_libro_compras"
+                                            type="object"
+                                            string="Ver Libro de Compras"
+                                            class="btn btn-sm btn-danger ms-2"/>
+                                </span>
+                            </div>
+                            <div class="alert alert-warning d-flex align-items-center py-2"
+                         invisible="not es_agente_retencion">
+                                <i class="fa fa-lock me-2" title="Agente retención"/>
+                                <span>
+                                    <strong>Agente de Retención ISV 15%</strong>
+                                    — Retenga el 15% ISV en transporte,
+                                    alquiler y maquinaria.
+                                </span>
+                            </div>
+                            <div class="alert alert-success d-flex align-items-center py-2"
+                         invisible="not libro_mes_declarado">
+                                <i class="fa fa-check-circle me-2" title="DMC declarada"/>
+                                <span>
+                                    <strong>DMC del período declarada</strong>
+                                    — El libro de compras fue enviado al SAR.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado consistencia SAR del período -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <field name="estado_consistencia_periodo"
+                         invisible="1"/>
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body py-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">
+                                            Estado SAR del período:
+                                        </span>
+                                        <field name="estado_consistencia_periodo"
+                                               widget="badge"
+                                               nolabel="1"
+                                              
+                                               decoration-success="estado_consistencia_periodo == 'ok'"
+                                               decoration-warning="estado_consistencia_periodo in ('pendiente', 'sin_libros')"
+                                               decoration-danger="estado_consistencia_periodo == 'diferencia'"
+                         readonly="1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPIs principales -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card o_fiscal_kpi o_fiscal_kpi-danger h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="o_fiscal_kpi_label mb-1">ISV NETO A PAGAR</p>
+                                            <h3 class="o_fiscal_kpi_value text-danger mb-0">
+                                                <field name="isv_neto_pagar"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </h3>
+                                            <p class="text-muted small mt-2 mb-0">
+                                                Débito Fiscal − Crédito Fiscal
+                                            </p>
+                                        </div>
+                                        <i class="fa fa-money fa-2x o_fiscal_kpi_icon text-danger"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card o_fiscal_kpi o_fiscal_kpi-warning h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="o_fiscal_kpi_label mb-1">ISV VENTAS (DÉBITO)</p>
+                                            <h3 class="o_fiscal_kpi_value text-warning mb-0">
+                                                <field name="isv_ventas"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </h3>
+                                            <p class="text-muted small mt-2 mb-0">
+                                                15%:
+                                                <field name="isv_ventas_15"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                                | 18%:
+                                                <field name="isv_ventas_18"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </p>
+                                        </div>
+                                        <i class="fa fa-arrow-up fa-2x o_fiscal_kpi_icon text-warning"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card o_fiscal_kpi o_fiscal_kpi-info h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="o_fiscal_kpi_label mb-1">ISV COMPRAS (CRÉDITO)</p>
+                                            <h3 class="o_fiscal_kpi_value text-info mb-0">
+                                                <field name="isv_compras"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </h3>
+                                            <p class="text-muted small mt-2 mb-0">
+                                                Crédito fiscal deducible
+                                            </p>
+                                        </div>
+                                        <i class="fa fa-arrow-down fa-2x o_fiscal_kpi_icon text-info"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card o_fiscal_kpi o_fiscal_kpi-secondary h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="o_fiscal_kpi_label mb-1">RETENCIONES</p>
+                                            <h3 class="o_fiscal_kpi_value mb-0">
+                                                <field name="retenciones_aplicadas"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </h3>
+                                            <p class="text-muted small mt-2 mb-0">
+                                                <field name="comprobantes_retencion" nolabel="1"/>
+                                                comprobantes
+                                            </p>
+                                        </div>
+                                        <i class="fa fa-lock fa-2x o_fiscal_kpi_icon"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ventas + Dona -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-lg-8">
+                            <div class="card o_fiscal_card h-100">
+                                <div class="card-header o_fiscal_header-success">
+                                    <h6 class="mb-0">
+                                        <i class="fa fa-line-chart me-1"/>
+                                        Ventas del Período
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3 text-center">
+                                        <div class="col-4 border-end">
+                                            <div class="text-muted small">Total Facturado</div>
+                                            <div class="fs-4 fw-bold text-success">
+                                                <field name="total_ventas"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 border-end">
+                                            <div class="text-muted small">N° Facturas</div>
+                                            <div class="fs-2 fw-bold">
+                                                <field name="total_facturas_ventas" nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-muted small">Ticket Promedio</div>
+                                            <div class="fs-4 fw-bold">
+                                                <field name="ticket_promedio"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 border-end">
+                                            <div class="text-muted small">Clientes Únicos</div>
+                                            <div class="fs-3 fw-bold text-primary">
+                                                <field name="clientes_unicos" nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 border-end">
+                                            <div class="text-muted small">Exentas</div>
+                                            <div class="fs-5">
+                                                <field name="ventas_exentas"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-muted small">Exoneradas</div>
+                                            <div class="fs-5">
+                                                <field name="ventas_exoneradas"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card o_fiscal_card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Distribución ISV</h6>
+                                </div>
+                                <div class="card-body p-1">
+                                    <field name="dona_isv_html"
+                                           widget="html"
+                                           nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumen bases imponibles -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <div class="card o_fiscal_card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Resumen Bases Imponibles del Período</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3 text-center">
+                                        <div class="col-lg-2 col-md-4">
+                                            <div class="text-muted small">Gravado Ventas</div>
+                                            <div class="fw-bold text-success">
+                                                <field name="base_gravada_ventas"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-4">
+                                            <div class="text-muted small">Exento Ventas</div>
+                                            <div class="fw-bold">
+                                                <field name="base_exenta_ventas"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-4">
+                                            <div class="text-muted small">Exonerado Ventas</div>
+                                            <div class="fw-bold text-info">
+                                                <field name="base_exonerada_ventas"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-4">
+                                            <div class="text-muted small">Facturado Bruto</div>
+                                            <div class="fw-bold text-primary fs-5">
+                                                <field name="total_facturado_bruto"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-4">
+                                            <div class="text-muted small">Gravado Compras</div>
+                                            <div class="fw-bold text-primary">
+                                                <field name="base_gravada_compras"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-4">
+                                            <div class="text-muted small">Exento / Exonerado Compras</div>
+                                            <div class="small">
+                                                <field name="base_exenta_compras"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                                /
+                                                <field name="base_exonerada_compras"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Control Zona Libre (ZOLI): límite ventas locales -->
+                    <div class="row g-3 mb-3" invisible="not es_zoli">
+                        <div class="col-12">
+                            <div class="card o_fiscal_card">
+                                <div class="card-header">
+                                    <h6 class="mb-0 fw-bold">
+                                        Zona Libre (ZOLI) — Límite de Ventas Locales
+                                    </h6>
+                                    <small class="text-muted">
+                                        Acumulado anual de nacionalizaciones vs total
+                                    </small>
+                                </div>
+                                <div class="card-body">
+                                    <field name="es_zoli" invisible="1"/>
+                                    <field name="zoli_limite_html"
+                                           widget="html"
+                                           nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Desglose dinámico por impuesto -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <div class="card o_fiscal_card">
+                                <div class="card-header">
+                                    <h6 class="mb-0 fw-bold">
+                                        Desglose por Tipo de Impuesto —
+                                        Bases Gravadas, Exentas y Exoneradas
+                                    </h6>
+                                    <small class="text-muted">
+                                        Calculado dinámicamente según los impuestos
+                                        configurados en el sistema
+                                    </small>
+                                </div>
+                                <div class="card-body">
+                                    <field name="impuestos_detalle_html"
+                                           widget="html"
+                                           nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Desglose de retenciones por tipo -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <div class="card o_fiscal_card">
+                                <div class="card-header d-flex align-items-center">
+                                    <h6 class="mb-0 fw-bold">
+                                        <i class="fa fa-lock me-1"/>
+                                        Retenciones por Tipo
+                                    </h6>
+                                    <span class="ms-auto small text-muted">
+                                        Total retenido:
+                                        <field name="retenciones_aplicadas"
+                                               widget="monetary"
+                                               nolabel="1"
+                                               class="fw-bold text-danger d-inline"/>
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <field name="retenciones_detalle_html"
+                                           widget="html"
+                                           nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Compras + Documentos -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-lg-4">
+                            <div class="card o_fiscal_card h-100">
+                                <div class="card-header o_fiscal_header-primary">
+                                    <h6 class="mb-0">Compras del Período</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div class="row g-2">
+                                        <div class="col-6 border-end">
+                                            <div class="text-muted small">Total Compras</div>
+                                            <div class="fs-5 fw-bold text-primary">
+                                                <field name="total_compras"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-muted small">N° Facturas</div>
+                                            <div class="fs-3 fw-bold">
+                                                <field name="total_facturas_compras" nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mt-2 pt-2 border-top">
+                                            <div class="text-muted small">ISV Crédito Fiscal</div>
+                                            <div class="fs-5 fw-bold text-info">
+                                                <field name="isv_compras"
+                                                       widget="monetary"
+                                                       nolabel="1"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="card o_fiscal_card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Documentos Fiscales</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2 text-center">
+                                        <div class="col-4 col-md-2">
+                                            <div class="o_fiscal_doc_card border-warning">
+                                                <div class="small fw-bold text-warning">Notas Crédito</div>
+                                                <div class="fs-3"><field name="notas_credito" nolabel="1"/></div>
+                                                <div class="text-muted" style="font-size:10px">
+                                                    <field name="monto_notas_credito"
+                                                           widget="monetary"
+                                                           nolabel="1"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 col-md-2">
+                                            <div class="o_fiscal_doc_card border-info">
+                                                <div class="small fw-bold text-info">Notas Débito</div>
+                                                <div class="fs-3"><field name="notas_debito" nolabel="1"/></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 col-md-2">
+                                            <div class="o_fiscal_doc_card border-danger">
+                                                <div class="small fw-bold text-danger">Anuladas</div>
+                                                <div class="fs-3 text-danger">
+                                                    <field name="facturas_anuladas" nolabel="1"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 col-md-2">
+                                            <div class="o_fiscal_doc_card border-secondary">
+                                                <div class="small fw-bold">Guías Rem.</div>
+                                                <div class="fs-3"><field name="guias_remision" nolabel="1"/></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 col-md-2">
+                                            <div class="o_fiscal_doc_card">
+                                                <div class="small fw-bold">Ret. ISV</div>
+                                                <div class="fs-3">
+                                                    <field name="comprobantes_retencion" nolabel="1"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 col-md-2">
+                                            <div class="o_fiscal_doc_card border-danger bg-danger-subtle">
+                                                <div class="small fw-bold text-danger">Sin RTN</div>
+                                                <div class="fs-3 text-danger">
+                                                    <field name="facturas_sin_rtn" nolabel="1"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumen agregado + detalle por secuencia -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <div class="card o_fiscal_card">
+                                <div class="card-header o_fiscal_header-dark">
+                                    <h6 class="mb-0">
+                                        <i class="fa fa-hashtag me-1"/>
+                                        Estado Secuencias Fiscales SAR
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3 text-center mb-3">
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-muted small">Correlativos Usados</div>
+                                            <div class="fs-2 fw-bold">
+                                                <field name="correlativos_usados" nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-muted small">Disponibles</div>
+                                            <div class="fs-2 fw-bold text-success">
+                                                <field name="correlativos_disponibles" nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-muted small">% Uso Promedio</div>
+                                            <div class="fs-2 fw-bold text-warning">
+                                                <field name="porcentaje_uso_secuencia" nolabel="1"/>%
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-muted small">Días CAI (mínimo)</div>
+                                            <div class="fs-2 fw-bold text-danger">
+                                                <field name="dias_vencimiento_cai" nolabel="1"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <field name="secuencias_status_html"
+                                           widget="html"
+                                           nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <div class="card o_fiscal_card">
+                                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <h6 class="mb-0">
+                                        Historial Declaraciones SAR — Últimos 12 Meses
+                                    </h6>
+                                    <div>
+                                        <button name="action_view_libro_ventas"
+                                                type="object"
+                                                string="Libro Ventas"
+                                                class="btn btn-sm btn-outline-success me-1"/>
+                                        <button name="action_view_libro_compras"
+                                                type="object"
+                                                string="DMC Compras"
+                                                class="btn btn-sm btn-outline-primary me-1"/>
+                                        <button name="action_view_alertas"
+                                                type="object"
+                                                string="Alertas"
+                                                class="btn btn-sm btn-outline-warning"/>
+                                    </div>
+                                </div>
+                                <div class="card-body p-2">
+                                    <field name="timeline_chart_html"
+                                           widget="html"
+                                           nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contactos RTN -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <div class="card o_fiscal_card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fa fa-users me-1"/>
+                                        Contactos — RTN por origen
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3 text-center">
+
+                                        <!-- Total general -->
+                                        <div class="col-lg-3 col-md-6">
+                                            <div class="o_fiscal_doc_card border-primary h-100">
+                                                <div class="fw-bold text-primary mb-1">TOTAL</div>
+                                                <div class="fs-1 fw-bold text-primary">
+                                                    <field name="contactos_total" nolabel="1"/>
+                                                </div>
+                                                <div class="text-muted small">
+                                                    Contactos activos (todos)
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Honduras -->
+                                        <div class="col-lg-3 col-md-6">
+                                            <div class="o_fiscal_doc_card border-success h-100">
+                                                <div class="fw-bold text-success mb-1">
+                                                    Honduras
+                                                    (<field name="contactos_hn_total" nolabel="1"/>)
+                                                </div>
+                                                <div class="row g-1 small">
+                                                    <div class="col-6 border-end">
+                                                        <div class="text-muted">Con RTN Emp.</div>
+                                                        <div class="fs-5 fw-bold text-success">
+                                                            <field name="contactos_hn_con_empresa" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-muted">Con RTN Nat.</div>
+                                                        <div class="fs-5 fw-bold text-success">
+                                                            <field name="contactos_hn_con_natural" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 border-end mt-1">
+                                                        <div class="text-muted">Sin RTN Emp.</div>
+                                                        <div class="fs-5 fw-bold text-danger">
+                                                            <field name="contactos_hn_sin_empresa" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 mt-1">
+                                                        <div class="text-muted">Sin RTN Nat.</div>
+                                                        <div class="fs-5 fw-bold text-danger">
+                                                            <field name="contactos_hn_sin_natural" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Extranjero -->
+                                        <div class="col-lg-3 col-md-6">
+                                            <div class="o_fiscal_doc_card border-info h-100">
+                                                <div class="fw-bold text-info mb-1">
+                                                    Extranjero
+                                                    (<field name="contactos_ext_total" nolabel="1"/>)
+                                                </div>
+                                                <div class="row g-1 small">
+                                                    <div class="col-6 border-end">
+                                                        <div class="text-muted">Con RTN Emp.</div>
+                                                        <div class="fs-5 fw-bold">
+                                                            <field name="contactos_ext_con_empresa" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-muted">Con RTN Nat.</div>
+                                                        <div class="fs-5 fw-bold">
+                                                            <field name="contactos_ext_con_natural" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 border-end mt-1">
+                                                        <div class="text-muted">Sin RTN Emp.</div>
+                                                        <div class="fs-5 fw-bold text-warning">
+                                                            <field name="contactos_ext_sin_empresa" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 mt-1">
+                                                        <div class="text-muted">Sin RTN Nat.</div>
+                                                        <div class="fs-5 fw-bold text-warning">
+                                                            <field name="contactos_ext_sin_natural" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Sin país -->
+                                        <div class="col-lg-3 col-md-6">
+                                            <div class="o_fiscal_doc_card border-secondary h-100">
+                                                <div class="fw-bold mb-1">
+                                                    Sin país
+                                                    (<field name="contactos_sp_total" nolabel="1"/>)
+                                                </div>
+                                                <div class="row g-1 small">
+                                                    <div class="col-6 border-end">
+                                                        <div class="text-muted">Con RTN Emp.</div>
+                                                        <div class="fs-5 fw-bold">
+                                                            <field name="contactos_sp_con_empresa" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-muted">Con RTN Nat.</div>
+                                                        <div class="fs-5 fw-bold">
+                                                            <field name="contactos_sp_con_natural" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 border-end mt-1">
+                                                        <div class="text-muted">Sin RTN Emp.</div>
+                                                        <div class="fs-5 fw-bold text-muted">
+                                                            <field name="contactos_sp_sin_empresa" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 mt-1">
+                                                        <div class="text-muted">Sin RTN Nat.</div>
+                                                        <div class="fs-5 fw-bold text-muted">
+                                                            <field name="contactos_sp_sin_natural" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <field name="currency_id"
+                         invisible="1"/>
+                    <field name="periodo_declarado"
+                         invisible="1"/>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fiscal_dashboard" model="ir.actions.server">
+        <field name="name">Dashboard Fiscal Honduras</field>
+        <field name="model_id" ref="model_kc_fiscal_hn_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_dashboard()</field>
+    </record>
+
+</odoo>

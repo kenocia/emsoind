@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_form_emsoind_partner_domain" model="ir.ui.view">
+        <field name="name">sale.order.form.emsoind.partner.domain</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id'][@widget='res_partner_many2one']" position="attributes">
+                <attribute name="domain">[('emsoind_use_in_sales', '=', True)]</attribute>
+            </xpath>
+            <xpath expr="//field[@name='client_order_ref']" position="attributes">
+                <attribute name="required">state in ('draft', 'sent') and not emsoind_validated</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Encabezado OV: campos comerciales visibles sin abrir Otra información -->
+    <record id="view_order_form_emsoind_header" model="ir.ui.view">
+        <field name="name">sale.order.form.emsoind.header</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority" eval="600"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                <xpath expr="//field[@name='team_id']" position="move"/>
+                <xpath expr="//field[@name='tag_ids']" position="move"/>
+            </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <xpath expr="//field[@name='project_id']" position="move"/>
+                <xpath expr="//field[@name='client_order_ref']" position="move"/>
+                <xpath expr="//field[@name='user_id']" position="move"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_form_emsoind_header_delivery" model="ir.ui.view">
+        <field name="name">sale.order.form.emsoind.header.delivery</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority" eval="610"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='order_details']//field[@name='user_id']" position="after">
+                <xpath expr="//label[@for='commitment_date']" position="move"/>
+                <xpath expr="//group[@name='sale_shipping']//field[@name='commitment_date']/.." position="move"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_form_emsoind_production_report" model="ir.ui.view">
+        <field name="name">sale.order.form.emsoind.production.report</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority" eval="620"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="%(emsoind_sale.action_report_sale_production_order)d" type="action"
+                        string="Orden de Producción"
+                        class="btn-secondary"
+                        invisible="state not in ('sale', 'done')"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Validado: botones, bloqueo de detalle y confirmación solo gerente -->
+    <record id="view_order_form_emsoind_validation" model="ir.ui.view">
+        <field name="name">sale.order.form.emsoind.validation</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority" eval="630"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="emsoind_validated" invisible="1"/>
+                <field name="emsoind_can_confirm" invisible="1"/>
+                <button name="action_emsoind_validate"
+                        type="object"
+                        string="Validar"
+                        class="btn-primary"
+                        invisible="emsoind_validated or state not in ('draft', 'sent')"
+                        groups="sales_team.group_sale_salesman"/>
+                <button name="action_emsoind_unvalidate"
+                        type="object"
+                        string="Devolver"
+                        invisible="not emsoind_validated or state not in ('draft', 'sent')"
+                        groups="sales_team.group_sale_salesman"/>
+            </xpath>
+            <xpath expr="//button[@id='action_confirm']" position="attributes">
+                <attribute name="invisible">state != 'sent' or not emsoind_validated or not emsoind_can_confirm</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_confirm'][not(@id)]" position="attributes">
+                <attribute name="invisible">state != 'draft' or not emsoind_validated or not emsoind_can_confirm</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']" position="attributes">
+                <attribute name="readonly">state == 'cancel' or locked or emsoind_validated</attribute>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="before">
+                <widget name="web_ribbon" title="Validado"
+                        bg_color="text-bg-success"
+                        invisible="not emsoind_validated or state in ('sale', 'cancel')"/>
+            </xpath>
+            <xpath expr="//page[@name='other_information']//group[@name='sales_person']" position="after">
+                <group string="Validación EMSOIND" name="emsoind_validation_info"
+                       invisible="not emsoind_validated">
+                    <field name="emsoind_validated_by" readonly="1"/>
+                    <field name="emsoind_validated_date" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_sales_order_filter_emsoind_validated" model="ir.ui.view">
+        <field name="name">sale.order.search.emsoind.validated</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                <separator/>
+                <filter string="Validadas pendientes"
+                        name="emsoind_validated_pending"
+                        domain="[('emsoind_validated', '=', True), ('state', 'in', ('draft', 'sent'))]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Lista dedicada: validadas pendientes de confirmar -->
+    <record id="view_quotation_tree_emsoind_pending_confirm" model="ir.ui.view">
+        <field name="name">sale.order.list.emsoind.pending.confirm</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="mode">primary</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="string">Pendientes de confirmar</attribute>
+                <attribute name="create">0</attribute>
+            </list>
+            <field name="user_id" position="after">
+                <field name="emsoind_validated_by" string="Validado por" optional="show"/>
+                <field name="emsoind_validated_date" string="Fecha validación" optional="show"/>
+                <field name="team_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="action_emsoind_orders_pending_confirm" model="ir.actions.act_window">
+        <field name="name">Pendientes de confirmar</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('emsoind_validated', '=', True), ('state', 'in', ('draft', 'sent'))]</field>
+        <field name="context">{'create': False, 'search_default_emsoind_validated_pending': 1}</field>
+        <field name="search_view_id" ref="sale.view_sales_order_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay cotizaciones validadas pendientes de confirmar.
+            </p>
+            <p>
+                Aquí aparecen solo las cotizaciones que el vendedor ya validó
+                y esperan confirmación del líder del equipo.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_emsoind_orders_pending_confirm_view_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_quotation_tree_emsoind_pending_confirm"/>
+        <field name="act_window_id" ref="action_emsoind_orders_pending_confirm"/>
+    </record>
+
+    <record id="action_emsoind_orders_pending_confirm_view_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="sale.view_order_form"/>
+        <field name="act_window_id" ref="action_emsoind_orders_pending_confirm"/>
+    </record>
+
+    <menuitem id="menu_emsoind_orders_pending_confirm"
+              name="Pendientes de confirmar"
+              parent="sale.sale_order_menu"
+              action="action_emsoind_orders_pending_confirm"
+              groups="sales_team.group_sale_salesman"
+              sequence="22"/>
+
+</odoo>

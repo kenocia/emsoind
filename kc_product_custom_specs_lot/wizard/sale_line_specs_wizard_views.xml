@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kc_sale_line_specs_wizard_form" model="ir.ui.view">
+        <field name="name">kc.sale.line.specs.wizard.form</field>
+        <field name="model">kc.sale.line.specs.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Configurar producto">
+                <field name="sale_order_id" invisible="1"/>
+                <field name="sale_order_line_id" invisible="1"/>
+                <field name="order_locked" invisible="1"/>
+                <field name="compatible_qty_total" invisible="1"/>
+
+                <div class="alert alert-warning mb-3" role="alert"
+                     invisible="not order_locked">
+                    <i class="fa fa-lock" title="Bloqueado"/>
+                    El pedido ya está <strong>confirmado</strong>. Esta ventana es de
+                    solo lectura y no se pueden modificar las especificaciones.
+                </div>
+
+                <div class="alert alert-primary mb-3 py-3" role="status">
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                            <span class="text-muted d-block mb-1">Producto</span>
+                            <field name="product_id" readonly="1" nolabel="1" class="fw-bold fs-5"/>
+                        </div>
+                        <div class="col-4">
+                            <span class="text-muted d-block mb-1">Cantidad a cotizar</span>
+                            <field name="product_uom_qty" nolabel="1" class="fw-bold"
+                                   readonly="order_locked"/>
+                        </div>
+                    </div>
+                </div>
+
+                <separator string="Elija las características"/>
+                <p class="text-muted mb-2">
+                    Indique los valores que pide el cliente. Los campos con asterisco son obligatorios.
+                    El lote se asignará en producción o al despachar.
+                </p>
+                <field name="technical_value_ids" nolabel="1" readonly="order_locked">
+                    <list editable="bottom" create="false" delete="false"
+                          default_order="sequence">
+                        <field name="sequence" column_invisible="1"/>
+                        <field name="display_type" column_invisible="1"/>
+                        <field name="required" column_invisible="1"/>
+                        <field name="allowed_value_ids" column_invisible="1"/>
+                        <field name="attribute_id" column_invisible="1"/>
+                        <field name="attribute_name" readonly="1" string="Característica"/>
+                        <field name="value_id" string="Valor"
+                               invisible="display_type not in ('selection', 'radio')"
+                               required="required and display_type in ('selection', 'radio')"
+                               domain="[('id', 'in', allowed_value_ids)]"
+                               placeholder="Seleccione..."
+                               options="{'no_create': True, 'no_open': True}"/>
+                        <field name="value_number" string="Valor"
+                               invisible="display_type != 'numeric'"
+                               required="required and display_type == 'numeric'"/>
+                        <field name="uom_id" string="UdM"
+                               invisible="display_type != 'numeric'"
+                               readonly="1" optional="hide"/>
+                        <field name="value_text" string="Valor"
+                               invisible="display_type != 'text'"
+                               required="required and display_type == 'text'"
+                               placeholder="Escriba el valor..."/>
+                    </list>
+                </field>
+
+                <div class="alert alert-secondary py-2 mb-3" role="status"
+                     invisible="not technical_description">
+                    <span class="text-muted">Resumen: </span>
+                    <field name="technical_description" readonly="1" nolabel="1"/>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 mb-3"
+                     invisible="not technical_key">
+                    <button name="action_refresh_compatible_stock" type="object"
+                            string="Actualizar disponibilidad" class="btn-link px-0"
+                            icon="fa-refresh"/>
+                    <field name="stock_status_message" readonly="1" nolabel="1"
+                           class="text-muted mb-0"/>
+                </div>
+
+                <footer>
+                    <button name="action_apply" type="object"
+                            string="Confirmar y agregar a la cotización"
+                            class="btn-primary" data-hotkey="q"
+                            invisible="order_locked"/>
+                    <button string="Cerrar" special="cancel" class="btn-secondary"
+                            data-hotkey="x" invisible="not order_locked"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"
+                            data-hotkey="x" invisible="order_locked"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

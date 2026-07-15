@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="kc_work_center_view_list" model="ir.ui.view">
+        <field name="name">kc.work.center.list</field>
+        <field name="model">kc.work.center</field>
+        <field name="arch" type="xml">
+            <list string="Centros de Trabajo">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code" optional="show"/>
+                <field name="production_line_id"/>
+                <field name="center_type"/>
+                <field name="state" widget="badge"
+                        decoration-success="state == 'active'"
+                        decoration-warning="state == 'maintenance'"
+                        decoration-muted="state == 'inactive'"/>
+                <field name="capacity_qty" optional="show"/>
+                <field name="efficiency_pct" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="kc_work_center_view_form" model="ir.ui.view">
+        <field name="name">kc.work.center.form</field>
+        <field name="model">kc.work.center</field>
+        <field name="arch" type="xml">
+            <form string="Centro de Trabajo">
+                <sheet>
+                    <widget name="web_ribbon" title="Archivado"
+                            bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="production_line_id" options="{'no_create': True}"/>
+                            <field name="center_type"/>
+                            <field name="state"/>
+                        </group>
+                        <group>
+                            <field name="resource_calendar_id"/>
+                            <field name="capacity_qty"/>
+                            <field name="capacity_time_uom"/>
+                            <field name="efficiency_pct"/>
+                            <field name="cost_hour"/>
+                            <field name="sequence"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="kc_work_center_view_search" model="ir.ui.view">
+        <field name="name">kc.work.center.search</field>
+        <field name="model">kc.work.center</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="production_line_id"/>
+                <filter name="filter_active_state" string="Activos"
+                        domain="[('state', '=', 'active')]"/>
+                <filter name="filter_maintenance" string="Mantenimiento"
+                        domain="[('state', '=', 'maintenance')]"/>
+                <group>
+                    <filter name="group_line" string="Línea de Producción"
+                            context="{'group_by': 'production_line_id'}"/>
+                    <filter name="group_state" string="Estado"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="kc_work_center_action" model="ir.actions.act_window">
+        <field name="name">Centros de Trabajo</field>
+        <field name="res_model">kc.work.center</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_line': 1}</field>
+    </record>
+
+</odoo>

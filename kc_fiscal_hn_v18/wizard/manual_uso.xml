@@ -1,0 +1,3057 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_manual_uso_fiscal_hn"
+            model="ir.ui.view">
+        <field name="name">kc_fiscal_hn.manual.uso.form</field>
+        <field name="model">kc_fiscal_hn.manual.uso</field>
+        <field name="arch" type="xml">
+            <form string="Manual de Uso Fiscal Honduras" class="o_manual_fiscal_hn_form">
+                <sheet>
+
+                <!-- HEADER DEL MANUAL -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card border-0"
+                             style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                            <div class="card-body text-white p-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <h1 class="mb-0 fw-bold">
+                                            🇭🇳 Fiscal HN
+                                        </h1>
+                                        <h5 class="mb-0 opacity-75">
+                                            Manual de Uso — Kenocia
+                                        </h5>
+                                    </div>
+                                    <div class="ms-auto text-end">
+                                        <small class="opacity-75">
+                                            Odoo 18 · Honduras<br/>
+                                            SAR · ISV · ISR · DMC
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SELECTOR DE PERFIL DE EMPRESA (compuerta) -->
+                <field name="tipo_confirmado" invisible="1"/>
+                <div class="row mb-3" invisible="tipo_confirmado">
+                    <div class="col-12">
+                        <div class="card border-primary">
+                            <div class="card-body py-3">
+                                <div class="text-center mb-3">
+                                    <h5 class="fw-bold mb-1">
+                                        Antes de empezar, indica tu tipo de empresa
+                                    </h5>
+                                    <small class="text-muted">
+                                        El manual y las configuraciones se
+                                        adaptarán a tu perfil. Confírmalo para
+                                        ver el contenido.
+                                    </small>
+                                </div>
+                                <div class="row align-items-center g-3">
+                                    <div class="col-lg-6">
+                                        <field name="perfil_empresa"
+                                               nolabel="1"
+                                               widget="radio"
+                                               options="{'horizontal': true}"/>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <field name="es_zoli_manual"
+                                                   nolabel="1"
+                                                   widget="boolean_toggle"/>
+                                            <span class="small fw-bold">
+                                                Empresa Zona Libre (ZOLI)
+                                            </span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <field name="solo_aplicables"
+                                                   nolabel="1"
+                                                   widget="boolean_toggle"/>
+                                            <span class="small text-muted">
+                                                Mostrar solo lo que aplica
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Vista previa del perfil -->
+                                <div class="mt-3">
+                                    <div class="alert alert-success py-2 mb-2 small"
+                                         invisible="perfil_empresa != 'pequeno'">
+                                        <strong>Pequeño Contribuyente:</strong>
+                                        no obligado a DMC · libro de compras
+                                        simplificado · ISV mensual básico ·
+                                        no es agente de retención ISV.
+                                    </div>
+                                    <div class="alert alert-warning py-2 mb-2 small"
+                                         invisible="perfil_empresa != 'mediano'">
+                                        <strong>Mediano Contribuyente:</strong>
+                                        obligado a <strong>DMC mensual</strong>
+                                        (primeros 8 días hábiles) · libro de
+                                        compras DMC completo.
+                                    </div>
+                                    <div class="alert alert-danger py-2 mb-2 small"
+                                         invisible="perfil_empresa != 'grande'">
+                                        <strong>Grande Contribuyente:</strong>
+                                        DMC mensual + <strong>agente de
+                                        retención ISV 15%</strong> · libro DMC
+                                        completo · control de retenciones.
+                                    </div>
+                                    <div class="alert alert-info py-2 mb-0 small"
+                                         invisible="not es_zoli_manual">
+                                        <strong>Zona Libre (ZOLI):</strong>
+                                        control de permanencia DUCA · cálculo
+                                        de nacionalización (DAI + ISV) · límite
+                                        del 50% de ventas locales.
+                                    </div>
+                                </div>
+
+                                <div class="text-center mt-3">
+                                    <button type="object"
+                                            name="action_confirmar_tipo"
+                                            string="Confirmar y ver el manual"
+                                            class="btn btn-primary px-4"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BARRA COMPACTA (perfil confirmado) -->
+                <div class="row mb-3" invisible="not tipo_confirmado">
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body py-2">
+                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                    <span class="text-muted small">Manual para:</span>
+                                    <span class="badge bg-success"
+                                          invisible="perfil_empresa != 'pequeno'">Pequeño Contribuyente</span>
+                                    <span class="badge bg-warning text-dark"
+                                          invisible="perfil_empresa != 'mediano'">Mediano Contribuyente</span>
+                                    <span class="badge bg-danger"
+                                          invisible="perfil_empresa != 'grande'">Grande Contribuyente</span>
+                                    <span class="badge bg-info"
+                                          invisible="not es_zoli_manual">Zona Libre (ZOLI)</span>
+                                    <div class="d-flex align-items-center gap-2 ms-3">
+                                        <field name="solo_aplicables"
+                                               nolabel="1"
+                                               widget="boolean_toggle"/>
+                                        <span class="small text-muted">
+                                            Mostrar solo lo que aplica
+                                        </span>
+                                    </div>
+                                    <button type="object"
+                                            name="action_cambiar_tipo"
+                                            string="Cambiar tipo de empresa"
+                                            class="btn btn-sm btn-outline-secondary ms-auto"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ░░ CONTENIDO DEL MANUAL (solo tras confirmar el tipo) ░░ -->
+                <div invisible="not tipo_confirmado">
+
+                <!-- NAVEGACIÓN POR SECCIONES (estilo menú) -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card shadow-sm">
+                            <div class="card-body p-0">
+                                <div class="o_manual_nav nav nav-pills flex-wrap p-2 gap-1">
+                                    <button type="object"
+                                            name="action_ir_bienvenida"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Inicio
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_configuracion"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Configuración
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_usuarios"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Usuarios y Contador
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_contactos"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Contactos
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_diarios"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Diarios
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_impuestos"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Impuestos
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_secuencias"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Secuencias CAI
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_productos"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Productos
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_importacion"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Importación
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_facturas_venta"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Facturas Venta
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_facturas_compra"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Facturas Compra
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_guias_remision"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Guías Remisión
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_retenciones"
+                                            class="btn btn-sm o_manual_nav_item"
+                                            invisible="solo_aplicables and perfil_empresa != 'grande'">
+                                        Retenciones
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_exoneracion"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Exoneración
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_consumidor_final"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Consumidor Final
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_zoli"
+                                            class="btn btn-sm o_manual_nav_item"
+                                            invisible="solo_aplicables and not es_zoli_manual">
+                                        Zona Libre (ZOLI)
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_libros_sar"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Libros SAR
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_dashboard"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Dashboard
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_informes"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Informes
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_cierre"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Cierre Mensual
+                                    </button>
+                                    <button type="object"
+                                            name="action_ir_implementador"
+                                            class="btn btn-sm o_manual_nav_item">
+                                        Implementador
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CAMPO OCULTO DE SECCIÓN -->
+                <field name="seccion_activa"
+                         invisible="1"/>
+                <field name="config_estado" invisible="1"/>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: BIENVENIDA
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'bienvenida'">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <h3 class="text-primary">
+                                🏠 Bienvenido al Módulo
+                                Fiscal Honduras
+                            </h3>
+                            <p class="text-muted">
+                                Este módulo implementa la
+                                tropicalización fiscal completa
+                                de Odoo 18 para Honduras según
+                                normativa del SAR.
+                            </p>
+                        </div>
+
+                        <!-- DIAGNÓSTICO DE CONFIGURACIÓN (en vivo) -->
+                        <div class="col-12">
+                            <div class="card shadow-sm border-2">
+                                <div class="card-header fw-bold d-flex align-items-center bg-body-tertiary">
+                                    🩺 Estado de configuración de tu empresa
+                                    <span class="badge bg-success ms-auto"
+                                          invisible="config_estado != 'ok'">
+                                        ✅ Completa
+                                    </span>
+                                    <span class="badge bg-warning text-dark ms-auto"
+                                          invisible="config_estado != 'warning'">
+                                        ⚠️ <field name="config_pendientes_count"
+                                                 nolabel="1" class="d-inline"/> por revisar
+                                    </span>
+                                    <span class="badge bg-danger ms-auto"
+                                          invisible="config_estado != 'error'">
+                                        ⛔ <field name="config_pendientes_count"
+                                                 nolabel="1" class="d-inline"/> pendiente(s)
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-success py-2 small mb-2"
+                                         invisible="config_estado != 'ok'">
+                                        ✅ Tu empresa está lista. Todas las
+                                        configuraciones obligatorias para la
+                                        reportería SAR están completas.
+                                    </div>
+                                    <div class="alert alert-warning py-2 small mb-2"
+                                         invisible="config_estado != 'warning'">
+                                        ⚠️ La empresa opera, pero hay
+                                        configuraciones recomendadas pendientes.
+                                        Revisa los puntos marcados abajo.
+                                    </div>
+                                    <div class="alert alert-danger py-2 small mb-2"
+                                         invisible="config_estado != 'error'">
+                                        ⛔ Faltan configuraciones
+                                        <strong>obligatorias</strong>. La
+                                        reportería puede no funcionar hasta
+                                        resolver los puntos en rojo.
+                                    </div>
+                                    <field name="config_diagnostico_html"
+                                           nolabel="1" readonly="1"/>
+                                    <div class="d-flex flex-wrap gap-2 mt-3">
+                                        <button type="object"
+                                                name="action_abrir_compania"
+                                                class="btn btn-sm btn-outline-primary">
+                                            🏢 Abrir Compañía
+                                        </button>
+                                        <button type="object"
+                                                name="action_ir_configuracion"
+                                                class="btn btn-sm btn-outline-secondary">
+                                            ⚙️ Ir a Configuración
+                                        </button>
+                                        <button type="object"
+                                                name="action_abrir_salud_fiscal"
+                                                class="btn btn-sm btn-outline-success">
+                                            🩺 Salud Fiscal
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cards de resumen -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card border-primary h-100">
+                                <div class="card-body text-center">
+                                    <div class="fs-1">🔢</div>
+                                    <h6 class="fw-bold text-primary">
+                                        Secuencias SAR
+                                    </h6>
+                                    <small class="text-muted">
+                                        CAI, rangos de numeración,
+                                        correlativos fiscales
+                                        automáticos
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card border-warning h-100">
+                                <div class="card-body text-center">
+                                    <div class="fs-1">💰</div>
+                                    <h6 class="fw-bold text-warning">
+                                        ISV Honduras
+                                    </h6>
+                                    <small class="text-muted">
+                                        ISV 15% y 18%,
+                                        exentos, exonerados,
+                                        crédito fiscal
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card border-danger h-100">
+                                <div class="card-body text-center">
+                                    <div class="fs-1">🔒</div>
+                                    <h6 class="fw-bold text-danger">
+                                        Retenciones ISR
+                                    </h6>
+                                    <small class="text-muted">
+                                        12.5% servicios,
+                                        1% bienes,
+                                        automático por constancia
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card border-success h-100">
+                                <div class="card-body text-center">
+                                    <div class="fs-1">📚</div>
+                                    <h6 class="fw-bold text-success">
+                                        Libros SAR
+                                    </h6>
+                                    <small class="text-muted">
+                                        Ventas, Compras (DMC),
+                                        Retenciones,
+                                        declaración al SAR
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Orden de configuración -->
+                        <div class="col-12 mt-3">
+                            <div class="card border-0 bg-body-tertiary">
+                                <div class="card-body">
+                                    <h5 class="fw-bold">
+                                        📋 Orden de Configuración
+                                        Recomendado
+                                    </h5>
+                                    <div class="row g-2 mt-2">
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-primary me-2">1</span>
+                                                <span>Configurar la Empresa (RTN, resolución SAR, tipo contribuyente)</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-primary me-2">2</span>
+                                                <span>Verificar Códigos SAR e Impuestos</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-primary me-2">3</span>
+                                                <span>Configurar Diarios Contables</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-primary me-2">4</span>
+                                                <span>Crear Secuencias Fiscales con CAI</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-primary me-2">5</span>
+                                                <span>Vincular secuencias a los diarios</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-success me-2">6</span>
+                                                <span>Configurar contactos (RTN, constancias)</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-success me-2">7</span>
+                                                <span>Configurar productos (retención ISR)</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-success me-2">8</span>
+                                                <span>Emitir facturas de venta y compra</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-success me-2">9</span>
+                                                <span>Generar Libros SAR del mes</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-success me-2">10</span>
+                                                <span>Declarar al SAR y exportar Excel</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: CONFIGURACIÓN INICIAL
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'configuracion'">
+                    <h3 class="text-primary">
+                        ⚙️ Configuración Inicial
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_compania"
+                                class="btn btn-primary btn-sm">
+                            🏢 Abrir Compañía
+                        </button>
+                        <button type="object" name="action_abrir_codigos"
+                                class="btn btn-outline-success btn-sm">
+                            🔖 Abrir Códigos SAR
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Ajustes → Compañías → Información SAR
+                        </span>
+                    </div>
+
+                    <!-- Diagnóstico rápido de configuración -->
+                    <div class="card mb-3 border-2">
+                        <div class="card-header fw-bold d-flex align-items-center bg-body-tertiary">
+                            🩺 Control de configuración
+                            <span class="badge bg-success ms-auto"
+                                  invisible="config_estado != 'ok'">Completa</span>
+                            <span class="badge bg-warning text-dark ms-auto"
+                                  invisible="config_estado != 'warning'">Con pendientes</span>
+                            <span class="badge bg-danger ms-auto"
+                                  invisible="config_estado != 'error'">Incompleta</span>
+                        </div>
+                        <div class="card-body">
+                            <field name="config_diagnostico_html"
+                                   nolabel="1" readonly="1"/>
+                        </div>
+                    </div>
+
+                    <!-- Paso 1: Empresa -->
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            Paso 1 — Configurar la Empresa
+                        </div>
+                        <div class="card-body">
+                            <p>Ir a:
+                                <strong>Ajustes → Compañías →
+                                [Tu empresa] →
+                                Pestaña "Información SAR"
+                                </strong>
+                            </p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card bg-body-tertiary">
+                                        <div class="card-body p-3">
+                                            <h6 class="fw-bold">
+                                                Campos Obligatorios:
+                                            </h6>
+                                            <ul class="mb-0 small">
+                                                <li>
+                                                    <strong>RTN:</strong>
+                                                    14 dígitos numéricos. Se
+                                                    captura en el campo
+                                                    <strong>"RTN"</strong> nativo
+                                                    de Odoo (pestaña
+                                                    Información general), no en
+                                                    un campo aparte.
+                                                </li>
+                                                <li>
+                                                    <strong>
+                                                        Tipo Contribuyente:
+                                                    </strong>
+                                                    Pequeño / Mediano /
+                                                    Grande
+                                                </li>
+                                                <li>
+                                                    <strong>
+                                                        Resolución SAR:
+                                                    </strong>
+                                                    N° de resolución
+                                                    para facturas
+                                                </li>
+                                                <li>
+                                                    <strong>
+                                                        Fecha Resolución:
+                                                    </strong>
+                                                    Fecha del documento
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-body-tertiary">
+                                        <div class="card-body p-3">
+                                            <h6 class="fw-bold">
+                                                Campos Opcionales:
+                                            </h6>
+                                            <ul class="mb-0 small">
+                                                <li>Logo de la empresa</li>
+                                                <li>
+                                                    Imagen información
+                                                    bancaria
+                                                </li>
+                                                <li>
+                                                    Términos y condiciones
+                                                </li>
+                                                <li>
+                                                    N° Contribuyente SAR
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-warning mt-2 mb-0 small">
+                                ⚠️ El tipo de contribuyente determina
+                                si estás obligado a presentar DMC
+                                (medianos y grandes) y si eres agente
+                                de retención ISV (grandes).
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 2: Códigos SAR -->
+                    <div class="card mb-3 border-success">
+                        <div class="card-header bg-success text-white fw-bold">
+                            Paso 2 — Verificar Códigos SAR
+                        </div>
+                        <div class="card-body">
+                            <p>Ir a:
+                                <strong>Fiscal HN →
+                                Configuraciones →
+                                Códigos SAR
+                                </strong>
+                            </p>
+                            <p class="small text-muted">
+                                El módulo carga automáticamente
+                                los códigos oficiales del SAR
+                                Honduras. Verificar que existen:
+                            </p>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Descripción</th>
+                                        <th>Uso</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="badge bg-warning text-dark">01</span></td>
+                                        <td>ISV 15% Ventas</td>
+                                        <td>Factura cliente</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-danger">02</span></td>
+                                        <td>ISV 18% Ventas</td>
+                                        <td>Bebidas, cigarrillos</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-secondary">03</span></td>
+                                        <td>Exento ISV</td>
+                                        <td>Canasta básica, salud</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-info">04</span></td>
+                                        <td>Exonerado ISV</td>
+                                        <td>Con OCE del SAR</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-dark">05</span></td>
+                                        <td>Retención ISV 15%</td>
+                                        <td>Grandes contribuyentes</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-primary">06</span></td>
+                                        <td>ISV 15% Compras</td>
+                                        <td>Crédito fiscal DMC</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-primary">07</span></td>
+                                        <td>ISV 18% Compras</td>
+                                        <td>Crédito fiscal DMC</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-danger">08</span></td>
+                                        <td>Retención ISR 12.5%</td>
+                                        <td>Servicios/honorarios</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-danger">09</span></td>
+                                        <td>Retención ISR 1%</td>
+                                        <td>Anticipo bienes</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-danger">10</span></td>
+                                        <td>Retención ISR 10%</td>
+                                        <td>Alquiler habitacional</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: USUARIOS Y CONTADOR
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'usuarios'">
+                    <h3 class="text-primary">
+                        🧑‍💼 Usuarios y Perfil del Contador
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_usuarios"
+                                class="btn btn-primary btn-sm">
+                            🧑‍💼 Abrir Usuarios
+                        </button>
+                        <button type="object" name="action_abrir_grupos"
+                                class="btn btn-outline-secondary btn-sm">
+                            🔐 Abrir Grupos de Acceso
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Ajustes → Usuarios y Compañías → Usuarios
+                        </span>
+                    </div>
+
+                    <div class="alert alert-info small">
+                        El <strong>contador</strong> es el usuario responsable de
+                        confirmar facturas fiscales, generar los Libros SAR
+                        (ventas, compras/DMC, retenciones, exoneraciones) y
+                        declarar al SAR. Su perfil de usuario debe tener los
+                        permisos correctos para operar el módulo fiscal.
+                    </div>
+
+                    <!-- Paso 1: Crear / editar el usuario del contador -->
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            Paso 1 — Crear o editar el usuario del Contador
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2">Ir a:
+                                <strong>Ajustes → Usuarios y Compañías →
+                                Usuarios → [Contador]</strong>.
+                                En el formulario del usuario configure las
+                                pestañas <strong>"Permisos de acceso"</strong> y
+                                <strong>"Preferencias"</strong>.
+                            </p>
+                            <div class="alert alert-warning small mb-0">
+                                ⚠️ Para ver y asignar todos los permisos active el
+                                <strong>Modo desarrollador</strong> o use la vista
+                                de permisos por grupos.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 2: Permisos de acceso (grupos) -->
+                    <div class="card mb-3 border-2">
+                        <div class="card-header fw-bold bg-body-tertiary">
+                            Paso 2 — Permisos de acceso recomendados (Contador)
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Área</th>
+                                            <th>Permiso / Grupo</th>
+                                            <th>¿Para qué?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Contabilidad</strong></td>
+                                            <td>Asesor contable</td>
+                                            <td>Acceso completo a facturas,
+                                                diarios, asientos y reportes
+                                                contables. Es el nivel mínimo
+                                                para el contador.</td>
+                                        </tr>
+                                        <tr class="table-warning">
+                                            <td><strong>Fiscal SAR</strong></td>
+                                            <td>Administrador de Numeración
+                                                Fiscal</td>
+                                            <td>Permite <strong>cancelar y
+                                                eliminar facturas fiscales SAR</strong>,
+                                                gestionar secuencias/CAI y los
+                                                Libros SAR. Asígnelo solo al
+                                                contador responsable.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Inventario</strong></td>
+                                            <td>Usuario / Responsable de
+                                                Inventario</td>
+                                            <td>Necesario si el contador gestiona
+                                                o imprime Guías de Remisión.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Zona Libre</strong></td>
+                                            <td>Gerencia de Zona Libre (ZOLI)</td>
+                                            <td>Solo si la empresa es ZOLI:
+                                                autoriza lotes DUCA vencidos y
+                                                controles del régimen.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="alert alert-danger small mt-3 mb-0">
+                                🔒 <strong>Importante:</strong> el grupo
+                                "Administrador de Numeración Fiscal" otorga
+                                permisos sensibles (anular/eliminar documentos
+                                fiscales). Limítelo al contador titular; los
+                                auxiliares pueden quedar solo con "Asesor
+                                contable".
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 3: Preferencias del usuario -->
+                    <div class="card mb-3 border-2">
+                        <div class="card-header fw-bold bg-body-tertiary">
+                            Paso 3 — Preferencias del Contador
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card bg-body-tertiary h-100">
+                                        <div class="card-body p-3">
+                                            <h6 class="fw-bold">Regionales</h6>
+                                            <ul class="mb-0 small">
+                                                <li><strong>Idioma:</strong>
+                                                    Español, para que reportes y
+                                                    documentos salgan en
+                                                    español.</li>
+                                                <li><strong>Zona horaria:</strong>
+                                                    América/Tegucigalpa, para que
+                                                    las fechas de los documentos
+                                                    fiscales coincidan con la
+                                                    hora local.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-body-tertiary h-100">
+                                        <div class="card-body p-3">
+                                            <h6 class="fw-bold">Compañías</h6>
+                                            <ul class="mb-0 small">
+                                                <li><strong>Compañías permitidas:</strong>
+                                                    marque las empresas que el
+                                                    contador puede gestionar.</li>
+                                                <li><strong>Compañía por defecto:</strong>
+                                                    la empresa con la que inicia
+                                                    sesión, para no emitir
+                                                    documentos en la empresa
+                                                    equivocada.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info small mt-2 mb-0">
+                                💡 La numeración fiscal (CAI) y los Libros SAR son
+                                <strong>por compañía</strong>; verifique siempre
+                                en qué empresa está trabajando el contador.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 4: Notificaciones y responsable -->
+                    <div class="card mb-3 border-2">
+                        <div class="card-header fw-bold bg-body-tertiary">
+                            Paso 4 — Notificaciones y alertas fiscales
+                        </div>
+                        <div class="card-body">
+                            <ul class="mb-0 small">
+                                <li>El contador recibe <strong>actividades
+                                    (To-Do)</strong> por vencimiento de CAI,
+                                    constancias de pago a cuenta y acuerdos de
+                                    exoneración.</li>
+                                <li>Configure el <strong>responsable de
+                                    exoneración</strong> de la empresa
+                                    (Ajustes → Compañías) apuntando al contador
+                                    para que reciba esas alertas.</li>
+                                <li>Active las <strong>notificaciones por
+                                    correo</strong> del usuario para no perder
+                                    los avisos de vencimiento.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: CONTACTOS
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'contactos'">
+                    <h3 class="text-primary">
+                        👤 Contactos y RTN
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_contactos"
+                                class="btn btn-primary btn-sm">
+                            👤 Abrir Contactos
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Contactos → [contacto] → pestaña Fiscal Honduras
+                        </span>
+                    </div>
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            Configurar un Contacto Hondureño
+                        </div>
+                        <div class="card-body">
+                            <p>Ir a:
+                                <strong>Contactos →
+                                Nuevo o editar existente →
+                                Pestaña "🇭🇳 Fiscal Honduras"
+                                </strong>
+                            </p>
+
+                            <h6 class="fw-bold mt-3">
+                                Campos Obligatorios:
+                            </h6>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Campo</th>
+                                        <th>Descripción</th>
+                                        <th>Obligatorio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>País</strong></td>
+                                        <td>Honduras o país del contacto</td>
+                                        <td><span class="badge bg-danger">Sí</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>RTN</strong></td>
+                                        <td>14 dígitos (empresa) o 13 (persona natural)</td>
+                                        <td><span class="badge bg-warning text-dark">Si es HN</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Empresa/Persona</strong></td>
+                                        <td>Define longitud del RTN</td>
+                                        <td><span class="badge bg-danger">Sí</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h6 class="fw-bold mt-3">
+                                Clasificación Automática:
+                            </h6>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="card border-success">
+                                        <div class="card-body p-2 small">
+                                            <strong>🟢 Nacional con RTN</strong><br/>
+                                            País: Honduras + RTN válido<br/>
+                                            → Diario: Compras FA<br/>
+                                            → Puede tener constancia
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-warning">
+                                        <div class="card-body p-2 small">
+                                            <strong>🟡 Nacional sin RTN</strong><br/>
+                                            País: Honduras + sin RTN<br/>
+                                            → Diario: Boleta de Compra<br/>
+                                            → Sin retención ISR
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-info">
+                                        <div class="card-body p-2 small">
+                                            <strong>🔵 Extranjero CA</strong><br/>
+                                            País: GT/SV/NI/CR/PA<br/>
+                                            → Diario: Compras Extranjera (FE)<br/>
+                                            → Sección C · N° DUA · FYDUCA si GT
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-secondary">
+                                        <div class="card-body p-2 small">
+                                            <strong>⚫ Extranjero Mundial</strong><br/>
+                                            Cualquier otro país<br/>
+                                            → Diario: Compras Extranjera (FE)<br/>
+                                            → Sección C · N° DUA obligatorio
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info mt-3 mb-0 small">
+                                <strong>📦 Proveedor de materia prima (Zona Libre):</strong>
+                                en un proveedor extranjero, marque
+                                <strong>"Proveedor de materia prima (control DUCA)"</strong>
+                                para rutear sus compras al diario
+                                <strong>Importaciones (DUA/FYDUCA)</strong> con control
+                                DUCA, en lugar de Compras Extranjera (FE).
+                                <br/>
+                                ⚠️ El <strong>diario de compra se asigna y bloquea
+                                automáticamente</strong> según esta clasificación:
+                                en la factura de proveedor no se puede cambiar
+                                manualmente.
+                            </div>
+
+                            <div class="card border-warning mt-3">
+                                <div class="card-header fw-bold">
+                                    Constancia de Pago a Cuenta SAR
+                                </div>
+                                <div class="card-body">
+                                    <p class="small mb-2">
+                                        Si el proveedor tiene constancia
+                                        vigente del SAR:
+                                        <strong>NO se le retiene ISR</strong>
+                                        en ninguna compra.
+                                    </p>
+                                    <ol class="small mb-0">
+                                        <li>Marcar ✅ "Tiene Constancia de Pago a Cuenta"</li>
+                                        <li>Ingresar el N° de constancia SAR</li>
+                                        <li>Ingresar la fecha de vencimiento</li>
+                                        <li>Cargar imagen/PDF de la constancia</li>
+                                    </ol>
+                                    <div class="alert alert-info mt-2 mb-0 small">
+                                        ℹ️ Las constancias vencen cada cuatrimestre:
+                                        30 Jun, 30 Sep, 31 Dic.
+                                        El sistema alerta 30 días antes del vencimiento.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contacto Consumidor Final -->
+                    <div class="card mb-3 border-info">
+                        <div class="card-header bg-info text-white fw-bold">
+                            🛑 Contacto "Consumidor Final"
+                        </div>
+                        <div class="card-body">
+                            <p class="small mb-2">
+                                Debes crear <strong>un único contacto genérico
+                                "Consumidor Final"</strong> para las ventas sin
+                                identificación del cliente, y vincularlo en la
+                                compañía. El sistema controla que las ventas a
+                                ese contacto no superen el monto máximo legal.
+                            </p>
+
+                            <h6 class="fw-bold mt-2">
+                                Paso 1 — Crear el contacto
+                            </h6>
+                            <ol class="small mb-2">
+                                <li>
+                                    Ir a <strong>Contactos → Nuevo</strong>.
+                                </li>
+                                <li>
+                                    Nombre: <strong>Consumidor Final</strong>
+                                    (tipo Empresa o Individuo, sin RTN).
+                                </li>
+                                <li>
+                                    Guardar. Será el contacto por defecto para
+                                    ventas de mostrador / sin RTN.
+                                </li>
+                            </ol>
+
+                            <h6 class="fw-bold mt-2">
+                                Paso 2 — Vincularlo en la compañía
+                            </h6>
+                            <p class="small mb-2">
+                                Ir a <strong>Ajustes → Compañías →
+                                [Tu empresa] → Información SAR →
+                                Límite de Consumidor Final</strong> y configurar:
+                            </p>
+                            <table class="table table-sm table-bordered small mb-2">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Campo</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Controlar monto de Consumidor Final</strong></td>
+                                        <td>Activa el bloqueo (recomendado)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Contacto Consumidor Final</strong></td>
+                                        <td>Seleccionar el contacto creado en el Paso 1</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Monto máximo Consumidor Final</strong></td>
+                                        <td>Tope por documento, impuestos incluidos (0 = sin límite)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="alert alert-warning mb-0 small">
+                                ⚠️ Si una venta a este contacto supera el monto
+                                máximo, se <strong>bloquea</strong> y se exige
+                                registrar un cliente formal con RTN. Detalle en
+                                la sección <strong>Consumidor Final</strong>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Referencia interna automática -->
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-body-secondary fw-bold">
+                            🔖 Referencia interna automática (código de contacto)
+                        </div>
+                        <div class="card-body">
+                            <p class="small mb-2">
+                                Al guardar un <strong>contacto raíz</strong> (no una
+                                dirección ni un contacto hijo dentro de una empresa),
+                                el sistema asigna automáticamente la
+                                <strong>Referencia interna</strong> según su tipo:
+                            </p>
+                            <table class="table table-sm table-bordered small mb-2">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Tipo de contacto</th>
+                                        <th>Referencia</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Persona (individuo)</td>
+                                        <td><code>CONTAC-0001</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Empresa nacional (Honduras)</td>
+                                        <td><code>EMPNAC0001</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Empresa extranjera</td>
+                                        <td><code>EMPEXT0001</code></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <ul class="small mb-2">
+                                <li>
+                                    Las <strong>direcciones y contactos hijos</strong>
+                                    (dentro de una empresa) <strong>no llevan código</strong>.
+                                </li>
+                                <li>
+                                    Si el contacto ya trae una referencia, se respeta
+                                    (no se sobrescribe).
+                                </li>
+                                <li>
+                                    Los contactos existentes sin referencia reciben su
+                                    código al actualizar el módulo.
+                                </li>
+                            </ul>
+                            <div class="alert alert-info mb-0 small">
+                                <strong>👤 Empleados:</strong> los empleados
+                                <strong>no</strong> usan este correlativo. Cada empleado
+                                tiene un <strong>ID de Credencial</strong> (obligatorio
+                                y único) en su ficha; ese mismo valor se copia
+                                automáticamente a la <strong>Referencia</strong> de su
+                                contacto asociado. Use el filtro
+                                <em>"Sin ID de credencial"</em> en Empleados para
+                                detectar pendientes.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: DIARIOS
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'diarios'">
+                    <h3 class="text-primary">
+                        📒 Diarios Contables Honduras
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_diarios"
+                                class="btn btn-primary btn-sm">
+                            📒 Abrir Diarios Fiscales
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Fiscal HN → Configuraciones → Diarios Fiscales
+                        </span>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-success">
+                                📤 Diarios de Ventas
+                            </h5>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-success">
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Documento Fiscal</th>
+                                        <th>Secuencia SAR (principal)</th>
+                                        <th>Secuencia NC (refund)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>INV</code></td>
+                                        <td>Facturas de cliente</td>
+                                        <td>Factura Cliente</td>
+                                        <td>Secuencia Fiscal Facturas (FAC)</td>
+                                        <td>Secuencia Fiscal Notas de Crédito (NC)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>NDC</code></td>
+                                        <td>Notas de Débito Clientes</td>
+                                        <td>Nota de Débito</td>
+                                        <td>Secuencia Fiscal Notas de Débito (ND)</td>
+                                        <td>—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="alert alert-success small">
+                                ✅ <strong>Notas de crédito en el mismo diario de
+                                facturas (recomendado).</strong> En el diario de
+                                <em>Factura Cliente</em> se llenan
+                                <strong>dos</strong> campos de secuencia:
+                                <ul class="mb-1 mt-1">
+                                    <li><strong>Secuencia Fiscal SAR</strong>
+                                        (principal) → numera las facturas
+                                        (<code>FAC/…</code>).</li>
+                                    <li><strong>Secuencia Fiscal Notas de
+                                        Crédito</strong> → numera las NC
+                                        (<code>NC/…</code>) emitidas desde ese
+                                        mismo diario.</li>
+                                </ul>
+                                Al hacer una devolución/reembolso, la nota de
+                                crédito toma <strong>automáticamente</strong> su
+                                propio CAI de NC. No se necesita un diario
+                                dedicado de notas de crédito.
+                            </div>
+                            <div class="alert alert-warning small mb-0">
+                                ⚠️ <strong>Notas de débito:</strong> hoy requieren
+                                un <strong>diario dedicado</strong> (NDC, Documento
+                                fiscal = <em>Nota de Débito</em>), porque la ND no
+                                se enruta por el campo de refund. Si emites una ND
+                                desde el diario de facturas tomaría el CAI de
+                                Facturas (incorrecto).
+                            </div>
+
+                            <h5 class="fw-bold text-primary mt-3">
+                                📥 Diarios de Compras
+                            </h5>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Documento Fiscal</th>
+                                        <th>Cuándo usar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>CFA</code></td>
+                                        <td>Compras Nacionales</td>
+                                        <td>Factura Proveedor (FA)</td>
+                                        <td>Proveedor HN con RTN</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>BOL</code></td>
+                                        <td>Boletas de Compra</td>
+                                        <td>Boleta de Compra</td>
+                                        <td>Proveedor HN sin RTN</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>CFE</code></td>
+                                        <td>Compras Extranjera (FE)</td>
+                                        <td>Compras Extranjera (FE)</td>
+                                        <td>Proveedor extranjero (general)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>IMP</code></td>
+                                        <td>Importaciones</td>
+                                        <td>Importación DUA/FYDUCA</td>
+                                        <td>Proveedor extranjero de materia prima (DUCA)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>RET</code></td>
+                                        <td>Retenciones</td>
+                                        <td>Comprobante Retención</td>
+                                        <td>Comprobantes ISR emitidos</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>NCP</code></td>
+                                        <td>NC Proveedores</td>
+                                        <td>Nota de Crédito</td>
+                                        <td>NC recibidas de proveedores</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="alert alert-info small mb-0">
+                                ℹ️ <strong>Automático y bloqueado:</strong>
+                                Al seleccionar el proveedor en una factura de
+                                compra, el diario se asigna automáticamente según
+                                la clasificación fiscal del contacto y
+                                <strong>no puede cambiarse manualmente</strong>
+                                (Nacionales → CFA, Extranjera → CFE, Materia prima
+                                → IMP).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: IMPUESTOS
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'impuestos'">
+                    <h3 class="text-primary">
+                        💰 Impuestos SAR Honduras
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_impuestos"
+                                class="btn btn-primary btn-sm">
+                            💰 Abrir Impuestos SAR
+                        </button>
+                        <button type="object" name="action_abrir_codigos"
+                                class="btn btn-outline-success btn-sm">
+                            🔖 Abrir Códigos SAR
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Fiscal HN → Configuraciones → Impuestos SAR
+                        </span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card border-warning h-100">
+                                <div class="card-header bg-warning text-dark fw-bold">
+                                    📤 Impuestos de Ventas
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <td><span class="badge bg-warning text-dark">ISV 15%</span></td>
+                                                <td>Tasa general bienes y servicios</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge bg-danger">ISV 18%</span></td>
+                                                <td>Bebidas alcohólicas, cigarrillos, armas</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge bg-secondary">Exento</span></td>
+                                                <td>Canasta básica, medicamentos, educación</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge bg-info">Exonerado</span></td>
+                                                <td>Con OCE del SAR vigente</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-primary h-100">
+                                <div class="card-header bg-primary text-white fw-bold">
+                                    📥 Impuestos de Compras
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <td><span class="badge bg-primary">ISV 15%</span></td>
+                                                <td>Crédito fiscal DMC Sección A</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge bg-primary">ISV 18%</span></td>
+                                                <td>Crédito fiscal DMC Sección A</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge bg-danger">ISR 12.5%</span></td>
+                                                <td>Retención servicios/honorarios</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge bg-danger">ISR 1%</span></td>
+                                                <td>Anticipo bienes sin constancia</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge bg-danger">ISR 10%</span></td>
+                                                <td>Alquiler habitacional</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Qué crear / vincular para la reportería -->
+                    <div class="card mt-3 border-danger">
+                        <div class="card-header bg-danger text-white fw-bold">
+                            ⚙️ Qué debes crear para que la reportería funcione
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning mb-3 small">
+                                <strong>Regla de oro:</strong> los Libros SAR
+                                (Ventas, Compras, Retenciones) y los informes
+                                clasifican los montos por el
+                                <strong>Código SAR</strong> y el
+                                <strong>Tipo de Impuesto SAR</strong> de cada
+                                impuesto. Un impuesto <strong>sin estos datos
+                                NO se reporta correctamente</strong> (queda
+                                fuera del libro o sin clasificar).
+                            </div>
+
+                            <h6 class="fw-bold">
+                                Paso a paso por cada impuesto
+                            </h6>
+                            <ol class="small">
+                                <li>
+                                    Abrir <strong>Fiscal HN →
+                                    Configuraciones → Impuestos SAR</strong>
+                                    (o Contabilidad → Configuración →
+                                    Impuestos).
+                                </li>
+                                <li>
+                                    En cada impuesto, asignar el campo
+                                    <strong>"Código SAR Honduras"</strong>.
+                                    Al elegirlo se completan automáticamente
+                                    el <strong>Tipo de Impuesto SAR</strong>,
+                                    el <strong>porcentaje</strong> y las
+                                    banderas de retención.
+                                </li>
+                                <li>
+                                    Verificar que el <strong>Tipo de Impuesto
+                                    SAR</strong> sea el correcto:
+                                    <code>isv</code>, <code>retencion</code>,
+                                    <code>exento</code> u
+                                    <code>exonerado</code>.
+                                </li>
+                            </ol>
+
+                            <table class="table table-sm table-bordered small mb-3">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Tipo de Impuesto SAR</th>
+                                        <th>Dónde se refleja</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="badge bg-warning text-dark">ISV</span></td>
+                                        <td>Base gravada e ISV en Libro de Ventas / Compras (DMC)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-dark">Retención</span></td>
+                                        <td>Libro de Retenciones y comprobantes de retención</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-secondary">Exento</span></td>
+                                        <td>Columna "Exento" del libro (campo <code>amount_exento</code>)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-info">Exonerado</span></td>
+                                        <td>Columna "Exonerado" del libro y Libro de Exoneraciones (<code>amount_exonerado</code>)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="alert alert-info mb-2 small">
+                                ℹ️ Los impuestos <strong>genéricos de Odoo
+                                ("15%" / "18%")</strong> se dejan
+                                <strong>sin código SAR a propósito</strong>
+                                (el módulo los desvincula). Usa siempre los
+                                impuestos fiscales con su Código SAR asignado,
+                                no los genéricos.
+                            </div>
+
+                            <h6 class="fw-bold">
+                                Checklist mínimo de impuestos a tener
+                            </h6>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="card bg-body-tertiary h-100">
+                                        <div class="card-body p-2 small">
+                                            <strong>Ventas</strong>
+                                            <div class="o_manual_check"><span class="text-muted me-1">☐</span>ISV 15% Ventas → cód. 01</div>
+                                            <div class="o_manual_check"><span class="text-muted me-1">☐</span>ISV 18% Ventas → cód. 02</div>
+                                            <div class="o_manual_check"><span class="text-muted me-1">☐</span>Exento ISV → cód. 03</div>
+                                            <div class="o_manual_check"><span class="text-muted me-1">☐</span>Exonerado ISV → cód. 04</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-body-tertiary h-100">
+                                        <div class="card-body p-2 small">
+                                            <strong>Compras / Retenciones</strong>
+                                            <div class="o_manual_check"><span class="text-muted me-1">☐</span>ISV 15% / 18% Compras → cód. 06 / 07</div>
+                                            <div class="o_manual_check"><span class="text-muted me-1">☐</span>Retención ISV 15% (grandes) → cód. 05</div>
+                                            <div class="o_manual_check"><span class="text-muted me-1">☐</span>Retención ISR 12.5% / 1% / 10% → cód. 08 / 09 / 10</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: SECUENCIAS CAI
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'secuencias'">
+                    <h3 class="text-primary">
+                        🔢 Secuencias Fiscales y CAI
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_secuencias"
+                                class="btn btn-primary btn-sm">
+                            🔢 Abrir Secuencias Fiscales
+                        </button>
+                        <button type="object" name="action_abrir_preregistro"
+                                class="btn btn-outline-dark btn-sm">
+                            ➕ Preregistrar CAI
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Fiscal HN → Configuraciones → Secuencias Fiscales
+                        </span>
+                    </div>
+                    <div class="card mb-3 border-dark">
+                        <div class="card-header bg-dark text-white fw-bold">
+                            ¿Qué es el CAI?
+                        </div>
+                        <div class="card-body">
+                            <p class="small mb-2">
+                                El <strong>CAI (Clave de Autorización
+                                de Impresión)</strong> es el código
+                                que el SAR Honduras emite para
+                                autorizar la emisión de documentos
+                                fiscales (facturas, NC, ND).
+                            </p>
+                            <div class="alert alert-danger small mb-0">
+                                🚨 Sin CAI vigente NO se pueden
+                                emitir facturas fiscales.
+                                Solicitar nuevo CAI al SAR
+                                antes del vencimiento.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            Configurar Secuencia Fiscal
+                        </div>
+                        <div class="card-body">
+                            <ol class="small">
+                                <li class="mb-2">
+                                    Ir a
+                                    <strong>
+                                        Fiscal HN → Configuraciones →
+                                        Secuencias Fiscales → Nuevo
+                                    </strong>
+                                </li>
+                                <li class="mb-2">
+                                    Configurar:
+                                    <ul>
+                                        <li>
+                                            <strong>Nombre:</strong>
+                                            Secuencia Fiscal Facturas
+                                        </li>
+                                        <li>
+                                            <strong>Código:</strong>
+                                            fiscal.invoice
+                                        </li>
+                                        <li>
+                                            <strong>
+                                                Es Secuencia Fiscal:
+                                            </strong>
+                                            ✅ activar
+                                        </li>
+                                        <li>
+                                            <strong>Prefijo:</strong>
+                                            FAC/{range_year}/
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="mb-2">
+                                    En la tabla de <strong>Rangos CAI</strong>
+                                    hacer clic en "Add a line":
+                                    <ul>
+                                        <li>
+                                            <strong>Desde/Hasta:</strong>
+                                            fechas de vigencia del CAI
+                                        </li>
+                                        <li>
+                                            <strong>CAI:</strong>
+                                            código emitido por el SAR
+                                        </li>
+                                        <li>
+                                            <strong>
+                                                Rango inicial/final:
+                                            </strong>
+                                            números del rango autorizado
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="mb-2">
+                                    O usar el botón
+                                    <strong>"Preregistrar CAI"</strong>
+                                    para un flujo más guiado
+                                </li>
+                                <li>
+                                    Vincular la secuencia al diario:
+                                    <strong>
+                                        Fiscal HN → Diarios Fiscales →
+                                        Facturas de cliente (INV) →
+                                        Secuencia Fiscal SAR
+                                    </strong>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3 border-success">
+                        <div class="card-header bg-success text-white fw-bold">
+                            Secuencia de Notas de Crédito (mismo diario)
+                        </div>
+                        <div class="card-body">
+                            <p class="small mb-2">
+                                La nota de crédito se emite desde el
+                                <strong>mismo diario de facturas</strong>. Solo
+                                hay que indicarle qué secuencia de NC usar:
+                            </p>
+                            <ol class="small mb-2">
+                                <li class="mb-1">
+                                    Crear la secuencia NC igual que la de
+                                    facturas, con <strong>Tipo fiscal = Nota de
+                                    Crédito</strong> y prefijo
+                                    <code>NC/{range_year}/</code>.
+                                </li>
+                                <li class="mb-1">
+                                    Registrar su propio <strong>rango CAI
+                                    vigente</strong> (sin CAI no emite).
+                                </li>
+                                <li class="mb-1">
+                                    En el diario <strong>Facturas de cliente
+                                    (INV)</strong>, campo
+                                    <strong>"Secuencia Fiscal Notas de
+                                    Crédito"</strong> → seleccionar la secuencia
+                                    NC.
+                                </li>
+                            </ol>
+                            <div class="alert alert-info small mb-0">
+                                ℹ️ La factura usa la secuencia <code>FAC</code> y
+                                la nota de crédito la secuencia <code>NC</code>,
+                                <strong>ambas desde el mismo diario</strong> y de
+                                forma automática. No se permite usar la misma
+                                secuencia para factura y NC en un mismo diario.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: PRODUCTOS
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'productos'">
+                    <h3 class="text-primary">
+                        📦 Productos y Retenciones ISR
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_productos"
+                                class="btn btn-primary btn-sm">
+                            📦 Abrir Productos
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Inventario → Productos → pestaña Fiscal Honduras
+                        </span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card border-success h-100">
+                                <div class="card-header bg-success text-white fw-bold">
+                                    ✅ Producto SIN retención ISR
+                                </div>
+                                <div class="card-body small">
+                                    <strong>Ejemplos:</strong>
+                                    mercadería, materia prima,
+                                    suministros, equipos.
+                                    <hr/>
+                                    <strong>Configuración:</strong>
+                                    <ul class="mb-0">
+                                        <li>
+                                            Aplica Retención ISR: ☐ No
+                                        </li>
+                                        <li>
+                                            Impuestos compra:
+                                            ISV 15% o ISV 18% Compras
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-danger h-100">
+                                <div class="card-header bg-danger text-white fw-bold">
+                                    🔴 Producto CON retención ISR
+                                </div>
+                                <div class="card-body small">
+                                    <strong>Ejemplos:</strong>
+                                    servicios profesionales,
+                                    honorarios, consultoría,
+                                    alquiler.
+                                    <hr/>
+                                    <strong>Configuración:</strong>
+                                    <ul class="mb-0">
+                                        <li>
+                                            Aplica Retención ISR: ✅ Sí
+                                        </li>
+                                        <li>
+                                            Impuesto Retención:
+                                            Retención ISR 12.5%
+                                        </li>
+                                        <li>
+                                            Impuestos compra:
+                                            ISV 15% Compras
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3 border-warning">
+                        <div class="card-header fw-bold">
+                            ⚡ Lógica Automática
+                        </div>
+                        <div class="card-body small">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered mb-0">
+                                    <thead class="table-warning">
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Proveedor</th>
+                                            <th>Resultado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Con retención</td>
+                                            <td>HN + RTN + constancia vigente</td>
+                                            <td class="text-success">✅ Sin retención ISR</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Con retención</td>
+                                            <td>HN + RTN + sin constancia</td>
+                                            <td class="text-danger">🔴 ISR 12.5% automático</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Con retención</td>
+                                            <td>Extranjero</td>
+                                            <td class="text-success">✅ Sin retención ISR</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Con retención</td>
+                                            <td>HN sin RTN (boleta)</td>
+                                            <td class="text-success">✅ Sin retención ISR</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sin retención</td>
+                                            <td>Cualquiera</td>
+                                            <td class="text-success">✅ Sin retención ISR</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: FACTURAS VENTA
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'facturas_venta'">
+                    <h3 class="text-primary">
+                        🧾 Facturas de Venta SAR
+                    </h3>
+                    <p class="text-muted">
+                        Ir a:
+                        <strong>
+                            Contabilidad → Clientes →
+                            Facturas → Nueva
+                        </strong>
+                    </p>
+                    <div class="card mb-3 border-success">
+                        <div class="card-header bg-success text-white fw-bold">
+                            Flujo de Factura de Venta
+                        </div>
+                        <div class="card-body">
+                            <ol class="small mb-0">
+                                <li class="mb-2">
+                                    Seleccionar <strong>cliente</strong>
+                                    con RTN configurado
+                                </li>
+                                <li class="mb-2">
+                                    Verificar que el diario sea
+                                    <strong>"VEN — Ventas"</strong>
+                                    con secuencia fiscal asignada
+                                </li>
+                                <li class="mb-2">
+                                    Agregar <strong>líneas de producto</strong>
+                                    con los impuestos ISV correctos:
+                                    <ul>
+                                        <li>ISV 15% para productos gravados</li>
+                                        <li>Exento para canasta básica</li>
+                                        <li>Exonerado si cliente tiene OCE vigente</li>
+                                    </ul>
+                                </li>
+                                <li class="mb-2">
+                                    Revisar la
+                                    <strong>pestaña SAR</strong>
+                                    para verificar montos:
+                                    ISV, exentos, exonerados,
+                                    base imponible
+                                </li>
+                                <li class="mb-2">
+                                    Hacer clic en
+                                    <strong>"Confirmar"</strong>
+                                </li>
+                                <li>
+                                    El sistema asigna automáticamente:
+                                    <ul>
+                                        <li>Correlativo fiscal (FAC/2026/00000001)</li>
+                                        <li>CAI del rango vigente</li>
+                                        <li>Fecha límite de emisión</li>
+                                        <li>Rango inicial y final</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning small">
+                        ⚠️ <strong>Control de cancelación:</strong>
+                        Las facturas fiscales confirmadas NO pueden
+                        cancelarse directamente. Para anular,
+                        emitir una <strong>Nota de Crédito</strong>
+                        vinculada al correlativo original.
+                        Solo el Administrador de Numeración Fiscal
+                        puede cancelar excepcionalmente.
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: FACTURAS COMPRA
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'facturas_compra'">
+                    <h3 class="text-primary">
+                        🛒 Facturas de Compra
+                    </h3>
+                    <p class="text-muted">
+                        Ir a:
+                        <strong>
+                            Contabilidad → Proveedores →
+                            Facturas → Nueva
+                        </strong>
+                    </p>
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            Flujo Automático
+                        </div>
+                        <div class="card-body">
+                            <ol class="small mb-0">
+                                <li class="mb-2">
+                                    Seleccionar <strong>proveedor</strong>
+                                    → El diario se asigna automáticamente:
+                                    <ul>
+                                        <li>HN + RTN → <code>CFA</code> Compras FA</li>
+                                        <li>HN sin RTN → <code>BOL</code> Boletas</li>
+                                        <li>Extranjero → <code>CFE</code> Compras Extranjera</li>
+                                        <li>Extranjero materia prima → <code>IMP</code> Importaciones</li>
+                                    </ul>
+                                </li>
+                                <li class="mb-2">
+                                    Aparece <strong>alerta fiscal</strong>
+                                    del proveedor indicando:
+                                    estado de constancia y retención aplicable
+                                </li>
+                                <li class="mb-2">
+                                    Ingresar datos del proveedor
+                                    en pestaña SAR:
+                                    <ul>
+                                        <li>CAI del proveedor</li>
+                                        <li>N° correlativo del proveedor</li>
+                                        <li>Fecha emisión</li>
+                                        <li>Clase doc: FA u OC</li>
+                                    </ul>
+                                </li>
+                                <li class="mb-2">
+                                    Agregar <strong>líneas de producto</strong>
+                                    → Los impuestos se aplican automáticamente:
+                                    <ul>
+                                        <li>ISV compra del producto</li>
+                                        <li>Retención ISR si aplica</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    Confirmar la factura
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: GUÍAS DE REMISIÓN
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'guias_remision'">
+                    <h3 class="text-primary">
+                        🚚 Guías de Remisión (Entregas)
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_guias"
+                                class="btn btn-primary btn-sm">
+                            🚚 Abrir Transferencias / Entregas
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Inventario → Entregas → [entrega] → pestaña "SAR"
+                        </span>
+                    </div>
+
+                    <div class="alert alert-info small">
+                        La <strong>guía de remisión</strong> es el documento SAR
+                        que ampara el traslado de mercadería. Se genera desde la
+                        <strong>entrega (transferencia de inventario)</strong>,
+                        con su propia numeración y CAI.
+                    </div>
+
+                    <!-- Paso 1: secuencia en el tipo de operación -->
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            Paso 1 — Secuencia SAR del tipo de operación
+                        </div>
+                        <div class="card-body small">
+                            <p class="mb-2">
+                                Ir a <strong>Inventario → Configuración →
+                                Tipos de Operación → [Entregas]</strong> y
+                                asignar el campo
+                                <strong>"Secuencia SAR Remisión"</strong>
+                                (una secuencia fiscal con su rango y CAI, igual
+                                que las de facturas).
+                            </p>
+                            <div class="alert alert-warning mb-0">
+                                ⚠️ Sin esta secuencia, el botón "Actualizar
+                                Numeración SAR" de la entrega no podrá asignar
+                                número ni CAI a la guía.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 2: datos en la entrega -->
+                    <div class="card mb-3 border-success">
+                        <div class="card-header bg-success text-white fw-bold">
+                            Paso 2 — Completar la entrega (pestaña "SAR")
+                        </div>
+                        <div class="card-body">
+                            <p class="small mb-2">
+                                En la entrega, abrir la pestaña
+                                <strong>"SAR"</strong> y completar:
+                            </p>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="card bg-body-tertiary h-100">
+                                        <div class="card-body p-2 small">
+                                            <strong>Información SAR</strong>
+                                            <ul class="mb-0">
+                                                <li><strong>Motivo de Traslado</strong> (venta, traslado entre establecimientos, exportación, etc.)</li>
+                                                <li>N° SAR, CAI y rango (se llenan en el Paso 3)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-body-tertiary h-100">
+                                        <div class="card-body p-2 small">
+                                            <strong>Datos del Transportista</strong>
+                                            <ul class="mb-0">
+                                                <li>Nombre del transportista</li>
+                                                <li>RTN / Identidad</li>
+                                                <li>Marca y N° de placa</li>
+                                                <li>Licencia de conducir</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 3: numeración y confirmación -->
+                    <div class="card mb-3 border-info">
+                        <div class="card-header bg-info text-white fw-bold">
+                            Paso 3 — Numerar, validar e imprimir
+                        </div>
+                        <div class="card-body small">
+                            <ol class="mb-2">
+                                <li>
+                                    Pulsar el botón
+                                    <strong>"Actualizar Numeración SAR"</strong>
+                                    (en la cabecera de la entrega) para asignar
+                                    el <strong>N° SAR, CAI y rango</strong>
+                                    vigentes.
+                                </li>
+                                <li>
+                                    <strong>Validar</strong> la entrega. Al
+                                    confirmar una salida se genera además el
+                                    <strong>Número de Guía</strong> correlativo.
+                                </li>
+                                <li>
+                                    Imprimir desde
+                                    <strong>Imprimir → "Guía Remisión"</strong>.
+                                </li>
+                            </ol>
+                            <div class="alert alert-info mb-0">
+                                📊 El <strong>Dashboard Fiscal</strong> muestra
+                                el indicador <strong>"Guías Rem."</strong> con la
+                                cantidad de guías numeradas (con N° SAR) en el
+                                período seleccionado.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: RETENCIONES
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'retenciones'">
+                    <h3 class="text-primary">
+                        🔒 Retenciones ISR Honduras
+                    </h3>
+                    <div class="card mb-3 border-warning">
+                        <div class="card-header bg-warning text-dark fw-bold">
+                            ¿Cuándo se retiene ISR?
+                        </div>
+                        <div class="card-body small">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <strong>✅ NO se retiene cuando:</strong>
+                                    <ul class="mb-0">
+                                        <li>El proveedor tiene constancia SAR vigente</li>
+                                        <li>El proveedor es extranjero</li>
+                                        <li>El proveedor no tiene RTN (boleta)</li>
+                                        <li>El producto no aplica retención ISR</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>🔴 SÍ se retiene cuando:</strong>
+                                    <ul class="mb-0">
+                                        <li>Proveedor HN con RTN</li>
+                                        <li>Sin constancia SAR o vencida</li>
+                                        <li>Producto marcado con retención ISR</li>
+                                        <li>Se aplica el % del impuesto configurado</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-header fw-bold">
+                            Tasas de Retención ISR
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Tasa</th>
+                                        <th>Aplica a</th>
+                                        <th>Base Legal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Servicios/Honorarios</td>
+                                        <td class="fw-bold text-danger">12.5%</td>
+                                        <td>Consultoría, asesoría, servicios técnicos</td>
+                                        <td>Art. 50 Ley ISR</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Anticipo Bienes</td>
+                                        <td class="fw-bold text-danger">1%</td>
+                                        <td>Compra de mercadería y bienes</td>
+                                        <td>Art. 19 Dec. 17-2010</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Alquiler</td>
+                                        <td class="fw-bold text-danger">10%</td>
+                                        <td>Alquiler habitacional &gt; L.15,000/mes</td>
+                                        <td>Art. 5 Dec. 17-2010</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Retención ISV 15% — solo Grandes Contribuyentes -->
+                    <div class="card mb-3 border-dark"
+                         invisible="solo_aplicables and perfil_empresa != 'grande'">
+                        <div class="card-header bg-dark text-white fw-bold">
+                            🏛️ Retención ISV 15% — Agente de Retención
+                            <span class="badge bg-light text-dark ms-2">Solo Grandes</span>
+                        </div>
+                        <div class="card-body small">
+                            <p class="mb-2">
+                                Los <strong>Grandes Contribuyentes</strong> son
+                                <strong>agentes de retención del ISV 15%</strong>:
+                                al pagar ciertos servicios (transporte, alquiler,
+                                maquinaria/equipo) deben retener el 15% del ISV al
+                                proveedor y enterarlo al SAR. Corresponde al
+                                <strong>código SAR 05 — Retención ISV 15%</strong>.
+                            </p>
+                            <ul class="mb-2">
+                                <li>Se activa automáticamente cuando la compañía es <strong>Grande Contribuyente</strong> (campo "Agente de Retención ISV").</li>
+                                <li>Aplica el impuesto de <strong>Retención ISV 15%</strong> en la factura de compra del servicio afecto.</li>
+                                <li>La retención se entera al SAR junto con el ISV del período.</li>
+                            </ul>
+                            <div class="alert alert-warning py-2 mb-0">
+                                ⚠️ Diferénciala de la <strong>retención ISR</strong>
+                                (tabla anterior): el ISV 15% se retiene sobre el
+                                impuesto, el ISR sobre el valor del servicio/bien.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-info">
+                        <div class="card-header fw-bold">
+                            Libro de Retenciones SAR
+                        </div>
+                        <div class="card-body small">
+                            <ol class="mb-0">
+                                <li>
+                                    Ir a
+                                    <strong>
+                                        Fiscal HN → Libros SAR →
+                                        Libro de Retenciones
+                                    </strong>
+                                </li>
+                                <li>Crear nuevo libro del mes</li>
+                                <li>
+                                    Clic en <strong>"Generar Libro"</strong>
+                                    → carga retenciones del mes automáticamente
+                                </li>
+                                <li>Revisar y ajustar si es necesario</li>
+                                <li>
+                                    Clic en
+                                    <strong>"Marcar Declarado"</strong>
+                                    al enterar al SAR
+                                </li>
+                                <li>Exportar Excel como respaldo</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: EXONERACIÓN
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'exoneracion'">
+                    <h3 class="text-primary">
+                        🧾 Control de Exoneración
+                    </h3>
+                    <p class="text-muted">
+                        Configurar en:
+                        <strong>
+                            Ajustes → Compañías → Información SAR →
+                            Control de Exoneración
+                        </strong>
+                    </p>
+
+                    <div class="card mb-3 border-info">
+                        <div class="card-header bg-info text-white fw-bold">
+                            ¿Cómo funciona?
+                        </div>
+                        <div class="card-body small">
+                            <p class="mb-2">
+                                Cuando una <strong>factura de venta</strong>
+                                lleva impuesto <strong>exonerado</strong>
+                                (monto exonerado &gt; 0), el sistema verifica
+                                que el cliente tenga una exoneración (OCE)
+                                <strong>vigente</strong> a la fecha del
+                                documento.
+                            </p>
+                            <p class="mb-0">
+                                Se considera <strong>no vigente</strong> si el
+                                cliente: no tiene exoneración registrada, no
+                                tiene fecha de vencimiento, o la fecha ya pasó.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            Modos de control (compañía)
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Modo</th>
+                                        <th>Comportamiento</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="badge bg-secondary">Sin control</span></td>
+                                        <td>No valida nada.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-warning text-dark">Advertencia</span></td>
+                                        <td>Avisa al facturista y permite continuar.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-danger">Bloqueo duro</span></td>
+                                        <td>Impide confirmar. Solo el Administrador de Numeración Fiscal puede continuar.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info small mb-0">
+                        ℹ️ Un <strong>cron diario</strong> notifica (actividad
+                        To-Do) al <strong>vendedor del cliente</strong> (o al
+                        responsable de respaldo) cuando la exoneración está
+                        próxima a vencer (días configurables, default 30) o ya
+                        vencida.
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: CONSUMIDOR FINAL
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'consumidor_final'">
+                    <h3 class="text-primary">
+                        🛑 Límite de Consumidor Final
+                    </h3>
+                    <p class="text-muted">
+                        Configurar en:
+                        <strong>
+                            Ajustes → Compañías → Información SAR →
+                            Límite de Consumidor Final
+                        </strong>
+                    </p>
+
+                    <div class="card mb-3 border-danger">
+                        <div class="card-header bg-danger text-white fw-bold">
+                            Bloqueo duro sin excepción
+                        </div>
+                        <div class="card-body small">
+                            <p class="mb-2">
+                                Si la compañía tiene activado el control,
+                                definido el <strong>contacto Consumidor
+                                Final</strong> y un <strong>monto máximo</strong>,
+                                al <strong>confirmar una orden de venta</strong>
+                                o <strong>validar una factura de venta</strong>
+                                a nombre de ese contacto cuyo total
+                                (con impuestos) supere el máximo, la
+                                transacción se <strong>bloquea</strong>.
+                            </p>
+                            <ul class="mb-0">
+                                <li>Ningún perfil puede saltarse el bloqueo.</li>
+                                <li>El usuario debe registrar un contacto formal con RTN y asignarlo.</li>
+                                <li>Cada intento queda registrado en auditoría.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card border-secondary">
+                        <div class="card-header fw-bold">
+                            Auditoría de intentos
+                        </div>
+                        <div class="card-body small">
+                            Ver: <strong>Fiscal HN → Validaciones →
+                            Bloqueos Consumidor Final</strong>
+                            (usuario, cliente, documento, monto, fecha).
+                            <div class="mt-2">
+                                <button type="object"
+                                        name="action_abrir_bloqueos_cf"
+                                        class="btn btn-outline-danger btn-sm">
+                                    🛑 Abrir Bloqueos Consumidor Final
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: ZONA LIBRE (ZOLI)
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'zoli'">
+                    <h3 class="text-primary">
+                        🌎 Régimen de Zona Libre (ZOLI)
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_compania"
+                                class="btn btn-primary btn-sm">
+                            🏢 Abrir Compañía (activar ZOLI)
+                        </button>
+                        <button type="object" name="action_abrir_duca_activos"
+                                class="btn btn-outline-info btn-sm">
+                            📦 DUCAs Activos
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Fiscal HN → Zona Libre (ZOLI)
+                        </span>
+                    </div>
+
+                    <div class="alert alert-warning small"
+                         invisible="es_zoli_manual">
+                        ⚠️ Esta empresa no está marcada como ZOLI. Activa
+                        <strong>"Empresa Zona Libre (ZOLI)"</strong> arriba o en
+                        la ficha de la compañía para usar estos controles.
+                    </div>
+
+                    <div class="card mb-3 border-dark">
+                        <div class="card-header bg-dark text-white fw-bold">
+                            Activación (compañía)
+                        </div>
+                        <div class="card-body small">
+                            En <strong>Ajustes → Compañías → Información SAR →
+                            Régimen de Zona Libre (ZOLI)</strong> activar
+                            <code>es_zoli</code>. Solo entonces se aplican los
+                            controles. Parámetros configurables:
+                            <ul class="mb-0 mt-1">
+                                <li>Días de permanencia DUCA (default 180)</li>
+                                <li>Días de alerta previa (30) y crítica (7)</li>
+                                <li>Responsable de Compras y de Bodega (ZOLI)</li>
+                                <li>Control de lotes vencidos: advertencia / bloqueo</li>
+                                <li>Límite de ventas locales (50%) y umbral de alerta (45%)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card border-info h-100">
+                                <div class="card-header bg-info text-white fw-bold">
+                                    📦 Control de permanencia (DUCA)
+                                </div>
+                                <div class="card-body small">
+                                    <ul class="mb-0">
+                                        <li>Marcar la materia prima importada con <strong>"Requiere control DUCA"</strong> (exige rastreo por lote).</li>
+                                        <li>Al recibir, el sistema exige <strong>N° DUCA</strong> y documento adjunto.</li>
+                                        <li>Vencimiento = fecha de recepción + días de permanencia.</li>
+                                        <li>Alertas a 30 y 7 días (correo) y al vencer.</li>
+                                        <li>Uso de lotes vencidos: bloqueado salvo autorización de gerencia (<code>group_zoli_gerencia</code>).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-success h-100">
+                                <div class="card-header bg-success text-white fw-bold">
+                                    🧮 Nacionalización (DAI + ISV)
+                                </div>
+                                <div class="card-body small">
+                                    <ul class="mb-0">
+                                        <li>En la OV/factura, <strong>Tipo de operación ZOLI</strong>: exportación o nacionalización.</li>
+                                        <li>Producto <strong>no originario</strong> → DAI sobre el bien final.</li>
+                                        <li>Producto <strong>originario (TLC)</strong> → DAI sobre insumos no originarios consumidos.</li>
+                                        <li>ISV de nacionalización 15% sobre (base + DAI).</li>
+                                        <li>Al confirmar la factura se cierra la DUCA con la cantidad nacionalizada.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger small mt-3 mb-0">
+                        🚨 <strong>Límite del 50%:</strong> las ventas locales
+                        (nacionalizadas) no deben superar el 50% de las ventas
+                        anuales. El Dashboard Fiscal muestra el control y alerta
+                        al acercarse al umbral (45%).
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: LIBROS SAR
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'libros_sar'">
+                    <h3 class="text-primary">
+                        📚 Libros SAR Honduras
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_libro_ventas"
+                                class="btn btn-success btn-sm">
+                            📤 Libro de Ventas
+                        </button>
+                        <button type="object" name="action_abrir_libro_compras"
+                                class="btn btn-primary btn-sm"
+                                invisible="solo_aplicables and perfil_empresa == 'pequeno'">
+                            📥 Libro de Compras (DMC)
+                        </button>
+                        <button type="object" name="action_abrir_libro_retenciones"
+                                class="btn btn-danger btn-sm">
+                            🔒 Libro de Retenciones
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Fiscal HN → Libros SAR
+                        </span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="card border-success h-100">
+                                <div class="card-header bg-success text-white fw-bold">
+                                    📤 Libro de Ventas
+                                </div>
+                                <div class="card-body small">
+                                    <strong>Incluye:</strong>
+                                    <ul>
+                                        <li>Facturas cliente</li>
+                                        <li>Notas de Crédito emitidas</li>
+                                        <li>Notas de Débito emitidas</li>
+                                    </ul>
+                                    <strong>Flujo:</strong>
+                                    <ol class="mb-0">
+                                        <li>Nuevo → configurar período</li>
+                                        <li>Generar Libro</li>
+                                        <li>Revisar líneas</li>
+                                        <li>Ingresar débito ISV declarado</li>
+                                        <li>Verificar consistencia</li>
+                                        <li>Marcar Declarado</li>
+                                        <li>Exportar Excel</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-2"
+                             invisible="not (solo_aplicables and perfil_empresa == 'pequeno')">
+                            <div class="alert alert-success py-2 mb-0 small">
+                                ✅ Como <strong>Pequeño Contribuyente</strong>
+                                no estás obligado a presentar la DMC; por eso se
+                                oculta el Libro de Compras (DMC). Usa
+                                <strong>"Ver todo"</strong> si necesitas
+                                consultarlo.
+                            </div>
+                        </div>
+                        <div class="col-md-4"
+                             invisible="solo_aplicables and perfil_empresa == 'pequeno'">
+                            <div class="card border-primary h-100">
+                                <div class="card-header bg-primary text-white fw-bold">
+                                    📥 Libro de Compras (DMC)
+                                </div>
+                                <div class="card-body small">
+                                    <strong>Incluye:</strong>
+                                    <ul>
+                                        <li>FA Sección A (locales)</li>
+                                        <li>Boletas Sección B (eventuales)</li>
+                                        <li>Importaciones Sección C</li>
+                                        <li>NC y ND de proveedores</li>
+                                    </ul>
+                                    <strong>Plazo:</strong>
+                                    Primeros 8 días hábiles
+                                    del mes siguiente.
+                                    <div class="alert alert-warning p-1 mt-2 mb-0 small">
+                                        ⚠️ Solo medianos y grandes
+                                        contribuyentes están obligados
+                                        a presentar la DMC.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-danger h-100">
+                                <div class="card-header bg-danger text-white fw-bold">
+                                    🔒 Libro de Retenciones
+                                </div>
+                                <div class="card-body small">
+                                    <strong>Incluye:</strong>
+                                    <ul>
+                                        <li>Retenciones ISR aplicadas</li>
+                                        <li>Por tipo de servicio</li>
+                                        <li>RTN y datos del proveedor</li>
+                                    </ul>
+                                    <strong>Solo para:</strong>
+                                    Empresas que retienen ISR
+                                    a sus proveedores.
+                                    <div class="alert alert-info p-1 mt-2 mb-0 small">
+                                        ℹ️ Plazo entero al SAR:
+                                        primeros 10 días hábiles
+                                        del mes siguiente.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: DASHBOARD
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'dashboard'">
+                    <h3 class="text-primary">
+                        📊 Dashboard Fiscal
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="object" name="action_abrir_salud_fiscal"
+                                class="btn btn-outline-primary btn-sm">
+                            🩺 Abrir Salud Fiscal
+                        </button>
+                        <span class="badge bg-body-secondary text-body border align-self-center">
+                            📍 Fiscal HN → Dashboard Fiscal
+                        </span>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="fw-bold">
+                                KPIs disponibles:
+                            </h5>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <ul class="small mb-0">
+                                        <li>💰 ISV Neto a Pagar</li>
+                                        <li>📤 ISV Ventas (15% y 18%)</li>
+                                        <li>📥 ISV Compras (crédito fiscal)</li>
+                                        <li>🔒 Retenciones aplicadas (total y desglose por tipo: ISV 15%, ISR 12.5% / 1% / 10%)</li>
+                                        <li>📋 N° Facturas emitidas</li>
+                                        <li>👥 Clientes únicos facturados</li>
+                                        <li>🎫 Ticket promedio</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="small mb-0">
+                                        <li>⚠️ Facturas sin RTN</li>
+                                        <li>📝 Notas de Crédito y Débito</li>
+                                        <li>🚫 Facturas anuladas</li>
+                                        <li>🚚 Guías de remisión del período (ver sección "Guías de Remisión")</li>
+                                        <li>🔢 Correlativos usados/disponibles</li>
+                                        <li>⏰ Días CAI vigente</li>
+                                        <li>📅 Estado declaraciones SAR</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: INFORMES EXCEL
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'informes'">
+                    <h3 class="text-primary">
+                        📈 Informes Excel SAR
+                    </h3>
+                    <p class="text-muted">
+                        Ir a:
+                        <strong>
+                            Fiscal HN → Informes Excel
+                        </strong>
+                    </p>
+                    <div class="card">
+                        <div class="card-body">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Reporte</th>
+                                        <th>Contenido</th>
+                                        <th>Uso</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Ventas Netas</strong></td>
+                                        <td>Detalle por producto y vendedor</td>
+                                        <td>Análisis operativo</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Ventas SAR</strong></td>
+                                        <td>Formato SAR: correlativo, RTN, ISV, exentos</td>
+                                        <td>Conciliación con DET Live</td>
+                                    </tr>
+                                    <tr invisible="solo_aplicables and perfil_empresa == 'pequeno'">
+                                        <td><strong>DMC Compras</strong></td>
+                                        <td>Secciones A, B, C con clase FA/OC</td>
+                                        <td>Declaración DMC al SAR</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Retenciones SAR</strong></td>
+                                        <td>Retenciones por proveedor y tipo</td>
+                                        <td>Declaración ISR mensual</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Exoneraciones</strong></td>
+                                        <td>Ventas con OCE por cliente</td>
+                                        <td>Control de exoneraciones</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Detalle Facturas</strong></td>
+                                        <td>Línea por línea con impuestos</td>
+                                        <td>Auditoría y análisis</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: CIERRE MENSUAL
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'cierre'">
+                    <h3 class="text-primary">
+                        📅 Cierre Mensual SAR
+                    </h3>
+                    <div class="card border-dark">
+                        <div class="card-header bg-dark text-white fw-bold">
+                            Checklist de Cierre Mensual
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold text-success">
+                                        📤 Ventas
+                                    </h6>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Verificar todas las facturas confirmadas
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Generar Libro de Ventas SAR
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Verificar consistencia ISV vs libro
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Declarar libro de ventas
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Exportar Excel respaldo
+                                    </div>
+                                </div>
+                                <div class="col-md-6"
+                                     invisible="solo_aplicables and perfil_empresa == 'pequeno'">
+                                    <h6 class="fw-bold text-primary">
+                                        📥 Compras (DMC)
+                                    </h6>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Verificar todas las compras confirmadas
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Completar importaciones sección C
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Generar Libro de Compras (DMC)
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Verificar crédito fiscal vs casilla 42 ISV
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Declarar libro dentro de los 8 días hábiles
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold text-danger">
+                                        🔒 Retenciones ISR
+                                    </h6>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Generar Libro de Retenciones
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Verificar monto vs ISR declarado
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Enterar retenciones al SAR (primeros 10 días hábiles)
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Registrar N° boleta de pago
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold text-warning">
+                                        ⚠️ Verificaciones Finales
+                                    </h6>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Revisar Dashboard — Estado SAR del período
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Verificar constancias de proveedores por vencer
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Verificar estado CAI — días restantes
+                                    </div>
+                                    <div class="small mb-1 o_manual_check">
+                                        <span class="text-muted me-1">☐</span>Revisar alertas de secuencias fiscales
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info mt-3 mb-0 small">
+                                ℹ️ <strong>Plazos SAR Honduras:</strong>
+                                ISV mensual y retenciones →
+                                primeros 10 días hábiles.
+                                DMC → primeros 8 días hábiles.
+                                Pagos a cuenta → 30 Jun, 30 Sep, 31 Dic.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: IMPORTACIÓN DE DATOS
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'importacion'">
+                    <h3 class="text-primary">
+                        Importación de Datos (Excel / CSV)
+                    </h3>
+                    <p class="text-muted">
+                        Odoo importa desde <strong>Favoritos → Importar
+                        registros</strong> en la vista de lista. El orden
+                        recomendado es: <strong>1) Categorías → 2) Productos →
+                        3) Clientes</strong>. Las plantillas listas para
+                        rellenar están en el módulo, carpeta
+                        <code>plantillas_importacion/</code>.
+                    </p>
+
+                    <div class="alert alert-warning small">
+                        <strong>Antes de importar:</strong> guarda el archivo en
+                        formato <strong>CSV UTF-8</strong> o
+                        <strong>.xlsx</strong>, no cambies los nombres de las
+                        columnas y mantén una fila por registro. El campo
+                        <strong>External ID</strong> (id) es opcional pero
+                        recomendado para poder reimportar y actualizar.
+                    </div>
+
+                    <!-- 1) Categorías -->
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+                            <span>1. Categorías de producto</span>
+                            <button type="object"
+                                    name="action_abrir_categorias"
+                                    string="Abrir Categorías"
+                                    class="btn btn-sm btn-light"/>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Columna</th>
+                                        <th>Obligatorio</th>
+                                        <th>Descripción / Validación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>id</code></td>
+                                        <td>No</td>
+                                        <td>External ID único (ej. <code>cat_servicios</code>). Útil para referenciarla desde productos y reimportar.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>name</code></td>
+                                        <td>Sí</td>
+                                        <td>Nombre de la categoría.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>parent_id</code></td>
+                                        <td>No</td>
+                                        <td>Categoría padre (nombre exacto o su External ID). Si no existe, créala antes.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 2) Productos -->
+                    <div class="card mb-3 border-success">
+                        <div class="card-header bg-success text-white fw-bold d-flex justify-content-between align-items-center">
+                            <span>2. Productos</span>
+                            <button type="object"
+                                    name="action_abrir_productos"
+                                    string="Abrir Productos"
+                                    class="btn btn-sm btn-light"/>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Columna</th>
+                                        <th>Obligatorio</th>
+                                        <th>Descripción / Validación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>name</code></td>
+                                        <td>Sí</td>
+                                        <td>Nombre del producto.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>default_code</code></td>
+                                        <td>No</td>
+                                        <td>Referencia interna / SKU.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>type</code></td>
+                                        <td>Sí</td>
+                                        <td>Tipo: <code>consu</code> (bienes), <code>service</code> (servicios).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>categ_id</code></td>
+                                        <td>Sí</td>
+                                        <td>Categoría (nombre exacto o External ID). Debe existir previamente.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>list_price</code></td>
+                                        <td>No</td>
+                                        <td>Precio de venta. Usa punto decimal.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>standard_price</code></td>
+                                        <td>No</td>
+                                        <td>Costo.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>taxes_id</code></td>
+                                        <td>Recom.</td>
+                                        <td>Impuesto de venta (ej. <code>ISV 15%</code>). Debe tener Código SAR para los Libros.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>supplier_taxes_id</code></td>
+                                        <td>No</td>
+                                        <td>Impuesto de compra (crédito fiscal DMC).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>aplica_retencion_isr</code></td>
+                                        <td>No</td>
+                                        <td>VERDADERO/FALSO. Si aplica retención ISR sobre el producto/servicio.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 3) Clientes -->
+                    <div class="card mb-3 border-info">
+                        <div class="card-header bg-info text-white fw-bold d-flex justify-content-between align-items-center">
+                            <span>3. Clientes / Contactos</span>
+                            <button type="object"
+                                    name="action_abrir_contactos"
+                                    string="Abrir Contactos"
+                                    class="btn btn-sm btn-light"/>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Columna</th>
+                                        <th>Obligatorio</th>
+                                        <th>Descripción / Validación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>name</code></td>
+                                        <td>Sí</td>
+                                        <td>Nombre o razón social.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>company_type</code></td>
+                                        <td>Sí</td>
+                                        <td><code>company</code> (empresa) o <code>person</code> (persona).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>vat</code> (RTN)</td>
+                                        <td>Sí*</td>
+                                        <td>RTN de 13 o 14 dígitos. *Obligatorio para clientes formales; el genérico Consumidor Final no lleva RTN.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>email</code> / <code>phone</code></td>
+                                        <td>No</td>
+                                        <td>Contacto. El email debe ser válido.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>street</code> / <code>city</code></td>
+                                        <td>No</td>
+                                        <td>Dirección.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>tiene_exoneracion_sar</code></td>
+                                        <td>No</td>
+                                        <td>VERDADERO/FALSO. Cliente exonerado.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>exoneracion_fecha_vencimiento</code></td>
+                                        <td>No</td>
+                                        <td>Formato <code>AAAA-MM-DD</code>. Requerido si está exonerado.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>customer_rank</code></td>
+                                        <td>No</td>
+                                        <td>Pon <code>1</code> para marcarlo como cliente.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success small mb-0">
+                        <strong>Consejo:</strong> haz una prueba con 2–3 filas
+                        antes de la carga masiva. Si una columna no coincide,
+                        Odoo te deja mapearla manualmente en la pantalla de
+                        importación; si el RTN está mal formado, corrígelo en el
+                        Excel y vuelve a importar.
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SECCIÓN: GUÍA IMPLEMENTADOR
+                     ══════════════════════════════ -->
+                <div class="o_manual_section"
+                         invisible="seccion_activa != 'implementador'">
+                    <h3 class="text-primary">
+                        ⚙️ Guía del Implementador
+                    </h3>
+                    <p class="text-muted">
+                        Inventario de configuraciones por área. Documento
+                        completo en <code>MANUAL_USUARIO.md</code> dentro del
+                        módulo.
+                    </p>
+
+                    <div class="card mb-3 border-dark">
+                        <div class="card-header bg-dark text-white fw-bold">
+                            Dónde se configura cada cosa
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Área</th>
+                                        <th>Ruta</th>
+                                        <th>Configura</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Compañía</strong></td>
+                                        <td>Ajustes → Compañías → Información SAR</td>
+                                        <td>RTN, tipo contribuyente, resolución, exoneración, Consumidor Final</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Contactos</strong></td>
+                                        <td>Contactos → Fiscal Honduras</td>
+                                        <td>RTN, constancia, exoneración</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Diarios</strong></td>
+                                        <td>Contabilidad → Diarios</td>
+                                        <td>Documento fiscal, secuencias SAR</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Códigos SAR</strong></td>
+                                        <td>Fiscal HN → Códigos SAR</td>
+                                        <td>Códigos oficiales de impuestos</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Impuestos</strong></td>
+                                        <td>Fiscal HN → Impuestos SAR</td>
+                                        <td>Vínculo a código SAR, tipo, retención</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Secuencias / CAI</strong></td>
+                                        <td>Fiscal HN → Secuencias Fiscales</td>
+                                        <td>CAI, rangos, alertas</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Productos</strong></td>
+                                        <td>Inventario → Productos → Fiscal Honduras</td>
+                                        <td>Retención ISR, categoría, DUCA/DAI</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Zona Libre (ZOLI)</strong></td>
+                                        <td>Compañía → Información SAR → ZOLI · Fiscal HN → Zona Libre</td>
+                                        <td>es_zoli, DUCA, nacionalización, límite 50%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card border-secondary h-100">
+                                <div class="card-header fw-bold">
+                                    Permisos
+                                </div>
+                                <div class="card-body small mb-0">
+                                    <strong>Administrador de Numeración
+                                    Fiscal</strong>: cancela facturas SAR,
+                                    gestiona libros/códigos y omite el bloqueo
+                                    duro de exoneración vencida.<br/>
+                                    <strong>Gerencia ZOLI</strong>
+                                    (<code>group_zoli_gerencia</code>):
+                                    autoriza el uso de lotes DUCA vencidos.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-secondary h-100">
+                                <div class="card-header fw-bold">
+                                    Tareas programadas (cron)
+                                </div>
+                                <div class="card-body small mb-0">
+                                    <ul class="mb-0">
+                                        <li>Activar Rango CAI (diario)</li>
+                                        <li>Alertas Constancias (diario)</li>
+                                        <li>Alertas Exoneración (diario)</li>
+                                        <li>Alertas DUCA ZOLI (diario)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3 border-success">
+                        <div class="card-header bg-success text-white fw-bold">
+                            Checklist de implementación
+                        </div>
+                        <div class="card-body small">
+                            <div class="o_manual_check mb-1"><span class="text-muted me-1">☐</span>Compañía: RTN, tipo contribuyente, resolución SAR</div>
+                            <div class="o_manual_check mb-1"><span class="text-muted me-1">☐</span>Compañía: modo exoneración y límite Consumidor Final</div>
+                            <div class="o_manual_check mb-1"><span class="text-muted me-1">☐</span>Códigos SAR e impuestos vinculados</div>
+                            <div class="o_manual_check mb-1"><span class="text-muted me-1">☐</span>Diarios con documento fiscal y secuencias</div>
+                            <div class="o_manual_check mb-1"><span class="text-muted me-1">☐</span>Secuencias con rangos CAI vigentes</div>
+                            <div class="o_manual_check mb-1"><span class="text-muted me-1">☐</span>Contactos con RTN; constancias y exoneraciones</div>
+                            <div class="o_manual_check mb-1"><span class="text-muted me-1">☐</span>Productos con retención ISR e impuesto</div>
+                            <div class="o_manual_check mb-1"><span class="text-muted me-1">☐</span>Crons activos y permisos asignados</div>
+                            <div class="o_manual_check mb-1"><span class="text-muted me-1">☐</span>Prueba extremo a extremo: venta, compra, retención, libros, Excel</div>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+                <!-- ░░ fin contenido del manual ░░ -->
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción del Manual -->
+    <record id="action_manual_uso_fiscal_hn" model="ir.actions.server">
+        <field name="name">Manual de Uso Fiscal Honduras</field>
+        <field name="model_id" ref="model_kc_fiscal_hn_manual_uso"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_manual()</field>
+    </record>
+
+</odoo>

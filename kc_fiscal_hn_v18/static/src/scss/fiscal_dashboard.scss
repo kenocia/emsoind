@@ -1,0 +1,124 @@
+.o_fiscal_dashboard_form .o_fiscal_dashboard_sheet {
+    background: var(--o-view-background-color, #f8f9fa);
+    padding: 1rem 1.25rem;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.o_fiscal_dashboard_form .o_fiscal_kpi {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid transparent;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_kpi-danger {
+    border-left-color: #dc3545 !important;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_kpi-warning {
+    border-left-color: #ffc107 !important;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_kpi-info {
+    border-left-color: #17a2b8 !important;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_kpi-secondary {
+    border-left-color: #6c757d !important;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_kpi_label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_kpi_value {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_kpi_icon {
+    opacity: 0.2;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_header-success {
+    background: #198754;
+    color: #fff;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_header-primary {
+    background: #0d6efd;
+    color: #fff;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_header-dark {
+    background: #212529;
+    color: #fff;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+// Asegura que TODO el texto dentro de cabeceras de color sea legible
+// (Odoo a veces hereda el color de texto oscuro del tema en estos contenedores).
+.o_fiscal_dashboard_form {
+    .o_fiscal_header-success,
+    .o_fiscal_header-primary,
+    .o_fiscal_header-dark {
+        h1, h2, h3, h4, h5, h6,
+        p, span, small, i, .small, .text-muted {
+            color: #fff !important;
+        }
+    }
+}
+
+// Filas de totales con fondo oscuro (table-dark): el texto plano de Odoo
+// hereda un color oscuro y quedaba "negro sobre negro". Forzamos blanco
+// sin pisar las utilidades de color (text-warning / text-info / text-success).
+.o_fiscal_dashboard_form {
+    .table-dark,
+    .table > tfoot.table-dark {
+        --bs-table-color: #fff;
+        --bs-table-bg: #212529;
+        color: #fff;
+
+        > tr > td,
+        > tr > th,
+        td,
+        th {
+            color: #fff;
+            background-color: #212529;
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        // Mantener visibles los valores resaltados sobre fondo oscuro
+        .text-warning { color: #ffd24d !important; }
+        .text-info { color: #6edff6 !important; }
+        .text-success { color: #75d99a !important; }
+        .text-danger { color: #f1959b !important; }
+        .text-muted { color: rgba(255, 255, 255, 0.65) !important; }
+    }
+}
+
+.o_fiscal_dashboard_form .o_fiscal_doc_card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    height: 100%;
+}
+
+.o_fiscal_dashboard_form .o_fiscal_filter_bar .o_field_widget {
+    min-width: 8rem;
+}
+
+.o_fiscal_dashboard_form .o_field_many2many_tags {
+    width: 100%;
+}

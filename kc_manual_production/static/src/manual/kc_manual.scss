@@ -1,0 +1,113 @@
+// Paleta consistente con el módulo.
+$kc-teal: #1ABC9C;
+$kc-dark: #2C3E50;
+
+.kc_manual {
+    padding: 20px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    .kc_manual_header {
+        margin-bottom: 16px;
+
+        h2 {
+            color: $kc-dark;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+        }
+    }
+
+    .kc_manual_tabs {
+        .nav-link {
+            color: $kc-dark;
+            font-weight: 500;
+            cursor: pointer;
+
+            &.active {
+                color: $kc-teal;
+                border-bottom: 3px solid $kc-teal;
+                font-weight: 600;
+            }
+        }
+    }
+
+    .kc_manual_content {
+        padding: 20px 4px;
+        line-height: 1.6;
+
+        h3 {
+            color: $kc-dark;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        h4 {
+            color: $kc-teal;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+    }
+
+    .kc_diagram {
+        background: #f8f9fa;
+        border: 1px solid #e3e6e8;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 16px 0;
+        overflow-x: hidden;
+    }
+
+    .kc_steps {
+        padding-left: 20px;
+
+        li {
+            margin-bottom: 6px;
+        }
+    }
+
+    // Caja de "Errores Comunes" — alerta sutil
+    .kc_alert_box {
+        display: flex;
+        gap: 12px;
+        background: #fff8e1;
+        border-left: 4px solid #f0ad4e;
+        border-radius: 4px;
+        padding: 12px 16px;
+        margin: 16px 0;
+
+        .kc_alert_icon {
+            font-size: 1.4rem;
+            color: #f0ad4e;
+            line-height: 1.2;
+        }
+
+        ul {
+            margin: 6px 0 0 0;
+            padding-left: 18px;
+        }
+    }
+
+    // Caja de nota / información
+    .kc_note_box {
+        background: #f0fbf8;
+        border-left: 4px solid $kc-teal;
+        border-radius: 4px;
+        padding: 12px 16px;
+        margin: 16px 0;
+    }
+
+    .kc_perm_table {
+        max-width: 760px;
+
+        th {
+            background: $kc-dark;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        td, th {
+            vertical-align: middle;
+        }
+    }
+}

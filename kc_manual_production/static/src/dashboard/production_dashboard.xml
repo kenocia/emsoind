@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="kc_manual_production.ProductionDashboard">
+        <div class="kc_dashboard o_action">
+
+            <div class="kc_dashboard_header">
+                <h2 class="kc_dashboard_title">Resumen de Producción</h2>
+                <div class="kc_dashboard_filters">
+                    <div class="kc_dashboard_line_filter">
+                        <label class="me-1">Línea:</label>
+                        <select class="form-select form-select-sm d-inline-block w-auto"
+                                t-on-change="(ev) => this.onProductionLineChange(ev)">
+                            <option value="">Todas</option>
+                            <option t-foreach="state.productionLines" t-as="line"
+                                    t-key="line.id"
+                                    t-att-value="line.id"
+                                    t-att-selected="state.productionLineId === line.id"
+                                    t-esc="line.name"/>
+                        </select>
+                    </div>
+                    <div class="kc_dashboard_line_filter">
+                        <label class="me-1">Centro:</label>
+                        <select class="form-select form-select-sm d-inline-block w-auto"
+                                t-on-change="(ev) => this.onWorkCenterChange(ev)">
+                            <option value="">Todos</option>
+                            <option t-foreach="state.workCenters" t-as="wc"
+                                    t-key="wc.id"
+                                    t-att-value="wc.id"
+                                    t-att-selected="state.workCenterId === wc.id"
+                                    t-esc="wc.name"/>
+                        </select>
+                    </div>
+                    <div class="kc_dashboard_filters btn-group" role="group">
+                        <button type="button" class="btn"
+                                t-att-class="state.rangeType === 'today' ? 'btn-primary' : 'btn-outline-primary'"
+                                t-on-click="() => this.onFilterChange('today')">Hoy</button>
+                        <button type="button" class="btn"
+                                t-att-class="state.rangeType === 'week' ? 'btn-primary' : 'btn-outline-primary'"
+                                t-on-click="() => this.onFilterChange('week')">Esta Semana</button>
+                        <button type="button" class="btn"
+                                t-att-class="state.rangeType === 'month' ? 'btn-primary' : 'btn-outline-primary'"
+                                t-on-click="() => this.onFilterChange('month')">Este Mes</button>
+                        <button type="button" class="btn"
+                                t-att-class="state.rangeType === 'custom' ? 'btn-primary' : 'btn-outline-primary'"
+                                t-on-click="() => this.onFilterChange('custom')">Personalizado</button>
+                    </div>
+                </div>
+            </div>
+
+            <div t-if="state.rangeType === 'custom'" class="kc_dashboard_custom_range">
+                <label>Desde:</label>
+                <input type="date" t-att-value="state.dateFrom"
+                       t-on-change="(ev) => this.onCustomDateChange('from', ev)"/>
+                <label>Hasta:</label>
+                <input type="date" t-att-value="state.dateTo"
+                       t-on-change="(ev) => this.onCustomDateChange('to', ev)"/>
+            </div>
+
+            <ul class="nav nav-tabs kc_dashboard_tabs mb-3">
+                <li class="nav-item">
+                    <button type="button" class="nav-link"
+                            t-att-class="{'active': state.activeTab === 'operation'}"
+                            t-on-click="() => this.setTab('operation')">Operación</button>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link"
+                            t-att-class="{'active': state.activeTab === 'planning'}"
+                            t-on-click="() => this.setTab('planning')">Planificación</button>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link"
+                            t-att-class="{'active': state.activeTab === 'compliance'}"
+                            t-on-click="() => this.setTab('compliance')">Cumplimiento</button>
+                </li>
+            </ul>
+
+            <div t-if="state.loading" class="kc_dashboard_loading">
+                <i class="fa fa-spinner fa-spin fa-2x"/>
+                <span class="ms-2">Cargando datos...</span>
+            </div>
+
+            <t t-if="!state.loading and state.data">
+
+                <!-- ========== OPERACIÓN ========== -->
+                <t t-if="state.activeTab === 'operation' and operation">
+                    <div t-if="operation.alerts.length" class="kc_alerts_panel">
+                        <div t-foreach="operation.alerts" t-as="alert" t-key="alert.id"
+                             t-att-class="'kc_alert_item ' + this.alertClass(alert.severity)">
+                            <span class="kc_alert_message" t-esc="alert.message"/>
+                            <button type="button" class="btn btn-sm btn-outline-dark"
+                                    t-if="alert.action === 'open_cmp' and alert.res_id"
+                                    t-on-click="() => this.onAlertAction(alert)">
+                                Ir al consumo
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-dark"
+                                    t-if="alert.action === 'create_cmp' and state.data.meta.can_create_daily_cmp"
+                                    t-on-click="() => this.onAlertAction(alert)">
+                                Crear consumo
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="kc_kpi_row kc_kpi_row_7">
+                        <div t-att-class="'kc_kpi_card kc_kpi_clickable ' + this.kpiStatusClass(operation.kpis.lines_closed_status)"
+                             t-on-click="() => this.openKpi('lines_closed')"
+                             title="Líneas con consumo diario validado hoy">
+                            <div class="kc_kpi_value">
+                                <t t-esc="operation.kpis.lines_closed"/> / <t t-esc="operation.kpis.lines_total"/>
+                            </div>
+                            <div class="kc_kpi_label">Líneas al día (hoy)</div>
+                        </div>
+                        <div t-att-class="'kc_kpi_card kc_kpi_clickable ' + this.kpiStatusClass(operation.kpis.cmp_open_status)"
+                             t-on-click="() => this.openKpi('cmp_open')">
+                            <div class="kc_kpi_value" t-esc="operation.kpis.cmp_open_count"/>
+                            <div class="kc_kpi_label">Consumos abiertos</div>
+                        </div>
+                        <div t-att-class="'kc_kpi_card kc_kpi_clickable ' + this.kpiStatusClass(operation.kpis.lines_blocked_status)"
+                             t-on-click="() => this.openKpi('lines_blocked')">
+                            <div class="kc_kpi_value" t-esc="operation.kpis.lines_blocked_count"/>
+                            <div class="kc_kpi_label">Líneas bloqueadas</div>
+                        </div>
+                        <div class="kc_kpi_card kc_kpi_teal kc_kpi_clickable"
+                             t-on-click="() => this.openKpi('rp_period')">
+                            <div class="kc_kpi_value" t-esc="operation.kpis.rp_count"/>
+                            <div class="kc_kpi_label">OP <t t-esc="rangeLabel"/></div>
+                        </div>
+                        <div class="kc_kpi_card kc_kpi_teal kc_kpi_clickable"
+                             t-on-click="() => this.openKpi('units_period')">
+                            <div class="kc_kpi_value" t-esc="this.formatNumber(operation.kpis.units_produced)"/>
+                            <div class="kc_kpi_label">Unidades PT</div>
+                        </div>
+                        <div t-att-class="'kc_kpi_card kc_kpi_clickable ' + this.kpiStatusClass(operation.kpis.rp_queue_status)"
+                             t-on-click="() => this.openKpi('rp_queue')">
+                            <div class="kc_kpi_value" t-esc="operation.kpis.rp_queue_count"/>
+                            <div class="kc_kpi_label">OP en cola</div>
+                        </div>
+                        <div t-att-class="'kc_kpi_card kc_kpi_clickable ' + this.kpiStatusClass(operation.kpis.orphan_days_status)"
+                             t-on-click="() => this.openKpi('orphan_days')">
+                            <div class="kc_kpi_value" t-esc="operation.kpis.orphan_days_count"/>
+                            <div class="kc_kpi_label">Días huérfanos</div>
+                        </div>
+                    </div>
+
+                    <div t-if="operation.kpis.compliance_percent !== null and operation.kpis.compliance_percent !== undefined"
+                         class="kc_compliance_banner">
+                        Cierre operativo del período:
+                        <strong t-esc="operation.kpis.compliance_percent"/>%
+                        <span class="text-muted"> (días con OP que tienen consumo validado)</span>
+                    </div>
+
+                    <div class="kc_dashboard_chart_card">
+                        <h4>Cierre operativo y producción por día</h4>
+                        <div class="kc_chart_container">
+                            <canvas t-ref="opChartCanvas"/>
+                            <div t-if="!this.hasOpChartData" class="kc_empty_state">
+                                <i class="fa fa-bar-chart fa-2x"/>
+                                <p>No hay actividad registrada en el rango seleccionado.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kc_dashboard_table_card">
+                        <h4>Estado por línea de producción</h4>
+                        <table t-if="operation.line_status.length" class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Línea</th>
+                                    <th>Último consumo validado</th>
+                                    <th>Consumo hoy</th>
+                                    <th>Estado</th>
+                                    <th class="text-end">OP hoy</th>
+                                    <th class="text-end">PT (uds)</th>
+                                    <th class="text-end">Huérfanos</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="operation.line_status" t-as="row" t-key="row.line_id">
+                                    <td>
+                                        <strong t-esc="row.line_name"/>
+                                        <span t-if="row.line_code" class="text-muted ms-1"
+                                              t-esc="'(' + row.line_code + ')'"/>
+                                    </td>
+                                    <td t-esc="row.last_cmp_validated_date or '—'"/>
+                                    <td>
+                                        <t t-if="row.cmp_today_name" t-esc="row.cmp_today_name"/>
+                                        <t t-else="">—</t>
+                                        <span t-if="row.cmp_today_state_label"
+                                              class="badge text-bg-light ms-1"
+                                              t-esc="row.cmp_today_state_label"/>
+                                    </td>
+                                    <td>
+                                        <span class="badge"
+                                              t-att-class="this.statusBadgeClass(row.operational_status)"
+                                              t-esc="row.operational_status_label"/>
+                                    </td>
+                                    <td class="text-end" t-esc="row.rp_count_today"/>
+                                    <td class="text-end" t-esc="this.formatNumber(row.units_today)"/>
+                                    <td class="text-end" t-esc="row.orphan_days_in_range"/>
+                                    <td>
+                                        <button t-if="row.action_type and (row.action_type !== 'create_cmp' or state.data.meta.can_create_daily_cmp)"
+                                                type="button"
+                                                class="btn btn-sm btn-outline-primary"
+                                                t-on-click="() => this.onLineAction(row)"
+                                                t-esc="row.action_label"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div t-if="!operation.line_status.length" class="kc_empty_state">
+                            <p>No hay líneas de producción activas para mostrar.</p>
+                        </div>
+                    </div>
+
+                    <div t-if="operation.compliance_calendar" class="kc_dashboard_table_card">
+                        <h4>Calendario de cierre</h4>
+                        <div class="table-responsive">
+                            <table class="table table-sm kc_calendar_table">
+                                <thead>
+                                    <tr>
+                                        <th>Línea</th>
+                                        <th t-foreach="operation.compliance_calendar.date_labels" t-as="dl"
+                                            t-key="dl_index"
+                                            class="text-center"
+                                            t-esc="dl"/>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="operation.compliance_calendar.rows" t-as="calRow"
+                                        t-key="calRow.line_id">
+                                        <td t-esc="calRow.line_name"/>
+                                        <td t-foreach="calRow.cells" t-as="cell" t-key="cell.date"
+                                            class="text-center kc_cal_cell"
+                                            t-att-class="this.calendarCellClass(cell.status)"
+                                            t-att-title="cell.date"
+                                            t-on-click="() => this.onCalendarCell(calRow.line_id, cell)">
+                                            <t t-esc="this.calendarCellIcon(cell.status)"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="kc_calendar_legend">
+                            <span class="kc_cal_closed">✓ Consumo validado</span>
+                            <span class="kc_cal_open">… Consumo abierto</span>
+                            <span class="kc_cal_orphan">! OP sin consumo</span>
+                            <span class="kc_cal_idle">— Sin actividad</span>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ========== PLANIFICACIÓN ========== -->
+                <t t-if="state.activeTab === 'planning' and planning">
+                    <div class="kc_kpi_row kc_kpi_row_6">
+                        <div class="kc_kpi_card kc_kpi_teal kc_kpi_clickable"
+                             t-on-click="() => this.openKpi('plans_active')">
+                            <div class="kc_kpi_value" t-esc="planning.kpis.plans_active"/>
+                            <div class="kc_kpi_label">Planes activos</div>
+                        </div>
+                        <div t-att-class="'kc_kpi_card kc_kpi_clickable ' + this.kpiStatusClass(planning.kpis.plans_delayed_status)"
+                             t-on-click="() => this.openKpi('plans_delayed')">
+                            <div class="kc_kpi_value" t-esc="planning.kpis.plans_delayed"/>
+                            <div class="kc_kpi_label">Retrasados</div>
+                        </div>
+                        <div t-att-class="'kc_kpi_card kc_kpi_clickable ' + this.kpiStatusClass(planning.kpis.plans_overloaded_status)"
+                             t-on-click="() => this.openKpi('plans_overloaded')">
+                            <div class="kc_kpi_value" t-esc="planning.kpis.plans_overloaded"/>
+                            <div class="kc_kpi_label">Sobrecargados</div>
+                        </div>
+                        <div class="kc_kpi_card kc_kpi_teal">
+                            <div class="kc_kpi_value">
+                                <t t-esc="planning.kpis.centers_active"/>
+                                <span class="text-muted fs-6"> / </span>
+                                <t t-esc="planning.kpis.centers_maintenance"/>
+                            </div>
+                            <div class="kc_kpi_label">Centros activos / mant.</div>
+                        </div>
+                        <div class="kc_kpi_card kc_kpi_teal kc_kpi_clickable"
+                             t-on-click="() => this.openKpi('backlog')">
+                            <div class="kc_kpi_value" t-esc="planning.kpis.backlog_count"/>
+                            <div class="kc_kpi_label">Órdenes pendientes</div>
+                        </div>
+                        <div class="kc_kpi_card kc_kpi_teal kc_kpi_clickable"
+                             t-on-click="() => this.openKpi('backlog')">
+                            <div class="kc_kpi_value" t-esc="this.formatNumber(planning.kpis.backlog_pending_qty)"/>
+                            <div class="kc_kpi_label">Qty pendiente</div>
+                        </div>
+                    </div>
+
+                    <div class="kc_dashboard_table_card">
+                        <h4>Ocupación por centro</h4>
+                        <table t-if="planning.occupancy.length" class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Centro</th>
+                                    <th>Línea</th>
+                                    <th class="text-end">Hrs planificadas</th>
+                                    <th class="text-end">Capacidad</th>
+                                    <th style="width:40%">Ocupación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="planning.occupancy" t-as="row" t-key="row.center_id">
+                                    <td t-esc="row.center_name"/>
+                                    <td t-esc="row.line_name"/>
+                                    <td class="text-end" t-esc="this.formatDecimal(row.planned_hours)"/>
+                                    <td class="text-end" t-esc="this.formatDecimal(row.capacity_hours)"/>
+                                    <td>
+                                        <div class="progress kc_occupancy_bar">
+                                            <div class="progress-bar"
+                                                 t-att-class="row.is_over ? 'bg-danger' : 'bg-success'"
+                                                 t-att-style="'width: ' + Math.min(row.occupancy_pct, 100) + '%'"
+                                                 t-esc="row.occupancy_pct + '%'"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div t-if="!planning.occupancy.length" class="kc_empty_state">
+                            <p>No hay centros de trabajo en el filtro.</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="kc_dashboard_table_card h-100">
+                                <h4>Planes retrasados</h4>
+                                <table t-if="planning.delayed.length" class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Plan</th>
+                                            <th>Centro</th>
+                                            <th>Fin</th>
+                                            <th/>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="planning.delayed" t-as="d" t-key="d.plan_id">
+                                            <td>
+                                                <div t-esc="d.name"/>
+                                                <small class="text-muted" t-esc="d.product"/>
+                                                <div t-if="d.technical_description">
+                                                    <small class="text-muted" t-esc="d.technical_description"/>
+                                                </div>
+                                            </td>
+                                            <td t-esc="d.center"/>
+                                            <td t-esc="d.date_end"/>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                                        t-on-click="() => this.openPlan(d.plan_id)">Abrir</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div t-if="!planning.delayed.length" class="kc_empty_state">
+                                    <p>Sin planes retrasados en el rango.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="kc_dashboard_table_card h-100">
+                                <h4>Top pendientes de producir</h4>
+                                <table t-if="planning.backlog_top.length" class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>OV</th>
+                                            <th>Producto / Specs</th>
+                                            <th class="text-end">Pendiente</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="planning.backlog_top" t-as="b" t-key="b.id"
+                                            class="kc_row_clickable"
+                                            t-on-click="() => this.openKpi('backlog')">
+                                            <td>
+                                                <div t-esc="b.sale_order"/>
+                                                <small class="text-muted" t-esc="b.partner"/>
+                                            </td>
+                                            <td>
+                                                <div t-esc="b.product"/>
+                                                <small t-if="b.technical_description"
+                                                       class="text-muted" t-esc="b.technical_description"/>
+                                            </td>
+                                            <td class="text-end" t-esc="this.formatNumber(b.pending_qty)"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div t-if="!planning.backlog_top.length" class="kc_empty_state">
+                                    <p>No hay órdenes pendientes de planificar.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ========== CUMPLIMIENTO ========== -->
+                <t t-if="state.activeTab === 'compliance' and compliance">
+                    <div class="kc_kpi_row kc_kpi_row_4">
+                        <div t-att-class="'kc_kpi_card kc_kpi_clickable ' + this.kpiStatusClass(compliance.kpis.compliance_status)"
+                             t-on-click="() => this.openKpi('compliance')">
+                            <div class="kc_kpi_value">
+                                <t t-if="compliance.kpis.compliance_pct !== null and compliance.kpis.compliance_pct !== undefined">
+                                    <t t-esc="compliance.kpis.compliance_pct"/>%
+                                </t>
+                                <t t-else="">—</t>
+                            </div>
+                            <div class="kc_kpi_label">% plan vs producido</div>
+                        </div>
+                        <div class="kc_kpi_card kc_kpi_teal kc_kpi_clickable"
+                             t-on-click="() => this.openKpi('compliance')">
+                            <div class="kc_kpi_value" t-esc="this.formatNumber(compliance.kpis.planned_qty)"/>
+                            <div class="kc_kpi_label">Qty planificada</div>
+                        </div>
+                        <div class="kc_kpi_card kc_kpi_teal kc_kpi_clickable"
+                             t-on-click="() => this.openKpi('compliance')">
+                            <div class="kc_kpi_value" t-esc="this.formatNumber(compliance.kpis.produced_qty)"/>
+                            <div class="kc_kpi_label">Qty producida</div>
+                        </div>
+                        <div t-att-class="'kc_kpi_card kc_kpi_clickable ' + this.kpiStatusClass(compliance.kpis.variance_status)"
+                             t-on-click="() => this.openKpi('compliance')">
+                            <div class="kc_kpi_value" t-esc="this.formatDecimal(compliance.kpis.variance)"/>
+                            <div class="kc_kpi_label">Variación</div>
+                        </div>
+                    </div>
+
+                    <div class="kc_dashboard_chart_card">
+                        <h4>Planificado vs producido por centro</h4>
+                        <div class="kc_chart_container">
+                            <canvas t-ref="compChartCanvas"/>
+                            <div t-if="!this.hasCompChartData" class="kc_empty_state">
+                                <i class="fa fa-bar-chart fa-2x"/>
+                                <p>No hay planes en el rango seleccionado.</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+            </t>
+
+        </div>
+    </t>
+
+</templates>

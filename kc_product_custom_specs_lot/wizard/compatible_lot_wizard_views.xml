@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kc_compatible_lot_wizard_form" model="ir.ui.view">
+        <field name="name">kc.compatible.lot.wizard.form</field>
+        <field name="model">kc.compatible.lot.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Stock compatible">
+                <group>
+                    <field name="sale_order_line_id" readonly="1"/>
+                </group>
+                <field name="line_ids" nolabel="1">
+                    <list editable="bottom" create="0" delete="0">
+                        <field name="selected"/>
+                        <field name="lot_id" readonly="1"/>
+                        <field name="location_id" readonly="1"/>
+                        <field name="available_qty" readonly="1"/>
+                        <field name="technical_description" readonly="1"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_select_lot" type="object" string="Seleccionar lote" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

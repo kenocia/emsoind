@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_consumidor_final_audit_tree" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn_v18.consumidor.final.audit.tree</field>
+            <field name="model">kc_fiscal_hn.consumidor.final.audit</field>
+            <field name="arch" type="xml">
+                <list string="Bloqueos Consumidor Final"
+                      decoration-danger="1" create="false" edit="false">
+                    <field name="create_date" string="Fecha"/>
+                    <field name="user_id"/>
+                    <field name="partner_id"/>
+                    <field name="document_ref"/>
+                    <field name="monto"/>
+                    <field name="monto_maximo"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_consumidor_final_audit_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn_v18.consumidor.final.audit.form</field>
+            <field name="model">kc_fiscal_hn.consumidor.final.audit</field>
+            <field name="arch" type="xml">
+                <form string="Bloqueo Consumidor Final"
+                      create="false" edit="false">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="create_date"/>
+                                <field name="user_id"/>
+                                <field name="partner_id"/>
+                                <field name="company_id"
+                                       groups="base.group_multi_company"/>
+                            </group>
+                            <group>
+                                <field name="document_model"/>
+                                <field name="document_ref"/>
+                                <field name="monto"/>
+                                <field name="monto_maximo"/>
+                                <field name="currency_id"/>
+                            </group>
+                        </group>
+                        <group string="Contexto técnico">
+                            <field name="ip_address"/>
+                            <field name="session_id"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_consumidor_final_audit_search" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn_v18.consumidor.final.audit.search</field>
+            <field name="model">kc_fiscal_hn.consumidor.final.audit</field>
+            <field name="arch" type="xml">
+                <search string="Buscar bloqueos">
+                    <field name="partner_id"/>
+                    <field name="user_id"/>
+                    <field name="document_ref"/>
+                    <filter name="hoy" string="Hoy"
+                            domain="[('create_date', '>=', context_today().strftime('%Y-%m-%d'))]"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter name="group_user" string="Usuario"
+                                context="{'group_by': 'user_id'}"/>
+                        <filter name="group_partner" string="Cliente"
+                                context="{'group_by': 'partner_id'}"/>
+                        <filter name="group_fecha" string="Fecha"
+                                context="{'group_by': 'create_date:day'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_consumidor_final_audit" model="ir.actions.act_window">
+            <field name="name">Bloqueos Consumidor Final</field>
+            <field name="res_model">kc_fiscal_hn.consumidor.final.audit</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_consumidor_final_audit_search"/>
+            <field name="context">{'search_default_group_user': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiley_face">
+                    No hay intentos bloqueados registrados
+                </p>
+                <p>
+                    Aquí se registran los intentos de confirmar órdenes de
+                    venta o facturas a nombre de Consumidor Final que
+                    superaron el monto máximo permitido.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

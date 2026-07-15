@@ -1,0 +1,345 @@
+// Paleta consistente con el icono del módulo.
+$kc-teal: #1ABC9C;
+$kc-teal-dark: #16A085;
+$kc-dark: #2C3E50;
+$kc-bg: #f4f6f7;
+
+.kc_dashboard {
+    padding: 16px;
+    background-color: $kc-bg;
+    min-height: 100%;
+
+    .kc_dashboard_header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+
+        .kc_dashboard_title {
+            color: $kc-dark;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .kc_dashboard_filters {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .kc_dashboard_line_filter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            label {
+                margin: 0;
+                font-weight: 500;
+                color: $kc-dark;
+            }
+        }
+    }
+
+    .kc_dashboard_custom_range {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+
+        label {
+            margin: 0;
+            font-weight: 500;
+            color: $kc-dark;
+        }
+
+        input[type="date"] {
+            padding: 4px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+    }
+
+    .kc_dashboard_loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px;
+        color: $kc-dark;
+    }
+
+    // ---- Tarjetas KPI ----
+    .kc_kpi_row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 20px;
+
+        &.kc_kpi_row_6 {
+            grid-template-columns: repeat(6, 1fr);
+
+            @media (max-width: 1200px) {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        &.kc_kpi_row_7 {
+            grid-template-columns: repeat(7, 1fr);
+
+            @media (max-width: 1400px) {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            @media (max-width: 992px) {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        &.kc_kpi_row_4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        @media (max-width: 992px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        @media (max-width: 576px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .kc_dashboard_tabs {
+        border-bottom: 2px solid #dee2e6;
+
+        .nav-link {
+            color: $kc-dark;
+            font-weight: 500;
+            border: none;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+            background: transparent;
+
+            &.active {
+                color: $kc-teal-dark;
+                border-bottom-color: $kc-teal;
+                background: transparent;
+            }
+
+            &:hover {
+                border-bottom-color: lighten($kc-teal, 20%);
+            }
+        }
+    }
+
+    .kc_occupancy_bar {
+        height: 1.25rem;
+        background: #e9ecef;
+
+        .progress-bar {
+            font-size: 0.75rem;
+            line-height: 1.25rem;
+        }
+    }
+
+    .kc_row_clickable {
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgba($kc-teal, 0.08);
+        }
+    }
+
+    .kc_kpi_green {
+        background: linear-gradient(135deg, #28A745, #1E7E34);
+        color: #fff;
+    }
+
+    .kc_kpi_red {
+        background: linear-gradient(135deg, #DC3545, #B02A37);
+        color: #fff;
+    }
+
+    .kc_kpi_card {
+        border-radius: 10px;
+        padding: 18px 20px;
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        transition: transform 0.15s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+
+        &.kc_kpi_clickable {
+            cursor: pointer;
+
+            &:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+            }
+
+            &:active {
+                transform: translateY(-1px);
+            }
+        }
+
+        .kc_kpi_value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .kc_kpi_label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+    }
+
+    .kc_kpi_teal {
+        background: linear-gradient(135deg, $kc-teal, $kc-teal-dark);
+    }
+
+    .kc_kpi_dark {
+        background: linear-gradient(135deg, lighten($kc-dark, 8%), $kc-dark);
+    }
+
+    .kc_kpi_amber {
+        background: linear-gradient(135deg, #F5A623, #E8890B);
+    }
+
+    // ---- Tarjetas de contenido ----
+    .kc_dashboard_chart_card,
+    .kc_dashboard_table_card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+        h4 {
+            color: $kc-dark;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+    }
+
+    .kc_chart_container {
+        position: relative;
+        height: 360px;
+    }
+
+    .kc_empty_state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        color: #95a5a6;
+        text-align: center;
+    }
+
+    .kc_no_rp_box {
+        margin-top: 16px;
+        padding: 12px 16px;
+        border-left: 4px solid $kc-teal;
+        background: #f0fbf8;
+        border-radius: 4px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+
+        .kc_no_rp_detail {
+            color: $kc-dark;
+        }
+    }
+
+    .kc_alerts_panel {
+        margin-bottom: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .kc_alert_item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        border-left: 4px solid;
+    }
+
+    .kc_alert_critical {
+        background: #fdecea;
+        border-left-color: #DC3545;
+    }
+
+    .kc_alert_warning {
+        background: #fff8e6;
+        border-left-color: #FFC107;
+    }
+
+    .kc_compliance_banner {
+        background: #fff;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        border-left: 4px solid $kc-teal;
+        color: $kc-dark;
+    }
+
+    .kc_calendar_table {
+        .kc_cal_cell {
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 36px;
+
+            &:hover {
+                opacity: 0.85;
+            }
+        }
+    }
+
+    .kc_cal_closed {
+        color: #28A745;
+    }
+
+    .kc_cal_open {
+        color: #E8890B;
+    }
+
+    .kc_cal_orphan {
+        color: #DC3545;
+    }
+
+    .kc_cal_idle {
+        color: #95a5a6;
+    }
+
+    .kc_calendar_legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 12px;
+        font-size: 0.85rem;
+        color: $kc-dark;
+    }
+
+    table {
+        a {
+            color: $kc-teal-dark;
+            font-weight: 600;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}

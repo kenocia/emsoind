@@ -1,0 +1,229 @@
+// Secuencias fiscales — estilos compatibles con modo claro/oscuro Odoo 19.
+// Regla: NO forzar color en labels/campos; solo layout y bordes.
+
+.o_fiscal_journal_list {
+    .o_data_row.o_list_row_decoration_success {
+        font-weight: 500;
+    }
+}
+
+.o_fiscal_journal_card {
+    border: 1px solid var(--border-color, var(--bs-border-color));
+    border-radius: 12px;
+    padding: 1.25rem 1.35rem 1.1rem;
+    margin-bottom: 1.25rem;
+
+    .o_fiscal_card_header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .o_fiscal_card_title {
+        margin: 0;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        opacity: 0.72;
+    }
+
+    // Etiquetas largas sin cortar el valor en pantallas estrechas
+    .o_group .o_inner_group {
+        .o_td_label,
+        > tbody > tr > td:first-child {
+            white-space: normal;
+            line-height: 1.25;
+        }
+    }
+
+    .alert {
+        margin-top: 0.75rem;
+    }
+}
+
+.o_fiscal_sequence_form {
+    .o_form_sheet {
+        padding: 1.25rem 1.75rem 1.75rem;
+        max-width: 1200px;
+    }
+
+    .oe_title h1 input {
+        font-size: 1.65rem;
+        font-weight: 600;
+    }
+
+    .o_fiscal_card {
+        border: 1px solid var(--border-color, var(--bs-border-color));
+        border-radius: 12px;
+        padding: 1.25rem 1.35rem 1.1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .o_fiscal_card_header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .o_fiscal_card_title {
+        margin: 0;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        opacity: 0.72;
+    }
+
+    .o_fiscal_card_subtitle {
+        margin: 0;
+        font-size: 0.88rem;
+        opacity: 0.82;
+    }
+
+    .o_fiscal_config_grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .o_fiscal_config_grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .o_fiscal_field_block {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .o_fiscal_defaults_row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem 1.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px dashed var(--border-color, var(--bs-border-color));
+    }
+
+    .o_fiscal_hint {
+        margin: 0.75rem 0 0;
+        font-size: 0.82rem;
+        line-height: 1.45;
+    }
+
+    .o_fiscal_empty_state {
+        border: 1px dashed var(--border-color, var(--bs-border-color));
+        border-radius: 10px;
+        padding: 1.25rem;
+        text-align: center;
+        font-size: 0.92rem;
+        opacity: 0.85;
+    }
+
+    .o_fiscal_validation_card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .o_fiscal_validation_meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: 220px;
+    }
+
+    .o_fiscal_badge_ok,
+    .o_fiscal_badge_pending {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        width: fit-content;
+    }
+
+    .o_fiscal_badge_ok {
+        background-color: rgba(var(--bs-success-rgb), 0.15);
+        color: var(--bs-success);
+    }
+
+    .o_fiscal_badge_pending {
+        background-color: rgba(var(--bs-warning-rgb), 0.18);
+        color: var(--bs-warning);
+    }
+
+    .o_fiscal_cai_kanban {
+        .o_kanban_record {
+            width: 320px;
+        }
+
+        .o_fiscal_cai_card {
+            border-radius: 10px;
+            border: 1px solid var(--border-color, var(--bs-border-color));
+            padding: 0.85rem 0.95rem;
+            min-height: 148px;
+        }
+
+        .o_fiscal_cai_card--active {
+            border-left: 4px solid var(--bs-success);
+        }
+
+        .o_fiscal_cai_card--warning {
+            border-left: 4px solid var(--bs-warning);
+        }
+
+        .o_fiscal_cai_card--critical,
+        .o_fiscal_cai_card--expired {
+            border-left: 4px solid var(--bs-danger);
+        }
+
+        .o_fiscal_cai_card--future {
+            border-left: 4px solid var(--bs-info, #6366f1);
+        }
+
+        .o_fiscal_cai_title {
+            font-size: 0.92rem;
+            font-weight: 600;
+            word-break: break-all;
+            line-height: 1.35;
+        }
+
+        .o_fiscal_cai_meta {
+            margin-top: 0.55rem;
+            font-size: 0.8rem;
+            opacity: 0.82;
+            line-height: 1.45;
+        }
+
+        .o_fiscal_cai_progress {
+            margin-top: 0.75rem;
+        }
+    }
+}
+
+// Lista — filas vencidas / en alerta
+.o_fiscal_sequence_list {
+    .o_list_table {
+        tbody > tr.text-danger {
+            background-color: rgba(var(--bs-danger-rgb), 0.12) !important;
+        }
+
+        tbody > tr.text-warning {
+            background-color: rgba(var(--bs-warning-rgb), 0.12) !important;
+        }
+    }
+}

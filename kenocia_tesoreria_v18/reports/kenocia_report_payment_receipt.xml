@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_payment_receipt_document_kenocia"
+              inherit_id="account.report_payment_receipt_document">
+
+        <xpath expr="//div[hasclass('row')][.//span[@t-field='o.partner_id']]" position="replace">
+            <t t-set="receipt_partner" t-value="values.get('receipt_partner')"/>
+            <div class="row">
+                <div class="col-6" t-if="o.partner_type">
+                    <t t-if="o.partner_type == 'customer'">
+                        Cliente:
+                    </t>
+                    <t t-elif="o.partner_type == 'supplier'">
+                        Proveedor:
+                    </t>
+                    <span t-if="receipt_partner" t-out="receipt_partner.display_name"/>
+                </div>
+                <div name="payment_method"
+                     t-if="values['display_payment_method'] and o.payment_method_id"
+                     class="col-6">
+                    Método de pago: <span t-field="o.payment_method_id.name"/>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Detalle: incluir facturas y asientos conciliados (p. ej. saldos iniciales) -->
+        <xpath expr="//table[@name='invoices']" position="replace">
+            <table name="invoices"
+                   t-if="values['display_invoices']"
+                   class="table table-borderless">
+                <t t-set="receipt_documents" t-value="values.get('receipt_documents') or []"/>
+                <t t-set="invoices" t-value="o.reconciled_invoice_ids or o.reconciled_bill_ids"/>
+                <thead>
+                    <tr>
+                        <th><span>Fecha de factura</span></th>
+                        <th><span>Número de factura</span></th>
+                        <th><span>Referencia</span></th>
+                        <th class="text-end"><span>Importe</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-if="receipt_documents">
+                        <tr t-foreach="receipt_documents" t-as="doc">
+                            <t t-set="doc_move" t-value="doc['move']"/>
+                            <td>
+                                <span t-if="doc_move.invoice_date" t-field="doc_move.invoice_date"/>
+                                <span t-if="not doc_move.invoice_date" t-field="doc_move.date"/>
+                            </td>
+                            <td><span t-field="doc_move.name"/></td>
+                            <td><span t-field="doc_move.ref"/></td>
+                            <td class="text-end">
+                                <span t-out="doc['amount']"
+                                      t-options="{'widget': 'monetary', 'display_currency': doc['currency']}"/>
+                            </td>
+                        </tr>
+                    </t>
+                    <t t-else="">
+                        <t t-foreach="invoices" t-as="inv">
+                            <t t-if="inv.move_type != 'entry'">
+                                <tr>
+                                    <td><span t-field="inv.invoice_date"/></td>
+                                    <td><span t-field="inv.name"/></td>
+                                    <td><span t-field="inv.ref"/></td>
+                                    <td class="text-end">
+                                        <span t-field="inv.amount_total"
+                                              t-options="{'widget': 'monetary', 'display_currency': inv.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <tr t-foreach="inv._get_reconciled_invoices_partials()[0]" t-as="par">
+                                    <t t-set="payment" t-value="par[2]"/>
+                                    <td><span t-field="payment.move_id.date"/></td>
+                                    <td><span t-field="payment.move_id.name"/></td>
+                                    <td><span t-field="payment.payment_id.memo"/></td>
+                                    <t t-set="amountInvoice" t-value="-par[1]"/>
+                                    <t t-set="currencyInvoice" t-value="inv.currency_id"/>
+                                    <td class="text-end">
+                                        <span t-out="amountInvoice"
+                                              t-options="{'widget': 'monetary', 'display_currency': currencyInvoice}"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </t>
+                </tbody>
+            </table>
+        </xpath>
+
+    </template>
+
+</odoo>

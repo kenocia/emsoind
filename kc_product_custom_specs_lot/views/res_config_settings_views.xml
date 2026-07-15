@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_technical_lot" model="ir.ui.view">
+        <field name="name">res.config.settings.technical.lot</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="Especificaciones y lotes"
+                     name="kc_product_custom_specs_lot"
+                     logo="/kc_product_custom_specs_lot/static/description/icon.png">
+                <block title="Especificaciones técnicas y lotes" name="kc_technical_lot_settings">
+                    <setting string="Modal de especificaciones"
+                             help="Abre el asistente al elegir un producto con atributos técnicos.">
+                        <field name="kc_auto_open_specs_wizard"/>
+                    </setting>
+                    <setting string="Creación de lotes"
+                             help="Modo recomendado: el lote lo asigna el Registro de Producción.">
+                        <field name="kc_lot_creation_mode"/>
+                        <field name="kc_require_pin_lot_creation"
+                               invisible="kc_lot_creation_mode != 'manual_pin'"/>
+                    </setting>
+                </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

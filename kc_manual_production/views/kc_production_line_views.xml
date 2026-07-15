@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="kc_production_line_view_form" model="ir.ui.view">
+        <field name="name">kc.production.line.form</field>
+        <field name="model">kc.production.line</field>
+        <field name="arch" type="xml">
+            <form string="Línea de Producción">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_entries" type="object"
+                                class="oe_stat_button" icon="fa-industry">
+                            <field name="entry_count" widget="statinfo"
+                                   string="Registros de Producción"/>
+                        </button>
+                        <button name="action_view_work_centers" type="object"
+                                class="oe_stat_button" icon="fa-cogs">
+                            <field name="work_center_count" widget="statinfo"
+                                   string="Centros"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archivado"
+                            bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="team_id" options="{'no_create': True}"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Operadores asignados" name="users">
+                            <field name="user_ids" widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+                        </page>
+                        <page string="Categorías de producto" name="categories">
+                            <field name="product_categ_ids" widget="many2many_tags"
+                                   options="{'no_create': True}"
+                                   placeholder="Categorías cuyos productos produce esta línea..."/>
+                            <p class="text-muted">
+                                Los productos se asignan por la categoría del producto
+                                (incluye subcategorías). Si varias líneas coinciden,
+                                gana la categoría más específica.
+                            </p>
+                        </page>
+                        <page string="Centros de Trabajo" name="work_centers">
+                            <field name="work_center_ids">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="center_type"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="kc_production_line_view_list" model="ir.ui.view">
+        <field name="name">kc.production.line.list</field>
+        <field name="model">kc.production.line</field>
+        <field name="arch" type="xml">
+            <list string="Líneas de Producción">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code" optional="show"/>
+                <field name="team_id" optional="show"/>
+                <field name="work_center_count" optional="show"/>
+                <field name="entry_count"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="kc_production_line_view_search" model="ir.ui.view">
+        <field name="name">kc.production.line.search</field>
+        <field name="model">kc.production.line</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Líneas de Producción">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="user_ids"/>
+                <filter name="filter_active" string="Activas"
+                        domain="[('active', '=', True)]"/>
+                <filter name="filter_archived" string="Archivadas"
+                        domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="kc_production_line_action" model="ir.actions.act_window">
+        <field name="name">Líneas de Producción</field>
+        <field name="res_model">kc.production.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kc_production_line_view_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Cree su primera Línea de Producción
+            </p>
+            <p>
+                Asigne operadores a cada línea para controlar qué Registros de
+                Producción ve y gestiona cada usuario.
+            </p>
+        </field>
+    </record>
+
+</odoo>

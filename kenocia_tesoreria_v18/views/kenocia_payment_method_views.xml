@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- VISTAS PRIMARIAS POR MÉTODO DE PAGO (control operativo)      -->
+    <!-- ============================================================ -->
+
+    <record id="view_kenocia_payment_cheque_form" model="ir.ui.view">
+        <field name="name">account.payment.form.kenocia.cheque</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <button name="action_cancel" position="before">
+                <button name="action_void_cheque"
+                        string="Anular Cheque"
+                        type="object"
+                        class="btn-danger"
+                        invisible="is_void_cheque or state not in ('draft', 'in_process', 'paid')"
+                        groups="kenocia_tesoreria_v18.group_tesoreria_supervisor"/>
+            </button>
+            <field name="payment_type" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="journal_id" position="after">
+                <field name="tesoreria_type" invisible="1"/>
+                <field name="kenocia_seq_id" readonly="1"/>
+                <field name="kenocia_sequence_name" readonly="1"/>
+                <field name="state_tesoreria" widget="badge"
+                       decoration-success="state_tesoreria == 'reconciled'"
+                       decoration-warning="state_tesoreria == 'posted'"
+                       decoration-danger="state_tesoreria == 'void'"/>
+            </field>
+            <field name="memo" position="after">
+                <field name="amount_in_words" readonly="1"/>
+                <field name="void_reason" readonly="1" invisible="not is_void_cheque"/>
+            </field>
+            <field name="payment_method_line_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="partner_bank_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_kenocia_payment_transfer_form" model="ir.ui.view">
+        <field name="name">account.payment.form.kenocia.transfer</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="payment_type" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="journal_id" position="after">
+                <field name="tesoreria_type" invisible="1"/>
+                <field name="payment_reference"
+                       string="Referencia"
+                       required="1"
+                       readonly="state != 'draft'"/>
+                <field name="state_tesoreria" widget="badge"
+                       decoration-success="state_tesoreria == 'reconciled'"
+                       decoration-warning="state_tesoreria == 'posted'"
+                       decoration-danger="state_tesoreria == 'void'"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_kenocia_payment_cash_form" model="ir.ui.view">
+        <field name="name">account.payment.form.kenocia.cash</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="payment_type" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="journal_id" position="attributes">
+                <attribute name="domain">[('type', '=', 'cash'), ('id', 'in', available_journal_ids)]</attribute>
+            </field>
+            <field name="journal_id" position="after">
+                <field name="tesoreria_type" invisible="1"/>
+                <field name="state_tesoreria" widget="badge"
+                       decoration-success="state_tesoreria == 'reconciled'"
+                       decoration-warning="state_tesoreria == 'posted'"
+                       decoration-danger="state_tesoreria == 'void'"/>
+            </field>
+            <field name="payment_method_line_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="partner_bank_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+        </field>
+    </record>
+
+</odoo>

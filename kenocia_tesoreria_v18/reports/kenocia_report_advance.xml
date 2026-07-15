@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_kenocia_advance" model="ir.actions.report">
+        <field name="name">Reporte Adelantos Tesorería</field>
+        <field name="model">kenocia.advance.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kenocia_tesoreria_v18.report_tesoreria_advances</field>
+        <field name="report_file">kenocia_tesoreria_v18.report_tesoreria_advances</field>
+        <field name="print_report_name">'Adelantos - %s' % (object.name or '')</field>
+        <field name="paperformat_id" ref="paperformat_kenocia_tesoreria"/>
+    </record>
+
+    <template id="report_tesoreria_advances">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Adelantos CXC / CXP — Kenocia Tesorería</h2>
+                    <table class="table table-sm table-bordered mt-3">
+                        <thead>
+                            <tr>
+                                <th>Referencia</th>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Contacto</th>
+                                <th>Diario</th>
+                                <th class="text-end">Monto</th>
+                                <th class="text-end">Aplicado</th>
+                                <th class="text-end">Saldo</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs" t-as="advance">
+                                <td><span t-field="advance.name"/></td>
+                                <td><span t-field="advance.date"/></td>
+                                <td><span t-field="advance.advance_type"/></td>
+                                <td><span t-field="advance.partner_id"/></td>
+                                <td><span t-field="advance.journal_id"/></td>
+                                <td class="text-end">
+                                    <span t-field="advance.amount"
+                                          t-options="{'widget': 'monetary', 'display_currency': advance.currency_id}"/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-field="advance.amount_applied"
+                                          t-options="{'widget': 'monetary', 'display_currency': advance.currency_id}"/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-field="advance.amount_residual"
+                                          t-options="{'widget': 'monetary', 'display_currency': advance.currency_id}"/>
+                                </td>
+                                <td><span t-field="advance.state"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

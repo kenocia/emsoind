@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_custom_technical_attribute_tree" model="ir.ui.view">
+        <field name="name">custom.technical.attribute.tree</field>
+        <field name="model">custom.technical.attribute</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="display_type"/>
+                <field name="uom_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_custom_technical_attribute_form" model="ir.ui.view">
+        <field name="name">custom.technical.attribute.form</field>
+        <field name="model">custom.technical.attribute</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="display_type"/>
+                            <field name="uom_id" invisible="display_type != 'numeric'"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Valores" name="values">
+                            <field name="value_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_custom_technical_attribute_value_tree" model="ir.ui.view">
+        <field name="name">custom.technical.attribute.value.tree</field>
+        <field name="model">custom.technical.attribute.value</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="attribute_id"/>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_custom_technical_attribute_value_form" model="ir.ui.view">
+        <field name="name">custom.technical.attribute.value.form</field>
+        <field name="model">custom.technical.attribute.value</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="attribute_id"/>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_custom_technical_attribute" model="ir.actions.act_window">
+        <field name="name">Atributos Técnicos</field>
+        <field name="res_model">custom.technical.attribute</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_custom_technical_attribute_value" model="ir.actions.act_window">
+        <field name="name">Valores de Atributos Técnicos</field>
+        <field name="res_model">custom.technical.attribute.value</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_custom_technical_root"
+              name="Atributos Técnicos"
+              parent="sale.menu_sale_config"
+              sequence="95"/>
+    <menuitem id="menu_custom_technical_attribute"
+              name="Atributos Técnicos"
+              parent="menu_custom_technical_root"
+              action="action_custom_technical_attribute"
+              sequence="10"/>
+    <menuitem id="menu_custom_technical_attribute_value"
+              name="Valores de Atributos Técnicos"
+              parent="menu_custom_technical_root"
+              action="action_custom_technical_attribute_value"
+              sequence="20"/>
+</odoo>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+    <record id="seq_kc_production_entry" model="ir.sequence">
+      <field name="name">KC Registro de Producción</field>
+      <field name="code">kc.production.entry</field>
+      <field name="prefix">RP-%(year)s-</field>
+      <field name="padding">5</field>
+      <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_kc_production_consumption" model="ir.sequence">
+      <field name="name">KC Consumo de Materia Prima</field>
+      <field name="code">kc.production.consumption</field>
+      <field name="prefix">CMP-%(year)s-</field>
+      <field name="padding">5</field>
+      <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_kc_production_plan_line" model="ir.sequence">
+      <field name="name">KC Bloque de Planificación</field>
+      <field name="code">kc.production.plan.line</field>
+      <field name="prefix">PLAN-%(year)s-</field>
+      <field name="padding">5</field>
+      <field name="company_id" eval="False"/>
+    </record>
+  </data>
+</odoo>

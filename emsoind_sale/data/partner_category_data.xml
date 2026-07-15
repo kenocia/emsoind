@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="partner_category_cliente" model="res.partner.category">
+            <field name="name">Cliente</field>
+            <field name="color">2</field>
+            <field name="use_in_sales" eval="True"/>
+            <field name="require_sales_fields" eval="True"/>
+        </record>
+
+        <record id="partner_category_proveedor" model="res.partner.category">
+            <field name="name">Proveedor</field>
+            <field name="color">3</field>
+            <field name="use_in_purchases" eval="True"/>
+        </record>
+
+        <record id="partner_category_cliente_proveedor" model="res.partner.category">
+            <field name="name">Cliente / Proveedor</field>
+            <field name="color">4</field>
+            <field name="use_in_sales" eval="True"/>
+            <field name="use_in_purchases" eval="True"/>
+            <field name="require_sales_fields" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="product_template_exent_form" model="ir.ui.view">
+            <field name="name">product_template_exent_form</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='general_information']//field[@name='categ_id']" position="before">                  
+                    <field name="tax_retention" domain="[('is_retention','=',True)]"
+                         invisible="not is_retention"/>
+                </xpath>
+
+                <!-- Agregar campo is_retention en la sección de opciones -->
+                <xpath expr="//span[field[@name='purchase_ok']]" position="after">
+                    <span class="d-inline-flex">
+                        <field name="is_retention"/>
+                        <label for="is_retention"/>
+                    </span>
+                </xpath>
+
+                <xpath expr="//notebook" position="inside">
+                    <page string="🇭🇳 Fiscal Honduras"
+                          name="fiscal_hn_product">
+                        <group string="Retención ISR en Compras Honduras"
+                               name="retencion_isr">
+                            <group>
+                                <field name="aplica_retencion_isr"
+                                       widget="boolean_toggle"
+                                       string="¿Aplica Retención ISR?"/>
+                                <field name="impuesto_retencion_isr_id"
+                                       string="Impuesto de Retención"
+                                      
+                                      
+                                       options="{'no_create': False}"
+                         invisible="not aplica_retencion_isr"
+                         required="bool(aplica_retencion_isr)"/>
+                            </group>
+                            <group>
+                                <div class="alert alert-info"
+                         invisible="not aplica_retencion_isr">
+                                    <strong>Retención automática:</strong>
+                                    Se aplica en facturas de compra cuando
+                                    el proveedor <strong>NO tiene</strong>
+                                    Constancia de Pago a Cuenta SAR vigente.
+                                    <br/><br/>
+                                    <strong>NO aplica si:</strong>
+                                    <ul class="mb-0">
+                                        <li>Proveedor tiene constancia vigente</li>
+                                        <li>Proveedor es extranjero</li>
+                                        <li>Proveedor sin RTN (boleta)</li>
+                                    </ul>
+                                </div>
+                                <div class="alert alert-success"
+                         invisible="bool(aplica_retencion_isr)">
+                                    Este producto NO genera retención
+                                    ISR en compras.
+                                    Solo aplica ISV según configuración.
+                                </div>
+                            </group>
+                        </group>
+                        <group string="🌎 Régimen de Zona Libre (ZOLI)"
+                               name="zoli_product">
+                            <group string="Materia Prima Importada (DUCA)">
+                                <field name="requiere_control_duca"
+                                       widget="boolean_toggle"/>
+                                <field name="es_no_originario"
+                                       invisible="not requiere_control_duca"/>
+                                <field name="porcentaje_dai_insumo"
+                                       invisible="not requiere_control_duca"/>
+                            </group>
+                            <group string="Producto Terminado (Nacionalización)">
+                                <field name="es_originario_tlc"
+                                       widget="boolean_toggle"/>
+                                <field name="codigo_sac"/>
+                                <field name="porcentaje_dai"/>
+                            </group>
+                            <group colspan="2">
+                                <div class="alert alert-info p-2 small mb-0">
+                                    <strong>Materia prima (DUCA):</strong> marque
+                                    los insumos importados (ej. Resinas/PVC) para
+                                    activar el control de permanencia.
+                                    <br/>
+                                    <strong>Producto terminado:</strong> defina el
+                                    código SAC y su % DAI. Si es originario (TLC),
+                                    al nacionalizar el DAI se calcula sobre los
+                                    insumos no originarios consumidos.
+                                </div>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+
+
+            </field>
+        </record>
+
+        <record id="product_product_exent_form" model="ir.ui.view">
+            <field name="name">product_product_exent_form</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='general_information']//field[@name='taxes_id']" position="before">
+                    <field name="exento"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

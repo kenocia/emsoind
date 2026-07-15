@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de formulario para reiniciar secuencia -->
+        <record id="view_reset_sequence_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn.wizard.reset_sequence.form</field>
+            <field name="model">kc_fiscal_hn.wizard.reset_sequence</field>
+            <field name="arch" type="xml">
+                <form string="Reiniciar Secuencia Fiscal">
+                    <sheet>
+                        <div class="alert alert-warning" role="alert">
+                            <strong>¡Advertencia!</strong> El reinicio de una secuencia fiscal es una operación crítica 
+                            que puede afectar la numeración de documentos. Asegúrese de que esta acción sea necesaria.
+                        </div>
+                        <group>
+                            <group string="Información de la Secuencia">
+                                <field name="sequence_id"/>
+                                <field name="current_number"/>
+                                <field name="fiscal_range_start"/>
+                                <field name="fiscal_range_end"/>
+                            </group>
+                            <group string="Configuración del Reinicio">
+                                <field name="new_start_number"/>
+                                <field name="confirm_reset"/>
+                            </group>
+                        </group>
+                        <group string="Motivo del Reinicio">
+                            <field name="reset_reason" nolabel="1" placeholder="Describa el motivo del reinicio..."/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_reset_sequence" string="Reiniciar Secuencia" type="object" 
+                                class="btn-danger"
+                         invisible="not confirm_reset"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción para reiniciar secuencia -->
+        <record id="action_reset_sequence" model="ir.actions.act_window">
+            <field name="name">Reiniciar Secuencia Fiscal</field>
+            <field name="res_model">kc_fiscal_hn.wizard.reset_sequence</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_reset_sequence_form"/>
+        </record>
+    </data>
+</odoo> 

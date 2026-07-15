@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_template_form_technical" model="ir.ui.view">
+        <field name="name">product.template.form.technical</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Atributos Técnicos" name="technical_attributes">
+                    <group>
+                        <field name="has_technical_attributes" invisible="1"/>
+                        <field name="kc_invoice_detail_mode" widget="radio"
+                               string="Detalle en documentos de venta"/>
+                    </group>
+                    <field name="technical_attribute_line_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="attribute_id"/>
+                            <field name="required"/>
+                            <field name="allowed_value_ids" widget="many2many_tags"
+                                   domain="[('attribute_id', '=', attribute_id)]"/>
+                            <field name="default_value_id"
+                                   domain="[('attribute_id', '=', attribute_id)]"/>
+                        </list>
+                    </field>
+                    <group string="Matriz de configuraciones" invisible="not has_technical_attributes">
+                        <div class="mb-2">
+                            <button name="action_add_technical_configuration"
+                                    type="object"
+                                    string="Agregar configuración"
+                                    class="btn-primary"
+                                    icon="fa-plus"/>
+                            <button name="action_generate_technical_matrix"
+                                    type="object"
+                                    string="Generar todas las configuraciones"
+                                    class="btn-secondary ms-2"
+                                    icon="fa-th"
+                                    confirm="Se generarán todas las combinaciones de atributos de selección con valores permitidos. ¿Continuar?"/>
+                        </div>
+                        <field name="technical_configuration_ids" nolabel="1"
+                               context="{'default_product_tmpl_id': id}">
+                            <list create="false" delete="true">
+                                <field name="configuration_key"/>
+                                <field name="technical_key" optional="hide"/>
+                                <field name="legacy_sku" optional="show"/>
+                                <field name="standard_price" optional="show"/>
+                                <field name="weight" optional="show" string="Peso (kg)"/>
+                                <field name="area_sqft" optional="show" string="Área (FT²)"/>
+                                <field name="technical_description" optional="hide"/>
+                                <field name="active" widget="boolean_toggle"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

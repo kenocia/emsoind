@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_journal_fiscal_search" model="ir.ui.view">
+        <field name="name">account.journal.search.fiscal</field>
+        <field name="model">account.journal</field>
+        <field name="priority">25</field>
+        <field name="arch" type="xml">
+            <search string="Diarios Fiscales">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="document_fiscal"/>
+                <field name="fiscal_sequence_id"/>
+                <filter name="filter_sale"
+                        string="Ventas"
+                        domain="[('type', '=', 'sale')]"/>
+                <filter name="filter_purchase"
+                        string="Compras"
+                        domain="[('type', '=', 'purchase')]"/>
+                <filter name="filter_incomplete"
+                        string="Configuración incompleta"
+                        domain="[('fiscal_config_state', '!=', 'ok')]"/>
+                <filter name="filter_no_sequence"
+                        string="Sin secuencia SAR"
+                        domain="[('document_fiscal', '!=', False), ('fiscal_sequence_id', '=', False)]"/>
+                <filter name="filter_no_document"
+                        string="Sin documento fiscal"
+                        domain="[('type', 'in', ['sale', 'purchase']), ('document_fiscal', '=', False)]"/>
+                <filter name="filter_cai_alert"
+                        string="CAI en alerta"
+                        domain="[('fiscal_config_state', 'in', ['seq_alert', 'seq_critical'])]"/>
+                <filter name="filter_operational"
+                        string="Operativos SAR"
+                        domain="[('fiscal_is_operational', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_account_journal_fiscal_list" model="ir.ui.view">
+        <field name="name">account.journal.list.fiscal</field>
+        <field name="model">account.journal</field>
+        <field name="priority">25</field>
+        <field name="arch" type="xml">
+            <list string="Diarios Fiscales"
+                  class="o_fiscal_journal_list"
+                  decoration-danger="fiscal_config_state in ('seq_critical', 'no_seq')"
+                  decoration-warning="fiscal_config_state in ('seq_alert', 'no_doc')"
+                  decoration-success="fiscal_is_operational">
+                <field name="name" string="Diario"/>
+                <field name="code" optional="show"/>
+                <field name="type" string="Tipo"/>
+                <field name="document_fiscal" string="Documento SAR"/>
+                <field name="fiscal_sequence_name" string="Secuencia"/>
+                <field name="fiscal_cai_active" string="CAI vigente"/>
+                <field name="fiscal_cai_uso" string="Consumo"/>
+                <field name="fiscal_cai_vence" string="Vence"/>
+                <field name="fiscal_config_state"
+                       string="Estado"
+                       widget="badge"
+                       decoration-success="fiscal_config_state == 'ok'"
+                       decoration-warning="fiscal_config_state in ('no_doc', 'seq_alert')"
+                       decoration-danger="fiscal_config_state in ('no_seq', 'seq_critical')"/>
+                <field name="fiscal_is_operational"
+                         column_invisible="True"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_account_journal_fiscal_form" model="ir.ui.view">
+        <field name="name">account.journal.form.fiscal</field>
+        <field name="model">account.journal</field>
+        <field name="priority">25</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="action_open_fiscal_sequence"
+                            type="object"
+                            string="Abrir secuencia SAR"
+                            class="btn-secondary"
+                            icon="fa-external-link"
+                         invisible="not fiscal_sequence_id"/>
+                    <field name="fiscal_config_state"
+                           widget="badge"
+                           decoration-success="fiscal_config_state == 'ok'"
+                           decoration-warning="fiscal_config_state in ('no_doc', 'seq_alert')"
+                           decoration-danger="fiscal_config_state in ('no_seq', 'seq_critical')"/>
+                </header>
+            </xpath>
+            <xpath expr="//sheet/div[hasclass('oe_title')]" position="before">
+                <div class="oe_button_box" name="fiscal_button_box">
+                    <button name="action_open_fiscal_sequence"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-sort-numeric-asc"
+                         invisible="not fiscal_sequence_id">
+                        <div class="o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="fiscal_cai_uso" nolabel="1"/>
+                            </span>
+                            <span class="o_stat_text">Consumo CAI</span>
+                        </div>
+                    </button>
+                </div>
+            </xpath>
+            <xpath expr="//notebook" position="before">
+                <div class="o_fiscal_card o_fiscal_journal_card mb-3">
+                    <div class="o_fiscal_card_header">
+                        <h3 class="o_fiscal_card_title">Numeración SAR</h3>
+                        <field name="fiscal_cai_estado"
+                               widget="badge"
+                               nolabel="1"
+                               readonly="1"
+                               decoration-success="fiscal_cai_estado == 'ok'"
+                               decoration-warning="fiscal_cai_estado == 'warning'"
+                               decoration-danger="fiscal_cai_estado in ('expired_date', 'expired_qty', 'sin_rango')"/>
+                    </div>
+                    <group>
+                        <group string="Documento y secuencias">
+                            <field name="document_fiscal"
+                                   string="Documento fiscal SAR"/>
+                            <field name="fiscal_sequence_id"
+                                   domain="[('is_fiscal', '=', True), ('company_id', '=', company_id)]"
+                                   context="{'default_is_fiscal': True,
+                                             'default_use_date_range': True,
+                                             'default_implementation': 'no_gap'}"
+                                   invisible="not document_fiscal"
+                                   required="bool(document_fiscal)"/>
+                            <field name="refund_fiscal_sequence_id"
+                                   domain="[('is_fiscal', '=', True), ('company_id', '=', company_id)]"
+                                   context="{'default_is_fiscal': True,
+                                             'default_use_date_range': True,
+                                             'default_implementation': 'no_gap'}"
+                                   invisible="document_fiscal not in ['client', 'vendors']"/>
+                        </group>
+                        <group string="Estado CAI (secuencia principal)">
+                            <field name="fiscal_cai_active" readonly="1"/>
+                            <field name="fiscal_cai_uso" readonly="1"/>
+                            <field name="fiscal_cai_vence" readonly="1"/>
+                            <field name="fiscal_is_operational" invisible="1"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-warning mb-0"
+                         role="alert"
+                         invisible="fiscal_config_state != 'no_doc'">
+                        Defina el <strong>documento fiscal SAR</strong> para habilitar
+                        correlativos y libros fiscales en este diario.
+                    </div>
+                    <div class="alert alert-danger mb-0"
+                         role="alert"
+                         invisible="fiscal_config_state != 'no_seq'">
+                        Asigne una <strong>secuencia fiscal SAR</strong> con CAI vigente.
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_fiscal_journals" model="ir.actions.act_window">
+        <field name="name">Diarios Fiscales</field>
+        <field name="res_model">account.journal</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('type', 'in', ['sale', 'purchase'])]</field>
+        <field name="context">{'search_default_filter_sale': 0}</field>
+        <field name="search_view_id" ref="view_account_journal_fiscal_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_account_journal_fiscal_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_account_journal_fiscal_form')}),
+        ]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure diarios contables con documento fiscal y secuencia SAR.
+            </p>
+            <p>
+                Vincule cada punto de emisión (diario de ventas o compras) con su
+                secuencia fiscal y CAI. Use los filtros para detectar diarios sin
+                configuración completa.
+            </p>
+        </field>
+    </record>
+
+</odoo>

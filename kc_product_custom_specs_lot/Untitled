@@ -1,0 +1,88 @@
+Error de servidor de Odoo
+
+RPC_ERROR
+Odoo Server Error
+
+Occured on 34.61.194.184:8069 on model ir.module.module on 2026-05-21 14:31:42 GMT
+
+Traceback (most recent call last):
+  File "/opt/odoo/src/community/odoo/http.py", line 2167, in _transactioning
+    return service_model.retrying(func, env=self.env)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/opt/odoo/src/community/odoo/service/model.py", line 157, in retrying
+    result = func()
+  File "/opt/odoo/src/community/odoo/http.py", line 2134, in _serve_ir_http
+    response = self.dispatcher.dispatch(rule.endpoint, args)
+  File "/opt/odoo/src/community/odoo/http.py", line 2382, in dispatch
+    result = self.request.registry['ir.http']._dispatch(endpoint)
+  File "/opt/odoo/src/community/odoo/addons/base/models/ir_http.py", line 333, in _dispatch
+    result = endpoint(**request.params)
+  File "/opt/odoo/src/community/odoo/http.py", line 754, in route_wrapper
+    result = endpoint(self, *args, **params_ok)
+  File "/opt/odoo/src/community/addons/web/controllers/dataset.py", line 42, in call_button
+    action = call_kw(request.env[model], method, args, kwargs)
+  File "/opt/odoo/src/community/odoo/api.py", line 535, in call_kw
+    result = getattr(recs, name)(*args, **kwargs)
+  File "/opt/odoo/venv/lib/python3.13/site-packages/decorator.py", line 232, in fun
+    return caller(func, *(extras + args), **kw)
+  File "/opt/odoo/src/community/odoo/addons/base/models/ir_module.py", line 77, in check_and_log
+    return method(self, *args, **kwargs)
+  File "/opt/odoo/src/community/odoo/addons/base/models/ir_module.py", line 691, in button_immediate_upgrade
+    return self._button_immediate_function(self.env.registry[self._name].button_upgrade)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/odoo/src/community/odoo/addons/base/models/ir_module.py", line 624, in _button_immediate_function
+    registry = modules.registry.Registry.new(self._cr.dbname, update_module=True)
+  File "/opt/odoo/venv/lib/python3.13/site-packages/decorator.py", line 232, in fun
+    return caller(func, *(extras + args), **kw)
+  File "/opt/odoo/src/community/odoo/tools/func.py", line 97, in locked
+    return func(inst, *args, **kwargs)
+  File "/opt/odoo/src/community/odoo/modules/registry.py", line 129, in new
+    odoo.modules.load_modules(registry, force_demo, status, update_module)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/odoo/src/community/odoo/modules/loading.py", line 485, in load_modules
+    processed_modules += load_marked_modules(env, graph,
+                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+        ['installed', 'to upgrade', 'to remove'],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        force, status, report, loaded_modules, update_module, models_to_check)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/odoo/src/community/odoo/modules/loading.py", line 365, in load_marked_modules
+    loaded, processed = load_module_graph(
+                        ~~~~~~~~~~~~~~~~~^
+        env, graph, progressdict, report=report, skip_modules=loaded_modules,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        perform_checks=perform_checks, models_to_check=models_to_check
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/opt/odoo/src/community/odoo/modules/loading.py", line 228, in load_module_graph
+    load_data(env, idref, mode, kind='data', package=package)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/odoo/src/community/odoo/modules/loading.py", line 72, in load_data
+    tools.convert_file(env, package.name, filename, idref, mode, noupdate, kind)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/odoo/src/community/odoo/tools/convert.py", line 662, in convert_file
+    convert_xml_import(env, module, fp, idref, mode, noupdate)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/odoo/src/community/odoo/tools/convert.py", line 733, in convert_xml_import
+    obj.parse(doc.getroot())
+    ~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/odoo/src/community/odoo/tools/convert.py", line 648, in parse
+    self._tag_root(de)
+    ~~~~~~~~~~~~~~^^^^
+  File "/opt/odoo/src/community/odoo/tools/convert.py", line 601, in _tag_root
+    raise ParseError(msg) from None  # Restart with "--log-handler odoo.tools.convert:DEBUG" for complete traceback
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+odoo.tools.convert.ParseError: while parsing /opt/odoo/custom/kc_product_custom_specs_lot/views/stock_inventory_views.xml:49
+Ocurrió un error al procesar o validar la vista:
+
+El elemento "<xpath expr="//field[@name=&#39;move_line_ids_without_package&#39;]/list/field[@name=&#39;lot_id&#39;]">" no se puede localizar en la vista principal
+
+View error context:
+{'file': '/opt/odoo/custom/kc_product_custom_specs_lot/views/stock_inventory_views.xml',
+ 'line': 2,
+ 'name': 'stock.picking.form.technical',
+ 'view': ir.ui.view(2154,),
+ 'view.model': 'stock.picking',
+ 'view.parent': ir.ui.view(1257,),
+ 'xmlid': 'view_picking_form_technical'}

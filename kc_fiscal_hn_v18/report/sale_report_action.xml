@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Redirige Imprimir / Enviar por correo al formato Kenocia comercial.
+             Reversión: eliminar este archivo y ejecutar -u sale (ver CHANGELOG). -->
+        <record id="sale.action_report_saleorder" model="ir.actions.report">
+            <field name="report_name">kc_fiscal_hn_v18.report_sale_quotation</field>
+            <field name="report_file">kc_fiscal_hn_v18.report_sale_quotation</field>
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+        </record>
+
+        <record id="action_report_sale_proforma" model="ir.actions.report">
+            <field name="name">Factura Proforma</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kc_fiscal_hn_v18.report_sale_proforma</field>
+            <field name="report_file">kc_fiscal_hn_v18.report_sale_proforma</field>
+            <field name="print_report_name">'Factura Proforma - %s' % (object.name)</field>
+            <field name="paperformat_id" ref="kc_fiscal_hn_v18.paper_format_carta_hn"/>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+            <field name="domain">[('state', 'in', ('sale', 'done'))]</field>
+        </record>
+
+    </data>
+</odoo>

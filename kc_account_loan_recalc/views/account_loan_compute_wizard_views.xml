@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_loan_compute_wizard_recalc" model="ir.ui.view">
+        <field name="name">account.loan.compute.wizard.form.recalc</field>
+        <field name="model">account.loan.compute.wizard</field>
+        <field name="inherit_id" ref="account_loans.view_account_loan_compute_wizard"/>
+        <field name="arch" type="xml">
+            <xpath expr="//footer/button[@name='action_save']" position="before">
+                <button
+                    name="action_refresh_preview"
+                    string="Recalcular"
+                    type="object"
+                    class="btn-secondary"
+                    data-hotkey="r"
+                    help="Guarda los datos del formulario y actualiza la tabla de previsualización con la tasa, plazo e importe actuales."
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

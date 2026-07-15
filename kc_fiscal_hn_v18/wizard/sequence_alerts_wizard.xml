@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de formulario para el wizard de alertas -->
+        <record id="view_sequence_alerts_wizard_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn.wizard.sequence_alerts.form</field>
+            <field name="model">kc_fiscal_hn.wizard.sequence_alerts</field>
+            <field name="arch" type="xml">
+                <form string="Alertas de Secuencias Fiscales" class="o_fiscal_alerts_form">
+                    <sheet>
+                        <div class="o_fa_topbar">
+                            <div class="o_fa_topbar_title">
+                                <i class="fa fa-bell-o" role="img"/>
+                                <span>Centro de Alertas Fiscales SAR</span>
+                            </div>
+                            <field name="summary_html" nolabel="1" widget="html" readonly="1"/>
+                        </div>
+
+                        <div class="o_fa_grid">
+                            <div class="o_fa_card o_fa_card--danger">
+                                <div class="o_fa_card_head">
+                                    <span><i class="fa fa-hourglass-end" role="img"/> Secuencias agotadas</span>
+                                </div>
+                                <field name="expired_sequences" nolabel="1" widget="html" readonly="1"/>
+                            </div>
+
+                            <div class="o_fa_card o_fa_card--warning">
+                                <div class="o_fa_card_head">
+                                    <span><i class="fa fa-calendar-times-o" role="img"/> CAI próximos a vencer</span>
+                                </div>
+                                <field name="expiring_cais" nolabel="1" widget="html" readonly="1"/>
+                            </div>
+
+                            <div class="o_fa_card o_fa_card--info">
+                                <div class="o_fa_card_head">
+                                    <span><i class="fa fa-clipboard" role="img"/> Errores de validación</span>
+                                </div>
+                                <field name="validation_errors" nolabel="1" widget="html" readonly="1"/>
+                            </div>
+
+                            <div class="o_fa_card o_fa_card--journals">
+                                <div class="o_fa_card_head o_fa_card_head--between">
+                                    <span><i class="fa fa-book" role="img"/> Diarios sin configuración SAR</span>
+                                    <button name="action_open_incomplete_journals"
+                                            type="object"
+                                            string="Abrir diarios"
+                                            icon="fa-external-link"
+                                            class="btn btn-sm btn-outline-primary"/>
+                                </div>
+                                <field name="journals_incomplete" nolabel="1" widget="html" readonly="1"/>
+                            </div>
+                        </div>
+                    </sheet>
+                    <footer>
+                        <button name="action_check_sequences"
+                                string="Actualizar"
+                                type="object"
+                                icon="fa-refresh"
+                                class="btn-primary"/>
+                        <button name="action_validate_all_sequences"
+                                string="Validar todas"
+                                type="object"
+                                icon="fa-check-circle"
+                                class="btn-secondary"/>
+                        <button string="Cerrar" class="btn-light" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción para el wizard -->
+        <record id="action_sequence_alerts_wizard" model="ir.actions.act_window">
+            <field name="name">Alertas de Secuencias Fiscales</field>
+            <field name="res_model">kc_fiscal_hn.wizard.sequence_alerts</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_sequence_alerts_wizard_form"/>
+        </record>
+    </data>
+</odoo> 

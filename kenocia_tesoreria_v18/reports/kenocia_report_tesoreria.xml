@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="paperformat_kenocia_tesoreria" model="report.paperformat">
+        <field name="name">Kenocia Tesorería A4</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">12</field>
+        <field name="margin_bottom">12</field>
+        <field name="margin_left">8</field>
+        <field name="margin_right">8</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">8</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_kenocia_tesoreria" model="ir.actions.report">
+        <field name="name">Reporte Operaciones Tesorería</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kenocia_tesoreria_v18.report_tesoreria_payments</field>
+        <field name="report_file">kenocia_tesoreria_v18.report_tesoreria_payments</field>
+        <field name="print_report_name">'Tesorería - %s' % (object.name or '')</field>
+        <field name="paperformat_id" ref="paperformat_kenocia_tesoreria"/>
+    </record>
+
+    <template id="report_tesoreria_payments">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Operaciones de Tesorería Kenocia</h2>
+                    <p>
+                        Período:
+                        <span t-esc="docs[0].env.context.get('report_date_from', '')"/> —
+                        <span t-esc="docs[0].env.context.get('report_date_to', '')"/>
+                    </p>
+                    <table class="table table-sm table-bordered mt-3">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Número</th>
+                                <th>Tipo</th>
+                                <th>Contacto</th>
+                                <th>Diario</th>
+                                <th class="text-end">Monto</th>
+                                <th>Estado</th>
+                                <th>Conciliado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs" t-as="payment">
+                                <td><span t-field="payment.date"/></td>
+                                <td><span t-field="payment.name"/></td>
+                                <td><span t-field="payment.tesoreria_type"/></td>
+                                <td><span t-field="payment.partner_id"/></td>
+                                <td><span t-field="payment.journal_id"/></td>
+                                <td class="text-end">
+                                    <span t-field="payment.amount"
+                                          t-options="{'widget': 'monetary', 'display_currency': payment.currency_id}"/>
+                                </td>
+                                <td><span t-field="payment.state"/></td>
+                                <td>
+                                    <span t-if="payment.is_reconciled">Sí</span>
+                                    <span t-else="">No</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

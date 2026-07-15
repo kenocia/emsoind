@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Carta Honduras (US Letter): top 1.5cm, bottom/sides 1cm -->
+        <record id="paper_format_carta_hn" model="report.paperformat">
+            <field name="name">Carta Honduras SAR</field>
+            <field name="default" eval="False"/>
+            <field name="format">Letter</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">15</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">0</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Compatibilidad: informes que referencian paper_format_a4 -->
+        <record id="paper_format_a4" model="report.paperformat">
+            <field name="name">Carta Honduras SAR (legacy)</field>
+            <field name="format">Letter</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">15</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+            <field name="header_line" eval="False"/>
+            <field name="dpi">90</field>
+        </record>
+    </data>
+</odoo>

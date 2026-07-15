@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_kenocia_petty_cash_list" model="ir.ui.view">
+        <field name="name">kenocia.petty.cash.list</field>
+        <field name="model">kenocia.petty.cash</field>
+        <field name="arch" type="xml">
+            <list string="Fondos de Caja Chica">
+                <field name="name"/>
+                <field name="custodian_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="amount_authorized" sum="Total autorizado"/>
+                <field name="recharge_total" sum="Total recargas" optional="show"/>
+                <field name="amount_delivered" sum="Total entregado"/>
+                <field name="amount_pending" sum="Total pendiente"/>
+                <field name="amount_available"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'open'"
+                       decoration-muted="state == 'closed'"
+                       decoration-info="state == 'draft'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kenocia_petty_cash_search" model="ir.ui.view">
+        <field name="name">kenocia.petty.cash.search</field>
+        <field name="model">kenocia.petty.cash</field>
+        <field name="arch" type="xml">
+            <search string="Fondos de Caja Chica">
+                <field name="name"/>
+                <field name="custodian_id"/>
+                <filter string="Abiertos" name="open" domain="[('state', '=', 'open')]"/>
+                <filter string="Borrador" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Cerrados" name="closed" domain="[('state', '=', 'closed')]"/>
+                <group>
+                    <filter string="Custodio" name="group_custodian" context="{'group_by': 'custodian_id'}"/>
+                    <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_kenocia_petty_cash_line_list" model="ir.ui.view">
+        <field name="name">kenocia.petty.cash.line.list</field>
+        <field name="model">kenocia.petty.cash.line</field>
+        <field name="arch" type="xml">
+            <list string="Anticipos de Caja Chica">
+                <field name="date"/>
+                <field name="petty_cash_id"/>
+                <field name="employee_id"/>
+                <field name="description"/>
+                <field name="amount" sum="Total"/>
+                <field name="amount_invoice" optional="hide"/>
+                <field name="amount_returned" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'delivered'"
+                       decoration-success="state == 'settled'"/>
+                <field name="invoice_id" optional="hide"/>
+                <field name="settlement_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kenocia_petty_cash_line_search" model="ir.ui.view">
+        <field name="name">kenocia.petty.cash.line.search</field>
+        <field name="model">kenocia.petty.cash.line</field>
+        <field name="arch" type="xml">
+            <search string="Anticipos de Caja Chica">
+                <field name="employee_id"/>
+                <field name="description"/>
+                <field name="petty_cash_id"/>
+                <filter string="Pendientes" name="delivered"
+                        domain="[('state', '=', 'delivered')]"/>
+                <filter string="Liquidados" name="settled"
+                        domain="[('state', '=', 'settled')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_kenocia_petty_cash_recharge_list" model="ir.ui.view">
+        <field name="name">kenocia.petty.cash.recharge.list</field>
+        <field name="model">kenocia.petty.cash.recharge</field>
+        <field name="arch" type="xml">
+            <list string="Recargas de Caja Chica">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="petty_cash_id"/>
+                <field name="journal_source_id"/>
+                <field name="reference"/>
+                <field name="amount" sum="Total recargas"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'in_transit'"
+                       decoration-success="state == 'received'"
+                       decoration-danger="state == 'cancelled'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

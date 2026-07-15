@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de formulario para el wizard de validación fiscal -->
+        <record id="view_fiscal_validation_wizard_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn.wizard.fiscal_validation.form</field>
+            <field name="model">kc_fiscal_hn.wizard.fiscal_validation</field>
+            <field name="arch" type="xml">
+                <form string="Validación Fiscal Masiva">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_validate_invoices" 
+                                    string="Validar Facturas" 
+                                    type="object" 
+                                    class="btn-primary"/>
+                            <button name="action_fix_common_errors" 
+                                    string="Corregir Errores" 
+                                    type="object" 
+                                    class="btn-secondary"/>
+                            <button name="action_generate_report" 
+                                    string="Generar Reporte" 
+                                    type="object" 
+                                    class="btn-info"/>
+                        </div>
+                        <group>
+                            <group string="Configuración">
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                                <field name="move_type"/>
+                            </group>
+                            <group string="Resultados">
+                                <field name="total_invoices"/>
+                                <field name="validated_invoices"/>
+                                <field name="error_invoices"/>
+                            </group>
+                        </group>
+                        <group string="Detalles de Validación">
+                            <field name="validation_details" nolabel="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción para el wizard -->
+        <record id="action_fiscal_validation_wizard" model="ir.actions.act_window">
+            <field name="name">Validación Fiscal Masiva</field>
+            <field name="res_model">kc_fiscal_hn.wizard.fiscal_validation</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_fiscal_validation_wizard_form"/>
+        </record>
+    </data>
+</odoo> 

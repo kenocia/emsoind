@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_sar_print_reissue_wizard_form" model="ir.ui.view">
+            <field name="name">kc_fiscal_hn.print.reissue.wizard.form</field>
+            <field name="model">kc_fiscal_hn.print.reissue.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Autorizar reimpresión como Original">
+                    <group>
+                        <field name="move_id"/>
+                        <field name="reason" placeholder="Indique el motivo de la reautorización..."/>
+                    </group>
+                    <footer>
+                        <button name="action_authorize"
+                                string="Autorizar"
+                                type="object"
+                                class="btn-primary"/>
+                        <button string="Descartar" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

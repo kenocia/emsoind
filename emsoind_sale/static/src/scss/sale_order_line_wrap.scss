@@ -1,0 +1,69 @@
+// Descripción de líneas OV: texto multilínea (comportamiento tipo Odoo 15).
+// Odoo 18: text-truncate + nowrap en o_list_many2one + autoresize de una sola línea.
+
+.o_sale_order .o_field_sol_o2m table.o_list_table {
+    tbody > tr.o_data_row {
+        height: auto !important;
+    }
+
+    tbody > tr > td.o_sol_product_many2one_cell,
+    tbody > tr > td.o_sol_text_cell {
+        height: auto !important;
+        max-height: none !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        vertical-align: top;
+        line-height: 1.4;
+    }
+
+    // list_renderer.scss fuerza nowrap en many2one/char en filas no editadas.
+    .o_data_row:not(.o_selected_row) td.o_sol_product_many2one_cell {
+        &,
+        &.o_list_many2one {
+            white-space: normal !important;
+        }
+
+        .o_field_widget,
+        .o_field_widget span:not(.o_m2o_avatar) {
+            display: block !important;
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+            max-height: none !important;
+            height: auto !important;
+            word-break: break-word;
+        }
+    }
+
+    .o_field_product_label_section_and_note_cell {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+
+        > span,
+        > a,
+        .d-flex {
+            height: auto !important;
+            max-height: none !important;
+            align-items: flex-start !important;
+            flex-wrap: wrap;
+        }
+
+        .text-truncate {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+            word-break: break-word;
+        }
+
+        textarea.o_input {
+            white-space: pre-wrap !important;
+            overflow: visible !important;
+            resize: vertical;
+            min-height: 1.5em;
+            height: auto !important;
+            field-sizing: content;
+        }
+    }
+}

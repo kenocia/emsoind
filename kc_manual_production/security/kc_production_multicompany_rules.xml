@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================================ -->
+        <!-- Aislamiento multi-compañía ESTRICTO                          -->
+        <!--                                                              -->
+        <!-- Reglas GLOBALES (sin 'groups') para que apliquen a TODOS los -->
+        <!-- usuarios sin excepción, incluso a quienes tienen acceso a    -->
+        <!-- varias compañías. Se usa user.company_id.id (compañía ACTIVA)-->
+        <!-- en lugar de user.company_ids, de modo que al cambiar de      -->
+        <!-- compañía en el selector solo se vea la compañía activa.      -->
+        <!-- ============================================================ -->
+
+        <!-- kc.production.entry -->
+        <record id="kc_production_entry_company_rule" model="ir.rule">
+            <field name="name">KC Production Entry: solo su compañía activa</field>
+            <field name="model_id" ref="model_kc_production_entry"/>
+            <field name="domain_force">[('company_id', '=', user.company_id.id)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- kc.production.entry.line (vía entry_id.company_id) -->
+        <record id="kc_production_entry_line_company_rule" model="ir.rule">
+            <field name="name">KC Production Entry Line: solo su compañía activa</field>
+            <field name="model_id" ref="model_kc_production_entry_line"/>
+            <field name="domain_force">[('entry_id.company_id', '=', user.company_id.id)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- kc.production.consumption -->
+        <record id="kc_production_consumption_company_rule" model="ir.rule">
+            <field name="name">KC Production Consumption: solo su compañía activa</field>
+            <field name="model_id" ref="model_kc_production_consumption"/>
+            <field name="domain_force">[('company_id', '=', user.company_id.id)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- kc.production.consumption.line (vía consumption_id.company_id) -->
+        <record id="kc_production_consumption_line_company_rule" model="ir.rule">
+            <field name="name">KC Production Consumption Line: solo su compañía activa</field>
+            <field name="model_id" ref="model_kc_production_consumption_line"/>
+            <field name="domain_force">[('consumption_id.company_id', '=', user.company_id.id)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- kc.production.line -->
+        <record id="kc_production_line_company_rule" model="ir.rule">
+            <field name="name">KC Production Line: solo su compañía activa</field>
+            <field name="model_id" ref="model_kc_production_line"/>
+            <field name="domain_force">[('company_id', '=', user.company_id.id)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="kc_work_center_company_rule" model="ir.rule">
+            <field name="name">KC Work Center: solo su compañía activa</field>
+            <field name="model_id" ref="model_kc_work_center"/>
+            <field name="domain_force">[('company_id', '=', user.company_id.id)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="kc_production_plan_line_company_rule" model="ir.rule">
+            <field name="name">KC Plan Line: solo su compañía activa</field>
+            <field name="model_id" ref="model_kc_production_plan_line"/>
+            <field name="domain_force">[('company_id', '=', user.company_id.id)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="kc_production_backlog_company_rule" model="ir.rule">
+            <field name="name">KC Backlog: solo su compañía activa</field>
+            <field name="model_id" ref="model_kc_production_backlog"/>
+            <field name="domain_force">[('company_id', '=', user.company_id.id)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

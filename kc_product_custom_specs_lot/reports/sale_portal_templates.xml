@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- Encabezado: pill de vigencia -->
+  <template id="sale_order_portal_intro_style"
+            inherit_id="sale.sale_order_portal_content">
+    <xpath expr="//div[@id='introduction']" position="attributes">
+      <attribute name="class" add="kc-sale-portal-intro"/>
+    </xpath>
+    <xpath expr="//div[@id='introduction']//h2" position="after">
+      <t t-if="sale_order.state in ('draft', 'sent') and sale_order.validity_date">
+        <div class="mt-1">
+          <span class="kc-validity-pill">
+            <i class="fa fa-clock-o" aria-hidden="true"/>
+            Válida hasta
+            <span t-field="sale_order.validity_date" t-options='{"widget": "date"}'/>
+          </span>
+        </div>
+      </t>
+      <t t-if="sale_order.state == 'sale'">
+        <div class="mt-1">
+          <span class="kc-validity-pill">
+            <i class="fa fa-check" aria-hidden="true"/>
+            Orden confirmada
+          </span>
+        </div>
+      </t>
+    </xpath>
+  </template>
+
+  <!-- Tarjetas de información -->
+  <template id="sale_order_portal_info_cards"
+            inherit_id="sale.sale_order_portal_content">
+    <xpath expr="//div[@id='sale_info']" position="attributes">
+      <attribute name="class" add="kc-sale-portal-info-card"/>
+    </xpath>
+    <xpath expr="//div[@id='customer_info']" position="attributes">
+      <attribute name="class" add="kc-sale-portal-info-card"/>
+    </xpath>
+  </template>
+
+  <!-- Tabla de líneas -->
+  <template id="sale_order_portal_table_style"
+            inherit_id="sale.sale_order_portal_content">
+    <xpath expr="//table[@id='sales_order_table']" position="before">
+      <h5 class="kc-section-title">Detalle de productos</h5>
+    </xpath>
+    <xpath expr="//div[hasclass('table-responsive')]" position="attributes">
+      <attribute name="class" add="kc-sale-portal-lines-card"/>
+    </xpath>
+    <xpath expr="//table[@id='sales_order_table']" position="attributes">
+      <attribute name="class" add="kc-sale-portal-table"/>
+    </xpath>
+  </template>
+
+  <!-- Producto: nombre + medidas en chips + lote -->
+  <template id="sale_order_portal_content_technical"
+            inherit_id="sale.sale_order_portal_content">
+    <xpath expr="//td[@id='product_name']" position="replace">
+      <td id="product_name" class="kc-sale-portal-product">
+        <div class="kc-product-name fw-semibold">
+          <span t-field="line.name"/>
+        </div>
+        <t t-if="'technical_description' in line._fields and line.technical_description">
+          <t t-set="kc_spec_text" t-value="line.technical_description.replace('\n', ',')"/>
+          <t t-set="kc_spec_parts" t-value="[p.strip() for p in kc_spec_text.split(',') if p.strip()]"/>
+          <div class="kc-product-specs mt-2">
+            <t t-if="len(kc_spec_parts) &gt; 1">
+              <t t-foreach="kc_spec_parts" t-as="spec_part">
+                <span class="kc-spec-chip" t-esc="spec_part"/>
+              </t>
+            </t>
+            <t t-else="">
+              <span class="kc-spec-chip" t-esc="line.technical_description"/>
+            </t>
+          </div>
+        </t>
+        <t t-if="'lot_id' in line._fields and line.lot_id">
+          <div class="kc-product-lot mt-2">
+            <span class="kc-lot-chip">
+              <i class="fa fa-barcode" aria-hidden="true"/>
+              Lote: <span t-esc="line.lot_id.name"/>
+            </span>
+          </div>
+        </t>
+      </td>
+    </xpath>
+  </template>
+
+  <!-- Precios e importes con formato monetario -->
+  <template id="sale_order_portal_amount_format"
+            inherit_id="sale.sale_order_portal_content">
+    <xpath expr="//div[@t-field='line.price_unit'][@t-if='line.discount &gt;= 0']" position="replace">
+      <div t-if="line.discount &gt;= 0"
+           t-att-style="line.discount and 'text-decoration: line-through' or None"
+           t-att-class="(line.discount and 'text-danger ' or '') + 'kc-portal-price text-end'">
+        <span t-out="line.price_unit"
+              t-options='{"widget": "monetary", "display_currency": sale_order.currency_id}'/>
+      </div>
+    </xpath>
+    <xpath expr="//span[@class='oe_order_line_price_subtotal']" position="attributes">
+      <attribute name="class" add="kc-portal-amount"/>
+    </xpath>
+  </template>
+
+  <!-- Totales -->
+  <template id="sale_order_portal_totals_style"
+            inherit_id="sale.sale_order_portal_content">
+    <xpath expr="//div[@id='total']" position="attributes">
+      <attribute name="class" add="kc-sale-portal-totals"/>
+    </xpath>
+    <xpath expr="//div[@id='total']/div[hasclass('col-xs-7')]" position="attributes">
+      <attribute name="class" add="kc-totals-card"/>
+    </xpath>
+  </template>
+
+</odoo>

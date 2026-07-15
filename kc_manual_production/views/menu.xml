@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="kc_production_report_action" model="ir.actions.act_window">
+        <field name="name">Producciones por Período</field>
+        <field name="res_model">kc.production.entry</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kc_production_entry_view_search"/>
+        <field name="context">{'search_default_group_state': 1, 'search_default_filter_this_month': 1}</field>
+    </record>
+
+    <record id="kc_consumption_report_action" model="ir.actions.act_window">
+        <field name="name">Consumos por Período</field>
+        <field name="res_model">kc.production.consumption</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kc_production_consumption_view_search"/>
+        <field name="context">{'search_default_group_state': 1, 'search_default_filter_this_month': 1}</field>
+    </record>
+
+    <menuitem id="menu_kc_production_root"
+              name="Planta KC"
+              web_icon="kc_manual_production,static/description/icon.png"
+              sequence="20"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_bodega,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_dashboard"
+              name="Resumen de Producción"
+              parent="menu_kc_production_root"
+              action="kc_production_dashboard_action"
+              sequence="10"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_bodega,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_operations"
+              name="Operaciones"
+              parent="menu_kc_production_root"
+              sequence="20"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_bodega,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <!-- Cola A: planificar -->
+    <menuitem id="menu_kc_production_backlog"
+              name="Órdenes Pendientes de Planificar"
+              parent="menu_kc_production_operations"
+              action="kc_production_backlog_action"
+              sequence="5"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_plan"
+              name="Planificación"
+              parent="menu_kc_production_operations"
+              action="kc_production_plan_line_action"
+              sequence="10"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_bodega,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_plan_replenishment"
+              name="Planificar Abastecimiento"
+              parent="menu_kc_production_operations"
+              action="kc_production_plan_line_replenishment_action"
+              sequence="15"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <!-- Cola B: generar RP (planificador + producción) -->
+    <menuitem id="menu_kc_production_pending_produce"
+              name="Pendientes de Producir"
+              parent="menu_kc_production_operations"
+              action="kc_production_plan_pending_produce_action"
+              sequence="20"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_entry"
+              name="Órdenes de Producción"
+              parent="menu_kc_production_operations"
+              action="kc_production_entry_action"
+              sequence="25"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <!-- Cola C seguimiento producción (confirma) — no planificador solo -->
+    <menuitem id="menu_kc_production_entry_confirmed"
+              name="Confirmadas (pendiente validar)"
+              parent="menu_kc_production_operations"
+              action="kc_production_entry_action_confirmed"
+              sequence="30"
+              groups="kc_production_group_user,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <!-- Cola C bodega -->
+    <menuitem id="menu_kc_production_entry_pending_validate"
+              name="A validar en bodega"
+              parent="menu_kc_production_operations"
+              action="kc_production_entry_action_pending_validate"
+              sequence="35"
+              groups="kc_production_group_bodega,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <!-- Cola D -->
+    <menuitem id="menu_kc_production_entry_validated"
+              name="Producción validada"
+              parent="menu_kc_production_operations"
+              action="kc_production_entry_action_validated"
+              sequence="40"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_bodega,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_replenishment_rp"
+              name="RP de Abastecimiento"
+              parent="menu_kc_production_operations"
+              action="kc_replenishment_rp_wizard_action"
+              sequence="45"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_consumption"
+              name="Consumo de Componentes"
+              parent="menu_kc_production_operations"
+              action="kc_production_consumption_action"
+              sequence="50"
+              groups="kc_production_group_bodega,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_reports"
+              name="Reportes"
+              parent="menu_kc_production_root"
+              sequence="30"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_bodega,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_report_entry"
+              name="Producciones por Período"
+              parent="menu_kc_production_reports"
+              action="kc_production_report_action"
+              sequence="10"
+              groups="kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_report_consumption"
+              name="Consumos por Período"
+              parent="menu_kc_production_reports"
+              action="kc_consumption_report_action"
+              sequence="20"
+              groups="kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_reports_planning"
+              name="Planificación"
+              parent="menu_kc_production_reports"
+              sequence="25"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_bodega,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_report_plan_week"
+              name="Plan semanal por centro"
+              parent="menu_kc_production_reports_planning"
+              action="kc_production_plan_week_wizard_action"
+              sequence="10"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_report_plan_month"
+              name="Calendario mensual"
+              parent="menu_kc_production_reports_planning"
+              action="kc_production_plan_month_wizard_action"
+              sequence="20"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_manual"
+              name="Manual de Usuario"
+              parent="menu_kc_production_root"
+              action="kc_production_manual_action"
+              sequence="40"
+              groups="kc_production_group_planner,kc_production_group_user,kc_production_group_bodega,kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_config"
+              name="Configuración"
+              parent="menu_kc_production_root"
+              sequence="90"
+              groups="kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_line"
+              name="Líneas de Producción"
+              parent="menu_kc_production_config"
+              action="kc_production_line_action"
+              sequence="10"
+              groups="kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_work_center"
+              name="Centros de Trabajo"
+              parent="menu_kc_production_config"
+              action="kc_work_center_action"
+              sequence="20"
+              groups="kc_production_group_manager,stock.group_stock_manager"/>
+
+    <menuitem id="menu_kc_production_picking_type"
+              name="Tipos de Operación"
+              parent="menu_kc_production_config"
+              action="kc_production_picking_type_action"
+              sequence="30"
+              groups="kc_production_group_manager,stock.group_stock_manager"/>
+
+</odoo>

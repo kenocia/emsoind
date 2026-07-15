@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_technical" inherit_id="account.report_invoice_document">
+        <xpath expr="//td[@name='account_invoice_line_name']" position="inside">
+            <t t-if="line.kc_show_technical_on_invoice and line.technical_description">
+                <br/>
+                <small class="text-muted">
+                    <span t-field="line.technical_description"/>
+                </small>
+            </t>
+            <t t-if="line.kc_show_technical_on_invoice and line.lot_id">
+                <br/>
+                <small>
+                    Lote: <span t-esc="line.lot_id.name"/>
+                </small>
+            </t>
+        </xpath>
+    </template>
+</odoo>

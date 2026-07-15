@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="kc_technical_inventory_import_wizard_view_form" model="ir.ui.view">
+        <field name="name">kc.technical.inventory.import.wizard.form</field>
+        <field name="model">kc.technical.inventory.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importar inventario inicial (producto terminado)">
+                <group invisible="result_message">
+                    <group>
+                        <field name="file_name" invisible="1"/>
+                        <field name="file_data" filename="file_name"/>
+                        <field name="location_id"
+                               placeholder="ESI/Bodega PT"/>
+                        <field name="inventory_date"/>
+                    </group>
+                    <group>
+                        <field name="merge_existing_lot"/>
+                    </group>
+                </group>
+                <group invisible="not result_message">
+                    <field name="result_message" nolabel="1"/>
+                </group>
+                <div invisible="result_message" class="alert alert-info" role="alert">
+                    <p><strong>Columnas reconocidas</strong> (encabezados en español o inglés):</p>
+                    <ul>
+                        <li><strong>SKU / SKU Original / Referencia</strong> → legacy_sku</li>
+                        <li><strong>Código base / Producto</strong> → product_default_code</li>
+                        <li><strong>Clave técnica / Technical Key</strong></li>
+                        <li><strong>Clave de configuración</strong></li>
+                        <li><strong>Cantidad / Existencia</strong> (obligatoria)</li>
+                        <li><strong>Costo</strong> (opcional)</li>
+                        <li><strong>Lote</strong> (opcional)</li>
+                        <li><strong>Ubicación</strong> (opcional, por fila)</li>
+                    </ul>
+                    <p>
+                        Cada fila se resuelve a una configuración técnica de la matriz,
+                        se crea o reutiliza un <em>stock.lot</em> y se registra la
+                        existencia en la ubicación indicada.
+                    </p>
+                </div>
+                <footer>
+                    <button name="action_import"
+                            string="Importar inventario"
+                            type="object"
+                            class="btn-primary"
+                            invisible="result_message"/>
+                    <button string="Cerrar" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_kc_technical_inventory_import" model="ir.actions.act_window">
+        <field name="name">Importar inventario inicial PT</field>
+        <field name="res_model">kc.technical.inventory.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_kc_technical_inventory_import"
+              name="Importar inventario inicial PT"
+              parent="stock.menu_stock_config_settings"
+              action="action_kc_technical_inventory_import"
+              sequence="48"
+              groups="stock.group_stock_manager"/>
+</odoo>

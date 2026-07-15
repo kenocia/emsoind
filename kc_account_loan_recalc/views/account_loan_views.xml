@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_loan_form_recalculate" model="ir.ui.view">
+        <field name="name">account.loan.form.recalculate</field>
+        <field name="model">account.loan</field>
+        <field name="inherit_id" ref="account_loans.account_loan_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_reset']" position="after">
+                <button
+                    name="action_recalculate_schedule"
+                    string="Recalcular amortización"
+                    type="object"
+                    class="btn-secondary"
+                    groups="account.group_account_manager"
+                    invisible="state != 'draft'"
+                    help="Con dos o más cuotas: conserva la primera línea (la que editó) y recalcula el resto sobre el saldo con la tasa guardada. Sin líneas o una sola: regenera todo el cronograma con el asistente (plazo múltiplo de 12 meses)."
+                />
+            </xpath>
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="kc_use_annuity_params" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='skip_until_date']" position="after">
+                <group
+                    string="Parámetros guardados (recalcular)"
+                    invisible="not kc_use_annuity_params"
+                    colspan="2"
+                >
+                    <field name="kc_interest_rate" readonly="1"/>
+                    <field name="kc_payment_end_of_month" readonly="1"/>
+                    <field name="kc_compounding_method" readonly="1"/>
+                    <field name="kc_first_payment_date" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

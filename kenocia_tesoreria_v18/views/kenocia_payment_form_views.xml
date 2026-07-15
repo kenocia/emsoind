@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Herencia común: smart buttons y campos técnicos para todos los pagos Kenocia -->
+    <record id="view_account_payment_form_kenocia_common" model="ir.ui.view">
+        <field name="name">account.payment.form.kenocia.common</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button type="object"
+                        name="action_open_advance_payments"
+                        class="oe_stat_button kt_advance_btn"
+                        icon="fa-hand-holding-usd"
+                        invisible="advance_count == 0">
+                    <field name="advance_count" widget="statinfo" string="Anticipos"/>
+                </button>
+                <button type="object"
+                        name="action_open_advance_invoices"
+                        class="oe_stat_button kt_advance_btn"
+                        icon="fa-file-invoice"
+                        invisible="advance_invoice_count == 0">
+                    <field name="advance_invoice_count" widget="statinfo" string="Facturas"/>
+                </button>
+                <field name="advance_invoice_count" invisible="1"/>
+                <field name="advance_count" invisible="1"/>
+                <field name="is_void_cheque" invisible="1"/>
+                <field name="is_reconciled_tesoreria" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

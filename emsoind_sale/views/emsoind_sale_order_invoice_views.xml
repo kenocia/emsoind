@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emsoind_sale_order_invoice_view_list" model="ir.ui.view">
+        <field name="name">emsoind.sale.order.invoice.list</field>
+        <field name="model">emsoind.sale.order.invoice</field>
+        <field name="arch" type="xml">
+            <list string="Órdenes facturadas"
+                  create="0"
+                  delete="0"
+                  edit="0"
+                  default_order="invoice_date desc, order_name desc">
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_id" column_invisible="True"/>
+                <field name="order_id" column_invisible="True"/>
+                <field name="invoice_id" column_invisible="True"/>
+                <field name="order_name" string="Número"/>
+                <field name="date_order" optional="show"/>
+                <field name="partner_id"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="invoice_name" string="Número de factura"/>
+                <field name="invoice_date" string="Fecha de facturación"/>
+                <field name="amount_total" widget="monetary" optional="hide"/>
+                <field name="state" widget="badge" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emsoind_sale_order_invoice_view_search" model="ir.ui.view">
+        <field name="name">emsoind.sale.order.invoice.search</field>
+        <field name="model">emsoind.sale.order.invoice</field>
+        <field name="arch" type="xml">
+            <search string="Órdenes facturadas">
+                <field name="order_name" string="Número OV"/>
+                <field name="invoice_name" string="Número de factura"/>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <separator/>
+                <filter string="Este mes" name="invoice_this_month"
+                        domain="[('invoice_date', '&gt;=', (context_today().strftime('%Y-%m-01')))]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter string="Cliente" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Vendedor" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Fecha facturación" name="group_invoice_date" context="{'group_by': 'invoice_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_emsoind_sale_order_invoiced" model="ir.actions.act_window">
+        <field name="name">Facturadas</field>
+        <field name="res_model">emsoind.sale.order.invoice</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="emsoind_sale_order_invoice_view_search"/>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay órdenes con facturas publicadas.
+            </p>
+            <p>
+                Cada factura de cliente publicada aparece como una fila.
+                Al abrirla verás la orden de venta completa.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_emsoind_sale_order_invoiced"
+              name="Facturadas"
+              parent="sale.sale_order_menu"
+              action="action_emsoind_sale_order_invoiced"
+              groups="sales_team.group_sale_salesman"
+              sequence="25"/>
+
+</odoo>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_stock_lot_technical_summary" model="ir.actions.report">
+        <field name="name">Ficha técnica de lote</field>
+        <field name="model">stock.lot</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kc_product_custom_specs_lot.report_lot_technical_document</field>
+        <field name="report_file">kc_product_custom_specs_lot.report_lot_technical_document</field>
+        <field name="print_report_name">'Lote-%s' % (object.name)</field>
+        <field name="binding_model_id" ref="stock.model_stock_lot"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_lot_technical_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="lot">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Lote <span t-field="lot.name"/></h2>
+                        <p><strong>Producto:</strong> <span t-field="lot.product_id"/></p>
+                        <p t-if="lot.technical_key">
+                            <strong>Clave técnica:</strong> <span t-field="lot.technical_key"/>
+                        </p>
+                        <p t-if="lot.technical_description">
+                            <strong>Especificaciones:</strong>
+                        </p>
+                        <pre t-if="lot.technical_description" t-field="lot.technical_description"/>
+                        <p t-if="lot.kc_authorized_employee_id">
+                            <strong>Autorizado por:</strong>
+                            <span t-field="lot.kc_authorized_employee_id"/>
+                        </p>
+                        <p><strong>Cantidad en stock:</strong> <span t-field="lot.product_qty"/></p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

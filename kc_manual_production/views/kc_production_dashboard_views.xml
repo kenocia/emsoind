@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Acción cliente: Dashboard OWL de Producción Manual           -->
+    <!-- Apunta al componente registrado con tag 'kc_production_dashboard'. -->
+    <!-- ============================================================ -->
+    <record id="kc_production_dashboard_action" model="ir.actions.client">
+        <field name="name">Resumen de Producción</field>
+        <field name="tag">kc_production_dashboard</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Acción cliente: Manual de Usuario OWL                         -->
+    <!-- Documentación estática, visible para todos los grupos.       -->
+    <!-- ============================================================ -->
+    <record id="kc_production_manual_action" model="ir.actions.client">
+        <field name="name">Manual de Usuario</field>
+        <field name="tag">kc_production_manual</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_list_kenocia_tesoreria" model="ir.ui.view">
+        <field name="name">account.account.list.kenocia.tesoreria</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_list"/>
+        <field name="arch" type="xml">
+            <field name="account_type" position="after">
+                <field name="kenocia_tesoreria_role" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_account_search_kenocia_tesoreria" model="ir.ui.view">
+        <field name="name">account.account.search.kenocia.tesoreria</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_search"/>
+        <field name="arch" type="xml">
+            <filter name="assetsacc" position="after">
+                <filter string="Banco y efectivo"
+                        name="kenocia_bank_cash"
+                        domain="[('account_type', '=', 'asset_cash')]"/>
+                <filter string="Anticipos Kenocia"
+                        name="kenocia_advance_accounts"
+                        domain="[('account_type', 'in', ('asset_current', 'asset_receivable', 'asset_prepayments'))]"/>
+            </filter>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="kenocia_tesoreria_v18.Dashboard">
+        <div class="kenocia-dashboard o_view_controller">
+
+            <t t-if="state.loading">
+                <div class="kenocia-loading">
+                    <i class="fa fa-spinner fa-spin me-2"/>
+                    Cargando dashboard de tesorería...
+                </div>
+            </t>
+
+            <!-- Hoja de detalle (pantalla completa) -->
+            <t t-elif="state.detailSheet">
+                <div class="kenocia-detail-sheet">
+                    <div class="kenocia-detail-header">
+                        <button type="button" class="kenocia-detail-back"
+                                t-on-click="closeDetailSheet">
+                            <i class="fa fa-arrow-left me-1"/> Volver al dashboard
+                        </button>
+                        <h2 class="kenocia-detail-title" t-esc="state.detailSheet.title"/>
+                    </div>
+
+                    <t t-if="!state.detailSheet.rows.length">
+                        <div class="kenocia-detail-empty">Sin registros para mostrar.</div>
+                    </t>
+
+                    <div class="kenocia-detail-list">
+                        <t t-foreach="state.detailSheet.rows" t-as="row" t-key="row_index">
+                            <div class="kenocia-detail-item">
+                                <div class="kenocia-detail-item-main">
+                                    <span class="kenocia-detail-item-label" t-esc="row.label"/>
+                                    <span t-att-class="'kenocia-detail-item-value ' + (row.cls || '')"
+                                          t-esc="row.value"/>
+                                </div>
+                                <t t-if="row.sub">
+                                    <div class="kenocia-detail-item-sub" t-esc="row.sub"/>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+
+                    <t t-if="state.detailSheet.action">
+                        <div class="kenocia-detail-actions">
+                            <button type="button" class="btn btn-primary"
+                                    t-on-click="openDetailAction">
+                                Ver registros →
+                            </button>
+                        </div>
+                    </t>
+                </div>
+            </t>
+
+            <t t-else="">
+                <!-- Filtros — siempre visibles, fuera de contenedores con overflow -->
+                <div class="kenocia-filters">
+                    <div class="kenocia-filter-group">
+                        <label>Empresa</label>
+                        <select t-att-value="this._selectedFilterValue(state.filters.company_ids)"
+                                t-on-change="onCompanyChange">
+                            <option value="all">Todas las empresas</option>
+                            <t t-foreach="state.filtersMeta.companies" t-as="co" t-key="co.id">
+                                <option t-att-value="co.id" t-esc="co.name"/>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="kenocia-filter-group">
+                        <label>Banco / Efectivo</label>
+                        <select t-on-change="onJournalChange">
+                            <option value="all"
+                                    t-att-selected="state.filters.journal_ids.length === 0 ? 'selected' : undefined">
+                                Todos
+                            </option>
+                            <t t-foreach="state.filtersMeta.journals" t-as="jo" t-key="jo.id">
+                                <option t-att-value="jo.id"
+                                        t-att-selected="state.filters.journal_ids[0] === jo.id ? 'selected' : undefined"
+                                        t-esc="jo.label"/>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="kenocia-filter-group">
+                        <label>Fondo CC</label>
+                        <select t-att-value="this._selectedFilterValue(state.filters.petty_fund_ids)"
+                                t-on-change="onPettyFundChange">
+                            <option value="all">Todos los fondos</option>
+                            <t t-foreach="state.filtersMeta.petty_funds" t-as="pf" t-key="pf.id">
+                                <option t-att-value="pf.id" t-esc="pf.label"/>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="kenocia-filter-group">
+                        <label>Período</label>
+                        <select t-att-value="state.filters.period"
+                                t-on-change="onPeriodChange">
+                            <option value="week">Esta semana</option>
+                            <option value="month">Este mes</option>
+                            <option value="q">Este trimestre</option>
+                            <option value="year">Este año</option>
+                        </select>
+                    </div>
+                    <div class="kenocia-filter-group">
+                        <label>Desde</label>
+                        <input type="date" t-att-value="state.filters.date_from"
+                               t-on-change="(ev) => this.onDateChange('date_from', ev)"/>
+                    </div>
+                    <div class="kenocia-filter-group">
+                        <label>Hasta</label>
+                        <input type="date" t-att-value="state.filters.date_to"
+                               t-on-change="(ev) => this.onDateChange('date_to', ev)"/>
+                    </div>
+                    <button type="button" class="kenocia-btn-reset" t-on-click="resetFilters">
+                        Limpiar
+                    </button>
+                    <span class="kenocia-filters-active" t-if="this.hasActiveFilters">
+                        ● Filtros activos
+                    </span>
+                </div>
+
+                <!-- Tabs -->
+                <div class="kenocia-tabs">
+                    <button type="button" class="kenocia-tab"
+                            t-att-class="{ active: state.activeTab === 'exec' }"
+                            t-on-click="() => this.setTab('exec')">Ejecutivo</button>
+                    <button type="button" class="kenocia-tab"
+                            t-att-class="{ active: state.activeTab === 'ops' }"
+                            t-on-click="() => this.setTab('ops')">Operativo</button>
+                    <button type="button" class="kenocia-tab"
+                            t-att-class="{ active: state.activeTab === 'banks' }"
+                            t-on-click="() => this.setTab('banks')">Bancos y cajas</button>
+                    <button type="button" class="kenocia-tab"
+                            t-att-class="{ active: state.activeTab === 'flow' }"
+                            t-on-click="() => this.setTab('flow')">Flujo de efectivo</button>
+                    <button type="button" class="kenocia-refresh" t-on-click="refresh">
+                        <i class="fa fa-refresh me-1"/> Actualizar
+                    </button>
+                </div>
+
+                <!-- TAB EJECUTIVO -->
+                <t t-if="state.activeTab === 'exec' and state.data">
+                    <div class="kenocia-section">Liquidez total</div>
+                    <div class="kenocia-kpi-grid kenocia-kpi-grid-4">
+                        <!-- KPI: Saldo bancos / Efectivo -->
+                        <div t-att-class="'kenocia-flip-card' + (isFlipped('saldo_bancos') ? ' is-flipped' : '')"
+                             style="--kpi-accent:#534AB7"
+                             t-on-click="() => this.toggleFlip('saldo_bancos')">
+                            <div class="kenocia-flip-inner">
+                                <div class="kenocia-flip-face kenocia-flip-front">
+                                    <div class="kenocia-kpi-label">
+                                        <span t-esc="primaryLiquidityLabel()"/>
+                                        <i class="fa fa-info-circle kenocia-kpi-info-icon" aria-hidden="true"/>
+                                    </div>
+                                    <div class="kenocia-kpi-value" t-esc="fmt(primaryLiquidityValue())"/>
+                                    <div class="kenocia-kpi-sub" t-esc="primaryLiquiditySub()"/>
+                                </div>
+                                <div t-att-class="'kenocia-flip-face kenocia-flip-back tone-' + getKpiExplanation('saldo_bancos').tone">
+                                    <div class="kenocia-flip-back-title" t-esc="getKpiExplanation('saldo_bancos').title"/>
+                                    <div class="kenocia-flip-back-text" t-esc="getKpiExplanation('saldo_bancos').text"/>
+                                    <button class="kenocia-flip-back-link"
+                                            t-on-click.stop="() => this.openDetailSheet('banks')">Ver detalle →</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- KPI: Cajas chicas -->
+                        <div t-att-class="'kenocia-flip-card' + (isFlipped('cajas_chicas') ? ' is-flipped' : '')"
+                             style="--kpi-accent:#3B6D11"
+                             t-on-click="() => this.toggleFlip('cajas_chicas')">
+                            <div class="kenocia-flip-inner">
+                                <div class="kenocia-flip-face kenocia-flip-front">
+                                    <div class="kenocia-kpi-label">
+                                        <span>Cajas chicas</span>
+                                        <i class="fa fa-info-circle kenocia-kpi-info-icon" aria-hidden="true"/>
+                                    </div>
+                                    <div class="kenocia-kpi-value" t-esc="fmt(pettyCashKpiValue())"/>
+                                    <div class="kenocia-kpi-sub">
+                                        <t t-if="journalFilterType() === 'cash'">
+                                            saldo físico · operativo:
+                                            <t t-esc="fmt(state.data.petty_cash.total_operational)"/>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-esc="state.data.petty_cash.open_count"/> fondos ·
+                                            operativo: <t t-esc="fmt(state.data.petty_cash.total_operational)"/>
+                                        </t>
+                                    </div>
+                                </div>
+                                <div t-att-class="'kenocia-flip-face kenocia-flip-back tone-' + getKpiExplanation('cajas_chicas').tone">
+                                    <div class="kenocia-flip-back-title" t-esc="getKpiExplanation('cajas_chicas').title"/>
+                                    <div class="kenocia-flip-back-text" t-esc="getKpiExplanation('cajas_chicas').text"/>
+                                    <button class="kenocia-flip-back-link"
+                                            t-on-click.stop="() => this.openDetailSheet('petty')">Ver detalle →</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- KPI: Por cobrar CXC -->
+                        <div t-att-class="'kenocia-flip-card' + (isFlipped('cxc') ? ' is-flipped' : '')"
+                             style="--kpi-accent:#185FA5"
+                             t-on-click="() => this.toggleFlip('cxc')">
+                            <div class="kenocia-flip-inner">
+                                <div class="kenocia-flip-face kenocia-flip-front">
+                                    <div class="kenocia-kpi-label">
+                                        <span>Por cobrar CXC</span>
+                                        <i class="fa fa-info-circle kenocia-kpi-info-icon" aria-hidden="true"/>
+                                    </div>
+                                    <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxc.total)"/>
+                                    <div class="kenocia-kpi-sub" t-esc="state.data.cxc.count + ' facturas'"/>
+                                </div>
+                                <div t-att-class="'kenocia-flip-face kenocia-flip-back tone-' + getKpiExplanation('cxc').tone">
+                                    <div class="kenocia-flip-back-title" t-esc="getKpiExplanation('cxc').title"/>
+                                    <div class="kenocia-flip-back-text" t-esc="getKpiExplanation('cxc').text"/>
+                                    <button class="kenocia-flip-back-link"
+                                            t-on-click.stop="() => this.openDetailSheet('cxc')">Ver detalle →</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- KPI: Por pagar CXP -->
+                        <div t-att-class="'kenocia-flip-card' + (isFlipped('cxp') ? ' is-flipped' : '')"
+                             style="--kpi-accent:#D85A30"
+                             t-on-click="() => this.toggleFlip('cxp')">
+                            <div class="kenocia-flip-inner">
+                                <div class="kenocia-flip-face kenocia-flip-front">
+                                    <div class="kenocia-kpi-label">
+                                        <span>Por pagar CXP</span>
+                                        <i class="fa fa-info-circle kenocia-kpi-info-icon" aria-hidden="true"/>
+                                    </div>
+                                    <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxp.total)"/>
+                                    <div class="kenocia-kpi-sub" t-esc="state.data.cxp.count + ' facturas'"/>
+                                </div>
+                                <div t-att-class="'kenocia-flip-face kenocia-flip-back tone-' + getKpiExplanation('cxp').tone">
+                                    <div class="kenocia-flip-back-title" t-esc="getKpiExplanation('cxp').title"/>
+                                    <div class="kenocia-flip-back-text" t-esc="getKpiExplanation('cxp').text"/>
+                                    <button class="kenocia-flip-back-link"
+                                            t-on-click.stop="() => this.openDetailSheet('cxp')">Ver detalle →</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kenocia-section">Posición neta</div>
+                    <div class="kenocia-kpi-grid kenocia-kpi-grid-3">
+                        <!-- KPI: Liquidez neta -->
+                        <div t-att-class="'kenocia-flip-card' + (isFlipped('liquidez_neta') ? ' is-flipped' : '')"
+                             style="--kpi-accent:#534AB7"
+                             t-on-click="() => this.toggleFlip('liquidez_neta')">
+                            <div class="kenocia-flip-inner">
+                                <div class="kenocia-flip-face kenocia-flip-front">
+                                    <div class="kenocia-kpi-label">
+                                        <span>Liquidez neta</span>
+                                        <i class="fa fa-info-circle kenocia-kpi-info-icon" aria-hidden="true"/>
+                                    </div>
+                                    <div class="kenocia-kpi-value" t-esc="fmt(netLiquidity())"/>
+                                    <div class="kenocia-kpi-sub">Bancos + caja chica − CXP</div>
+                                </div>
+                                <div t-att-class="'kenocia-flip-face kenocia-flip-back tone-' + getKpiExplanation('liquidez_neta').tone">
+                                    <div class="kenocia-flip-back-title" t-esc="getKpiExplanation('liquidez_neta').title"/>
+                                    <div class="kenocia-flip-back-text" t-esc="getKpiExplanation('liquidez_neta').text"/>
+                                    <button class="kenocia-flip-back-link"
+                                            t-on-click.stop="() => this.openDetailSheet('neta')">Ver detalle →</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- KPI: Ratio CXC / CXP (sin drill-down) -->
+                        <div t-att-class="'kenocia-flip-card' + (isFlipped('ratio_cxc_cxp') ? ' is-flipped' : '')"
+                             style="--kpi-accent:#185FA5"
+                             t-on-click="() => this.toggleFlip('ratio_cxc_cxp')">
+                            <div class="kenocia-flip-inner">
+                                <div class="kenocia-flip-face kenocia-flip-front">
+                                    <div class="kenocia-kpi-label">
+                                        <span>Ratio CXC / CXP</span>
+                                        <i class="fa fa-info-circle kenocia-kpi-info-icon" aria-hidden="true"/>
+                                    </div>
+                                    <div class="kenocia-kpi-value" t-esc="ratio()"/>
+                                </div>
+                                <div t-att-class="'kenocia-flip-face kenocia-flip-back tone-' + getKpiExplanation('ratio_cxc_cxp').tone">
+                                    <div class="kenocia-flip-back-title" t-esc="getKpiExplanation('ratio_cxc_cxp').title"/>
+                                    <div class="kenocia-flip-back-text" t-esc="getKpiExplanation('ratio_cxc_cxp').text"/>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- KPI: Críticos >60d -->
+                        <div t-att-class="'kenocia-flip-card' + (isFlipped('criticos') ? ' is-flipped' : '')"
+                             style="--kpi-accent:#D85A30"
+                             t-on-click="() => this.toggleFlip('criticos')">
+                            <div class="kenocia-flip-inner">
+                                <div class="kenocia-flip-face kenocia-flip-front">
+                                    <div class="kenocia-kpi-label">
+                                        <span>Críticos &gt;60d</span>
+                                        <i class="fa fa-info-circle kenocia-kpi-info-icon" aria-hidden="true"/>
+                                    </div>
+                                    <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxc.critical)"/>
+                                    <div class="kenocia-kpi-sub" t-esc="state.data.cxc.count_critical + ' facturas'"/>
+                                </div>
+                                <div t-att-class="'kenocia-flip-face kenocia-flip-back tone-' + getKpiExplanation('criticos').tone">
+                                    <div class="kenocia-flip-back-title" t-esc="getKpiExplanation('criticos').title"/>
+                                    <div class="kenocia-flip-back-text" t-esc="getKpiExplanation('criticos').text"/>
+                                    <button class="kenocia-flip-back-link"
+                                            t-on-click.stop="() => this.openDetailSheet('criticos')">Ver detalle →</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kenocia-grid-2">
+                        <div class="kenocia-card">
+                            <div class="kenocia-card-title">
+                                <span>Flujo semanal (real + proyectado)</span>
+                                <span class="kenocia-card-link" t-on-click="() => this.setTab('flow')">
+                                    Ver detalle →
+                                </span>
+                            </div>
+                            <div class="kenocia-chart-wrap" style="height:160px">
+                                <canvas id="kenocia-c-flow"/>
+                            </div>
+                            <div class="kenocia-flow-legend">
+                                <span><span class="kenocia-legend-dot" style="background:#97C459"/> Cobros reales</span>
+                                <span><span class="kenocia-legend-dot" style="background:#639922"/> CXC proyectado</span>
+                                <span><span class="kenocia-legend-dot" style="background:#F0997B"/> Pagos reales</span>
+                                <span><span class="kenocia-legend-dot" style="background:#D85A30"/> CXP proyectado</span>
+                            </div>
+                        </div>
+                        <div class="kenocia-card">
+                            <div class="kenocia-card-title">Saldos bancos y cajas</div>
+                            <t t-if="!state.data.liquidity_journals.journals.length">
+                                <div class="kenocia-kpi-sub">Sin diarios para el filtro seleccionado.</div>
+                            </t>
+                            <t t-foreach="state.data.liquidity_journals.journals" t-as="item" t-key="item.id">
+                                <div class="kenocia-bar-row">
+                                    <span class="kenocia-bar-label" t-att-title="item.name" t-esc="item.name"/>
+                                    <div class="kenocia-bar-track">
+                                        <div class="kenocia-bar-fill"
+                                             t-att-style="'width:' + pct(item.balance, state.data.liquidity_journals.total) + '%; background:' + liquidityBarColor(item.kind)"/>
+                                    </div>
+                                    <span class="kenocia-bar-value" t-esc="fmt(item.balance)"/>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <div class="kenocia-section">Alertas</div>
+                    <t t-if="!state.data.alerts.length">
+                        <div class="kenocia-alert kenocia-alert-ok">Sin alertas pendientes.</div>
+                    </t>
+                    <t t-foreach="state.data.alerts" t-as="alert" t-key="alert_index">
+                        <div t-att-class="'kenocia-alert ' + alertClass(alert.level)" t-esc="alert.msg"/>
+                    </t>
+                </t>
+
+                <!-- TAB OPERATIVO -->
+                <t t-if="state.activeTab === 'ops' and state.data">
+                    <div class="kenocia-section">CXC — cobros</div>
+                    <div class="kenocia-kpi-grid kenocia-kpi-grid-4">
+                        <div class="kenocia-kpi kenocia-kpi-blue clickable" t-on-click="() => this.openCXC()">
+                            <div class="kenocia-kpi-label">Total CXC</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxc.total)"/>
+                        </div>
+                        <div class="kenocia-kpi kenocia-kpi-green">
+                            <div class="kenocia-kpi-label">Al día</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxc.current)"/>
+                        </div>
+                        <div class="kenocia-kpi kenocia-kpi-amber">
+                            <div class="kenocia-kpi-label">30–60 días</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxc.warning)"/>
+                        </div>
+                        <div class="kenocia-kpi kenocia-kpi-coral">
+                            <div class="kenocia-kpi-label">&gt;60 días</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxc.critical)"/>
+                        </div>
+                    </div>
+
+                    <div class="kenocia-section">CXP — pagos</div>
+                    <div class="kenocia-kpi-grid kenocia-kpi-grid-4">
+                        <div class="kenocia-kpi kenocia-kpi-coral clickable" t-on-click="() => this.openCXP()">
+                            <div class="kenocia-kpi-label">Total CXP</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxp.total)"/>
+                        </div>
+                        <div class="kenocia-kpi kenocia-kpi-green">
+                            <div class="kenocia-kpi-label">Al día</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxp.current)"/>
+                        </div>
+                        <div class="kenocia-kpi kenocia-kpi-amber">
+                            <div class="kenocia-kpi-label">Vence esta semana</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxp.due_week)"/>
+                        </div>
+                        <div class="kenocia-kpi kenocia-kpi-coral">
+                            <div class="kenocia-kpi-label">Vencidas</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(state.data.cxp.overdue)"/>
+                        </div>
+                    </div>
+
+                    <div class="kenocia-grid-2">
+                        <div class="kenocia-card">
+                            <div class="kenocia-card-title">
+                                <span>Fondos caja chica</span>
+                                <span class="kenocia-card-link" t-on-click="() => this.openPetty()">Ver fondos →</span>
+                            </div>
+                            <t t-if="!state.data.petty_cash.funds.length">
+                                <div class="kenocia-kpi-sub">Sin fondos para el filtro seleccionado.</div>
+                            </t>
+                            <t t-foreach="state.data.petty_cash.funds" t-as="fund" t-key="fund.id">
+                                <div class="kenocia-bar-row">
+                                    <span class="kenocia-bar-label" t-esc="fund.name"/>
+                                    <div class="kenocia-bar-track">
+                                        <div class="kenocia-bar-fill"
+                                             t-att-style="'width:' + fund.pct + '%; background:' + barColor(fund.pct)"/>
+                                    </div>
+                                    <span class="kenocia-bar-value" t-esc="fmt(fund.accounting_balance)"/>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="kenocia-card">
+                            <div class="kenocia-card-title">CXC por antigüedad</div>
+                            <div class="kenocia-chart-wrap" style="height:140px">
+                                <canvas id="kenocia-c-aging"/>
+                            </div>
+                            <div class="kenocia-legend">
+                                <span><span class="kenocia-legend-dot" style="background:#639922"/> Al día</span>
+                                <span><span class="kenocia-legend-dot" style="background:#BA7517"/> 30–60d</span>
+                                <span><span class="kenocia-legend-dot" style="background:#E24B4A"/> &gt;60d</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kenocia-section">Acciones pendientes</div>
+                    <t t-foreach="state.data.alerts" t-as="alert" t-key="alert_index">
+                        <div t-att-class="'kenocia-alert ' + alertClass(alert.level)" t-esc="alert.msg"/>
+                    </t>
+                </t>
+
+                <!-- TAB BANCOS Y CAJAS -->
+                <t t-if="state.activeTab === 'banks' and state.data">
+                    <div class="kenocia-section">Cuentas bancarias</div>
+                    <div class="kenocia-grid-3">
+                        <t t-foreach="state.data.banks.journals" t-as="j" t-key="j.id">
+                            <div class="kenocia-card clickable"
+                                 t-on-click="() => this.openDetailSheet('banks')">
+                                <div class="kenocia-card-title">
+                                    <span t-esc="j.name"/>
+                                    <span class="kenocia-badge kenocia-badge-info">Banco</span>
+                                </div>
+                                <div class="kenocia-kpi-value mb-2" t-esc="fmt(j.balance)"/>
+                                <div class="kenocia-bar-row" style="margin:0">
+                                    <div class="kenocia-bar-track">
+                                        <div class="kenocia-bar-fill"
+                                             t-att-style="'width:' + pct(j.balance, state.data.banks.total) + '%; background: var(--color-text-info, #185FA5)'"/>
+                                    </div>
+                                    <span class="kenocia-kpi-sub ms-1">
+                                        <t t-esc="pct(j.balance, state.data.banks.total)"/>%
+                                    </span>
+                                </div>
+                                <div class="kenocia-kpi-sub mt-2" t-esc="j.company"/>
+                            </div>
+                        </t>
+                    </div>
+
+                    <t t-if="state.data.cash_journals.length">
+                        <div class="kenocia-section">Efectivo operativo</div>
+                        <div class="kenocia-grid-3">
+                            <t t-foreach="state.data.cash_journals" t-as="cj" t-key="cj.id">
+                                <div class="kenocia-card">
+                                    <div class="kenocia-card-title">
+                                        <span t-esc="cj.name"/>
+                                        <span class="kenocia-badge kenocia-badge-ok">Efectivo</span>
+                                    </div>
+                                    <div class="kenocia-kpi-value mb-2" t-esc="fmt(cj.balance)"/>
+                                    <div class="kenocia-kpi-sub" t-esc="cj.company"/>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <div class="kenocia-section">Fondos de caja chica</div>
+                    <div class="kenocia-grid-3">
+                        <t t-foreach="state.data.petty_cash.funds" t-as="fund" t-key="fund.id">
+                            <div class="kenocia-card clickable"
+                                 t-on-click="() => this.openDetailSheet('petty')">
+                                <div class="kenocia-card-title">
+                                    <span t-esc="fund.name"/>
+                                    <span t-att-class="'kenocia-badge ' + (fund.pct > 50 ? 'kenocia-badge-ok' : fund.pct > 20 ? 'kenocia-badge-warning' : 'kenocia-badge-danger')">
+                                        <t t-esc="fund.pct"/>% disp.
+                                    </span>
+                                </div>
+                                <div class="kenocia-kpi-sub">Saldo físico</div>
+                                <div class="kenocia-kpi-value mb-1" t-esc="fmt(fund.accounting_balance)"/>
+                                <div class="kenocia-kpi-sub">
+                                    Operativo: <t t-esc="fmt(fund.available)"/>
+                                </div>
+                                <div class="kenocia-bar-track mt-2">
+                                    <div class="kenocia-bar-fill"
+                                         t-att-style="'width:' + fund.pct + '%; background:' + barColor(fund.pct)"/>
+                                </div>
+                                <div class="kenocia-kpi-sub mt-2">
+                                    Custodio: <t t-esc="fund.custodian"/>
+                                </div>
+                                <t t-if="fund.pending_advances">
+                                    <span class="kenocia-badge kenocia-badge-warning mt-2">
+                                        <t t-esc="fund.pending_advances"/> anticipo(s) sin factura SAR
+                                    </span>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- TAB FLUJO DE EFECTIVO -->
+                <t t-if="state.activeTab === 'flow' and state.data">
+                    <div class="kenocia-kpi-grid kenocia-kpi-grid-3">
+                        <div class="kenocia-kpi kenocia-kpi-green">
+                            <div class="kenocia-kpi-label">Entradas proyectadas</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(flowTotals().inflow)"/>
+                        </div>
+                        <div class="kenocia-kpi kenocia-kpi-coral">
+                            <div class="kenocia-kpi-label">Salidas proyectadas</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(flowTotals().outflow)"/>
+                        </div>
+                        <div class="kenocia-kpi kenocia-kpi-purple">
+                            <div class="kenocia-kpi-label">Flujo neto</div>
+                            <div class="kenocia-kpi-value" t-esc="fmt(flowTotals().net)"/>
+                        </div>
+                    </div>
+
+                    <div class="kenocia-card">
+                        <div class="kenocia-card-title">Flujo semanal detallado</div>
+                        <div class="kenocia-chart-wrap" style="height:220px">
+                            <canvas id="kenocia-c-flow2"/>
+                        </div>
+                        <div class="kenocia-flow-legend">
+                            <span><span class="kenocia-legend-dot" style="background:#97C459"/> Cobros reales</span>
+                            <span><span class="kenocia-legend-dot" style="background:#639922"/> CXC proyectado</span>
+                            <span><span class="kenocia-legend-dot" style="background:#F0997B"/> Pagos reales</span>
+                            <span><span class="kenocia-legend-dot" style="background:#D85A30"/> CXP proyectado</span>
+                        </div>
+                    </div>
+
+                    <div class="kenocia-grid-2">
+                        <div class="kenocia-card">
+                            <div class="kenocia-card-title">Top 5 CXC por vencer</div>
+                            <t t-foreach="state.data.cxc.top" t-as="row" t-key="row_index">
+                                <div class="kenocia-top-row">
+                                    <span t-esc="row.partner"/>
+                                    <span>
+                                        <t t-esc="fmt(row.amount)"/>
+                                        <span t-att-class="'kenocia-badge ' + cxcBadgeClass(row.days)">
+                                            <t t-esc="row.days + 'd'"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="kenocia-card">
+                            <div class="kenocia-card-title">Top 5 CXP próximos a vencer</div>
+                            <t t-foreach="state.data.cxp.top" t-as="row" t-key="row_index">
+                                <div class="kenocia-top-row">
+                                    <span t-esc="row.partner"/>
+                                    <span>
+                                        <t t-esc="fmt(row.amount)"/>
+                                        <span class="kenocia-badge kenocia-badge-warning">
+                                            <t t-esc="cxpBadgeLabel(row.days)"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+
+            </t>
+        </div>
+    </t>
+
+</templates>
