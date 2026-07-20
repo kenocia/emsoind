@@ -198,7 +198,6 @@
                                     <field name="rangoInicial"/>
                                     <field name="rangoFinal"/>
                                     <field name="number_next"/>
-                                    <field name="number_next_actual" invisible="1"/>
                                     <field name="disponibles"/>
                                     <field name="uso_porcentaje"/>
                                     <field name="dias_restantes"/>
@@ -260,7 +259,6 @@
                                     <field name="rangoInicial" string="Ini."/>
                                     <field name="rangoFinal" string="Fin."/>
                                     <field name="number_next" string="Siguiente"/>
-                                    <field name="number_next_actual" column_invisible="True"/>
                                     <field name="cai_validated" string="Activo" widget="boolean_toggle"/>
                                     <field name="estado_rango" widget="badge"
                                            decoration-muted="estado_rango == 'inactive'"/>
@@ -276,7 +274,6 @@
                                     <field name="rangoInicial" string="Ini."/>
                                     <field name="rangoFinal" string="Fin."/>
                                     <field name="number_next" string="Siguiente"/>
-                                    <field name="number_next_actual" column_invisible="True"/>
                                     <field name="cai_validated" string="Activo" widget="boolean_toggle" readonly="1"/>
                                     <field name="estado_rango" widget="badge"
                                            decoration-muted="estado_rango == 'inactive'"/>
@@ -316,7 +313,6 @@
                                                 <field name="number_next"
                                                        string="Siguiente correlativo"
                                                        readonly="not can_manage_fiscal_range"/>
-                                                <field name="number_next_actual" invisible="1"/>
                                                 <field name="estado_rango"
                                                        widget="badge"
                                                        readonly="1"/>

@@ -230,7 +230,6 @@ class IrSequence(models.Model):
         'date_range_ids.date_from',
         'date_range_ids.date_to',
         'date_range_ids.number_next',
-        'date_range_ids.number_next_actual',
         'date_range_ids.rangoInicial',
         'date_range_ids.rangoFinal',
         'date_range_ids.dias_alerta',
@@ -1769,8 +1768,12 @@ class IrSequenceDateRange(models.Model):
                 and record.number_next < new_ini
             ):
                 write_vals['number_next'] = new_ini
-        if 'number_next_actual' in write_vals and 'number_next' not in write_vals:
-            write_vals['number_next'] = write_vals['number_next_actual']
+        # number_next_actual es compute+inverse: nunca enviarlo a super().write
+        # (evita doble write y KeyError vía modified en el padre).
+        if 'number_next_actual' in write_vals:
+            if 'number_next' not in write_vals:
+                write_vals['number_next'] = write_vals['number_next_actual'] or 1
+            write_vals.pop('number_next_actual', None)
         if 'cai_validated' in write_vals:
             if write_vals['cai_validated']:
                 write_vals.setdefault(
@@ -1783,12 +1786,21 @@ class IrSequenceDateRange(models.Model):
 
         result = super().write(write_vals)
 
-        if {'number_next', 'number_next_actual'} & set(write_vals):
+        if 'number_next' in write_vals:
             fiscal_sequences = self.mapped('sequence_id').filtered('is_fiscal')
             if fiscal_sequences:
-                fiscal_sequences.modified([
-                    'date_range_ids.number_next',
-                    'date_range_ids.number_next_actual',
+                fiscal_sequences.invalidate_recordset([
+                    'rango_cai_count',
+                    'active_cai_name',
+                    'active_cai_disponibles',
+                    'active_cai_consumidos',
+                    'active_cai_total',
+                    'active_cai_uso_label',
+                    'active_cai_vence',
+                    'active_cai_vence_label',
+                    'fiscal_list_estado',
+                    'fiscal_list_vencida',
+                    'fiscal_list_alerta',
                 ])
 
         Audit = self.env['kc_fiscal_hn.sequence.audit']
