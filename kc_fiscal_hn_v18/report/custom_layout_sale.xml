@@ -7,25 +7,26 @@
             <t t-set="company" t-value="doc.company_id"/>
             <t t-set="partner" t-value="doc.partner_id.commercial_partner_id or doc.partner_id"/>
             <t t-set="is_quotation" t-value="doc.state in ('draft', 'sent')"/>
-            <t t-set="brand_bg" t-value="'#b45309' if is_quotation else '#0c2d5e'"/>
+            <!-- Cotización: mismo azul claro del bloque Cliente (#f0f5ff); OV: azul oscuro -->
+            <t t-set="brand_bg" t-value="'#f0f5ff' if is_quotation else '#0c2d5e'"/>
 
             <!-- Barra de marca + logo sin cuadro -->
             <table style="width:100%; border-collapse:collapse; margin-bottom:14px;">
                 <tr>
-                    <td t-att-style="'width:72%; vertical-align:middle; padding:14px 16px; background-color:' + brand_bg + '; border-radius:6px; -webkit-print-color-adjust:exact;'">
-                        <div t-att-style="'font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; font-weight:600; color:' + ('#fde68a' if is_quotation else '#bfdbfe') + ';'">
+                    <td t-att-style="'width:72%; vertical-align:middle; padding:14px 16px; background-color:' + brand_bg + '; border-radius:6px; -webkit-print-color-adjust:exact;' + (' border:1px solid #c7d7f5;' if is_quotation else '')">
+                        <div t-att-style="'font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; font-weight:600; color:' + ('#1a4fa0' if is_quotation else '#bfdbfe') + ';'">
                             <t t-if="is_quotation">Cotización</t>
                             <t t-else="">Orden de venta</t>
                         </div>
-                        <div style="font-size:24px; font-weight:700; color:#ffffff; letter-spacing:0.5px; line-height:1.1;">
+                        <div t-att-style="'font-size:24px; font-weight:700; letter-spacing:0.5px; line-height:1.1; color:' + ('#0c2d5e' if is_quotation else '#ffffff') + ';'">
                             <span t-field="doc.name"/>
                         </div>
                         <div style="margin-top:8px;">
-                            <span style="display:inline-block; background-color:rgba(255,255,255,0.15); color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:600; margin-right:6px; -webkit-print-color-adjust:exact;">
+                            <span t-att-style="'display:inline-block; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:600; margin-right:6px; -webkit-print-color-adjust:exact;' + (' background-color:#ffffff; border:1px solid #c7d7f5; color:#0c2d5e;' if is_quotation else ' background-color:rgba(255,255,255,0.15); color:#ffffff;')">
                                 <span t-field="doc.date_order" t-options="{'widget': 'date'}"/>
                             </span>
                             <t t-if="is_quotation and doc.validity_date">
-                                <span style="display:inline-block; background-color:#fbbf24; color:#78350f; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:700; -webkit-print-color-adjust:exact;">
+                                <span style="display:inline-block; background-color:#1a4fa0; color:#ffffff; border-radius:10px; padding:3px 10px; font-size:10px; font-weight:700; -webkit-print-color-adjust:exact;">
                                     Válida hasta <span t-field="doc.validity_date" t-options="{'widget': 'date'}"/>
                                 </span>
                             </t>
@@ -394,13 +395,13 @@
                 </tr>
                 <tr>
                     <td colspan="2" style="padding:0;">
-                        <table style="width:100%; border-collapse:collapse; background-color:#0c2d5e; border-radius:6px; -webkit-print-color-adjust:exact;">
+                        <table style="width:100%; border-collapse:collapse; background-color:#f0f5ff; border:1px solid #c7d7f5; border-radius:6px; -webkit-print-color-adjust:exact;">
                             <tr>
                                 <td style="padding:12px 14px; vertical-align:middle;">
-                                    <div style="font-size:14px; font-weight:700; color:#fff; letter-spacing:0.5px;">TOTAL</div>
-                                    <div style="font-size:9px; font-weight:400; color:#93c5fd; margin-top:2px;">Lempiras hondureñas</div>
+                                    <div style="font-size:14px; font-weight:700; color:#0c2d5e; letter-spacing:0.5px;">TOTAL</div>
+                                    <div style="font-size:9px; font-weight:400; color:#1a4fa0; margin-top:2px;">Lempiras hondureñas</div>
                                 </td>
-                                <td class="text-end" style="padding:12px 14px; font-size:18px; font-weight:700; color:#fff; vertical-align:middle; white-space:nowrap;">
+                                <td class="text-end" style="padding:12px 14px; font-size:18px; font-weight:700; color:#0c2d5e; vertical-align:middle; white-space:nowrap;">
                                     <span t-field="doc.amount_total"
                                           t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                 </td>

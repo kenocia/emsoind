@@ -3,11 +3,17 @@ $kc-teal: #1ABC9C;
 $kc-dark: #2C3E50;
 
 .kc_manual {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
     padding: 20px 24px;
     max-width: 1200px;
     margin: 0 auto;
+    box-sizing: border-box;
 
     .kc_manual_header {
+        flex-shrink: 0;
         margin-bottom: 16px;
 
         h2 {
@@ -18,6 +24,8 @@ $kc-dark: #2C3E50;
     }
 
     .kc_manual_tabs {
+        flex-shrink: 0;
+
         .nav-link {
             color: $kc-dark;
             font-weight: 500;
@@ -32,6 +40,9 @@ $kc-dark: #2C3E50;
     }
 
     .kc_manual_content {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
         padding: 20px 4px;
         line-height: 1.6;
 
