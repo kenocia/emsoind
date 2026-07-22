@@ -5,8 +5,16 @@
         <field name="model">hr.expense</field>
         <field name="inherit_id" ref="hr_expense.hr_expense_view_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//div[@id='payment_mode']/field[@name='payment_mode']" position="attributes">
+                <attribute name="widget">radio</attribute>
+            </xpath>
+            <xpath expr="//label[@for='payment_mode']" position="attributes">
+                <attribute name="string">Pagado por</attribute>
+            </xpath>
             <field name="vendor_id" position="attributes">
+                <attribute name="invisible">0</attribute>
                 <attribute name="required">kc_is_fiscal_expense</attribute>
+                <attribute name="readonly">not is_editable</attribute>
             </field>
             <field name="vendor_id" position="after">
                 <field name="kc_is_fiscal_expense" invisible="1"/>

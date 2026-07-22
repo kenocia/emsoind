@@ -7,8 +7,14 @@
         <field name="arch" type="xml">
             <field name="employee_id" position="after">
                 <field name="kc_advance_id"
-                       readonly="state not in ('draft', 'submit')"/>
+                       readonly="state not in ('draft', 'submit')"
+                       invisible="payment_mode == 'company_account'"/>
                 <field name="kc_fund_applied" invisible="1"/>
+                <field name="kc_has_fiscal_expense" invisible="1"/>
+            </field>
+            <field name="payment_method_line_id" position="attributes">
+                <attribute name="invisible">payment_mode != 'company_account' or kc_has_fiscal_expense</attribute>
+                <attribute name="required">payment_mode == 'company_account' and not kc_has_fiscal_expense</attribute>
             </field>
             <button name="action_register_payment" position="attributes">
                 <attribute name="invisible">payment_mode == 'company_account' or state not in ('post', 'done') or payment_state in ('paid', 'in_payment') or kc_fund_applied or kc_advance_id</attribute>

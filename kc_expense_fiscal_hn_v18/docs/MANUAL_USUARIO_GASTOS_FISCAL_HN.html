@@ -41,7 +41,8 @@ a { color: #145374; text-decoration: none; }
 <h1>Manual de Usuario — Gastos Fiscal HN + Anticipo Empleado</h1>
 <p><strong>Empresa:</strong> Empresa de Soluciones Industriales S de R.L. (EMSOIND)</p>
 <p><strong>Módulo:</strong> Kenocia Gastos Fiscal HN (<code>kc_expense_fiscal_hn_v18</code>)</p>
-<p><strong>Versión del manual:</strong> 1.0 — Julio 2026</p>
+<p><strong>Versión del manual:</strong> 1.1 — Julio 2026</p>
+<p><strong>Versión del módulo:</strong> 18.0.2.1.0</p>
 <p><strong>Base de referencia:</strong> EMSOIND_PRUEBA</p>
 <hr/>
 <h2>Índice</h2>
@@ -49,19 +50,22 @@ a { color: #145374; text-decoration: none; }
 <li>¿Para qué sirve este módulo?</li>
 <li>Cuentas y diarios EMSOIND</li>
 <li>Regla de oro antes de empezar</li>
-<li>Las 3 capas contables (cómo piensa el sistema)</li>
+<li>Las capas contables (cómo piensa el sistema)</li>
 <li>Escenario 1 — Reembolso sin anticipo</li>
-<li>Escenario 2 — Anticipo cuadrado</li>
-<li>Escenario 3 — Anticipo con diferencia (sobrante o faltante)</li>
+<li>Escenario 2 — Empresa pagó (tarjeta/banco)</li>
+<li>Escenario 3 — Anticipo cuadrado</li>
+<li>Escenario 4 — Anticipo con diferencia (sobrante o faltante)</li>
+<li>Cómo se paga el reembolso al empleado</li>
 <li>Checklist rápido por rol</li>
 <li>Preguntas frecuentes</li>
 </ol>
 <hr/>
 <h2>1. ¿Para qué sirve este módulo?</h2>
-<p>Este módulo permite que los gastos de empleados queden registrados <strong>como compras fiscales reales</strong> (factura o boleta del proveedor), cumplan con el <strong>libro de compras SAR</strong>, y al mismo tiempo controlen si el dinero salió de:</p>
+<p>Este módulo permite que los gastos de empleados queden registrados <strong>como compras fiscales reales</strong> (factura o boleta del proveedor a nombre de la empresa), cumplan con el <strong>libro de compras SAR</strong> y el crédito ISV, y al mismo tiempo controlen de dónde salió el dinero:</p>
 <ul>
-<li>un <strong>anticipo</strong> ya entregado al empleado, o  </li>
-<li>un <strong>reembolso</strong> que la empresa pagará después.</li>
+<li><strong>Empleado pagó (reembolso)</strong> — el empleado adelantó con su dinero/tarjeta personal.  </li>
+<li><strong>Empresa pagó (tarjeta/banco)</strong> — se usó tarjeta o cuenta corporativa.  </li>
+<li><strong>Anticipo</strong> — la empresa ya entregó fondo al empleado y luego se liquida.</li>
 </ul>
 <p><strong>Menús principales en Odoo:</strong></p>
 <table><thead><tr>
@@ -70,7 +74,7 @@ a { color: #145374; text-decoration: none; }
 </tr></thead><tbody>
 <tr>
 <td><strong>Gastos → Mis gastos</strong></td>
-<td>El empleado carga cada gasto con su documento fiscal</td>
+<td>El empleado carga cada gasto con proveedor y documento fiscal</td>
 </tr>
 <tr>
 <td><strong>Gastos → Reportes de gastos</strong></td>
@@ -82,7 +86,11 @@ a { color: #145374; text-decoration: none; }
 </tr>
 <tr>
 <td><strong>Contabilidad → Facturas de proveedor</strong></td>
-<td>Aquí aparecen las facturas generadas automáticamente</td>
+<td>Facturas FACTU generadas automáticamente</td>
+</tr>
+<tr>
+<td><strong>Contabilidad → Proveedores → Pagos</strong></td>
+<td>Pago del reembolso al empleado o pago al proveedor (modo empresa)</td>
 </tr>
 </tbody></table>
 <hr/>
@@ -137,9 +145,39 @@ a { color: #145374; text-decoration: none; }
 <blockquote class="note"><strong>Nota para contabilidad:</strong> La cuenta de reembolso al empleado está configurada hoy en <strong>21101 Proveedores</strong>. Se recomienda crear una cuenta CxP dedicada al empleado (por ejemplo <code>211xx</code>) para no mezclar saldos con proveedores reales.</blockquote>
 <hr/>
 <h2>3. Regla de oro antes de empezar</h2>
-<h3>Siempre use <strong>«Empleado (a reembolsar)»</strong></h3>
-<p>En cada línea de gasto, el campo <strong>Pagado por</strong> debe quedar en:</p>
-<blockquote class="note"><strong>Empleado (a reembolsar)</strong> — *no* «Pagado por Empresa»</blockquote>
+<h3>Separe siempre dos ideas</h3>
+<table><thead><tr>
+<th>Concepto</th>
+<th>Campo en Odoo</th>
+<th>Ejemplo</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Proveedor fiscal</strong></td>
+<td>Proveedor</td>
+<td>Comercio X (factura a nombre de la empresa)</td>
+</tr>
+<tr>
+<td><strong>Quién desembolsó</strong></td>
+<td>Pagado por</td>
+<td>Empleado / Empresa / (anticipo aparte)</td>
+</tr>
+</tbody></table>
+<p>Solo se reembolsan o registran compras <strong>a nombre de la empresa</strong> (RTN de la compañía). Así el ISV es crédito fiscal válido.</p>
+<h3>Campo <strong>Pagado por</strong> (etiquetas)</h3>
+<table><thead><tr>
+<th>Opción</th>
+<th>Cuándo usarla</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Empleado pagó (reembolso)</strong></td>
+<td>El empleado pagó con su tarjeta/efectivo y la empresa le debe devolver</td>
+</tr>
+<tr>
+<td><strong>Empresa pagó (tarjeta/banco)</strong></td>
+<td>Se pagó con tarjeta o cuenta de la empresa; <strong>no</strong> hay reembolso al empleado</td>
+</tr>
+</tbody></table>
+<blockquote class="note">El <strong>proveedor</strong> se elige <strong>siempre</strong> (en ambos modos). Indica el comercio de la factura/boleta, no quién adelantó el dinero.</blockquote>
 <img src="file:///opt/odoo/src/custom/kc_expense_fiscal_hn_v18/docs/imagenes/fig04-gasto-linea.png" alt="Línea de gasto con datos fiscales"/>
 <p>*Figura 4 — Ejemplo de línea de gasto. Verifique proveedor, tipo de documento, número y cuenta de gasto.*</p>
 <table><thead><tr>
@@ -149,6 +187,10 @@ a { color: #145374; text-decoration: none; }
 <tr>
 <td><strong>Proveedor</strong></td>
 <td>El comercio que emitió la factura/boleta (RTN del proveedor)</td>
+</tr>
+<tr>
+<td><strong>Pagado por</strong></td>
+<td>Empleado pagó (reembolso) <strong>o</strong> Empresa pagó (tarjeta/banco)</td>
 </tr>
 <tr>
 <td><strong>Tipo documento</strong></td>
@@ -171,8 +213,9 @@ a { color: #145374; text-decoration: none; }
 <img src="file:///opt/odoo/src/custom/kc_expense_fiscal_hn_v18/docs/imagenes/fig00-ejemplo-factura-fiscal.png" alt="Factura fiscal de ejemplo"/>
 <p>*Figura 0 — Datos que debe transcribir del documento físico: RTN proveedor, número, fecha, CAI (si aplica) e ISV.*</p>
 <hr/>
-<h2>4. Las 3 capas contables (cómo piensa el sistema)</h2>
-<p>Cada gasto aprobado genera <strong>hasta 3 movimientos</strong>, en este orden:</p>
+<h2>4. Las capas contables (cómo piensa el sistema)</h2>
+<p>La <strong>capa 1 (FACTU)</strong> es igual en todos los modos fiscales: compra al proveedor + ISV + libro SAR.</p>
+<p>Las capas 2 y 3 cambian según quién desembolsó:</p>
 <blockquote class="note"><strong>Diagrama de flujo</strong> — ver versión digital interactiva del manual.</blockquote>
 <table><thead><tr>
 <th>Capa</th>
@@ -184,25 +227,25 @@ a { color: #145374; text-decoration: none; }
 <td><strong>1. Factura proveedor</strong></td>
 <td>Registra la compra fiscal ante el proveedor</td>
 <td>FACTU</td>
-<td>Dr Gasto + Dr ISV / Cr <strong>21101</strong></td>
+<td>Dr Gasto + Dr ISV / Cr <strong>21101</strong> (partner = proveedor)</td>
 </tr>
 <tr>
 <td><strong>2. Aplicación fondo</strong></td>
-<td>Cruza la deuda del proveedor con anticipo o reembolso del empleado</td>
+<td>Solo reembolso/anticipo: cruza CxP del proveedor con reembolso o anticipo del empleado</td>
 <td>MISCE</td>
-<td>Dr <strong>21101</strong> / Cr <strong>11203</strong> o Cr <strong>21101</strong> (empleado)</td>
+<td>Dr <strong>21101</strong> proveedor / Cr <strong>11203</strong> o Cr CxP empleado</td>
 </tr>
 <tr>
 <td><strong>3. Tesorería</strong></td>
-<td>Pago banco al empleado (solo reembolso o vuelto de anticipo)</td>
+<td>Reembolso: paga al <strong>empleado</strong>. Empresa: paga al <strong>proveedor</strong> (o concilia tarjeta)</td>
 <td>BNK1</td>
-<td>Dr CxP empleado / Cr <strong>11103</strong> banco</td>
+<td>Según escenario</td>
 </tr>
 </tbody></table>
 <h3>Capa 1 — Factura de proveedor (FACTU)</h3>
 <img src="file:///opt/odoo/src/custom/kc_expense_fiscal_hn_v18/docs/imagenes/fig03-factura-proveedor.png" alt="Factura de proveedor registrada"/>
-<p>*Figura 3 — Factura <code>FACTU/2026/07/0001</code>: el contacto es el <strong>proveedor</strong>, no el empleado.*</p>
-<p><strong>Asiento típico (sin ISV):</strong></p>
+<p>*Figura 3 — Factura <code>FACTU/...</code>: el contacto es el <strong>proveedor</strong>, no el empleado.*</p>
+<p><strong>Con ISV 15% (ejemplo total L 1,000 = base L 869.57 + ISV L 130.43):</strong></p>
 <table><thead><tr>
 <th>Cuenta</th>
 <th>Debe</th>
@@ -210,44 +253,28 @@ a { color: #145374; text-decoration: none; }
 <th>Partner</th>
 </tr></thead><tbody>
 <tr>
-<td>61238 Uniforme Personal (gasto)</td>
-<td>5,000.00</td>
+<td>51120 Costos de Ventas (o cuenta gasto)</td>
+<td>869.57</td>
+<td></td>
+<td>—</td>
+</tr>
+<tr>
+<td>11301 Impuesto por Cobrar</td>
+<td>130.43</td>
 <td></td>
 <td>—</td>
 </tr>
 <tr>
 <td>21101 Proveedores</td>
 <td></td>
-<td>5,000.00</td>
-<td>Proveedor</td>
-</tr>
-</tbody></table>
-<p><strong>Con ISV 15% (ejemplo L 5,000 base + L 750 ISV):</strong></p>
-<table><thead><tr>
-<th>Cuenta</th>
-<th>Debe</th>
-<th>Haber</th>
-</tr></thead><tbody>
-<tr>
-<td>51120 Costos de Ventas (o cuenta gasto)</td>
-<td>5,000.00</td>
-<td></td>
-</tr>
-<tr>
-<td>11301 Impuesto por Cobrar</td>
-<td>750.00</td>
-<td></td>
-</tr>
-<tr>
-<td>21101 Proveedores</td>
-<td></td>
-<td>5,750.00</td>
+<td>1,000.00</td>
+<td>Proveedor X</td>
 </tr>
 </tbody></table>
 <hr/>
 <h2>5. Escenario 1 — Reembolso sin anticipo</h2>
-<p><strong>Cuándo aplica:</strong> El empleado pagó de su bolsillo y <strong>no</strong> tiene anticipo abierto.</p>
-<p><strong>Ejemplo QAS:</strong> Alberto Tejada — boleta L 3,000 + factura FA L 5,000 con ISV.</p>
+<p><strong>Cuándo aplica:</strong> El empleado (ej. Jorge) pagó de su bolsillo/tarjeta personal y <strong>no</strong> tiene anticipo abierto. La factura está a nombre de la empresa.</p>
+<p><strong>Ejemplo:</strong> Jorge — boleta/factura L 1,000 al proveedor X.</p>
 <h3>Paso a paso</h3>
 <table><thead><tr>
 <th>Paso</th>
@@ -257,7 +284,7 @@ a { color: #145374; text-decoration: none; }
 <tr>
 <td>1</td>
 <td>Empleado</td>
-<td>Crea gasto(s) en <strong>Mis gastos</strong> con proveedor y documento fiscal</td>
+<td>Crea gasto en <strong>Mis gastos</strong>: Pagado por = <strong>Empleado pagó (reembolso)</strong>, proveedor X, datos fiscales</td>
 </tr>
 <tr>
 <td>2</td>
@@ -272,45 +299,26 @@ a { color: #145374; text-decoration: none; }
 <tr>
 <td>4</td>
 <td>Contabilidad</td>
-<td><strong>Publica asientos</strong> (botón en reporte aprobado)</td>
+<td><strong>Publica asientos</strong></td>
 </tr>
 <tr>
 <td>5</td>
 <td>Sistema</td>
-<td>Genera factura FACTU por cada línea → estado <strong>Pagado</strong> automáticamente</td>
+<td>Genera factura FACTU por cada línea → luego MISCE (factura queda <strong>Pagada</strong>)</td>
 </tr>
 <tr>
 <td>6</td>
 <td>Sistema</td>
-<td>Genera asiento MISCE aplicando fondo a nombre del empleado</td>
+<td>Deja CxP abierta a nombre del <strong>empleado</strong> (contacto de trabajo)</td>
 </tr>
 <tr>
 <td>7</td>
 <td>Tesorería</td>
-<td>Registra <strong>pago bancario</strong> al empleado por el total a reembolsar</td>
+<td>Registra <strong>pago bancario al empleado</strong> (ver sección 9)</td>
 </tr>
 </tbody></table>
-<h3>Asientos del escenario (ejemplo boleta L 3,000)</h3>
-<p><strong>Paso 4a — Factura proveedor (FACTU):</strong></p>
-<table><thead><tr>
-<th>Cuenta</th>
-<th>Debe</th>
-<th>Haber</th>
-<th>Etiqueta</th>
-</tr></thead><tbody>
-<tr>
-<td>Cuenta gasto (ej. 61256)</td>
-<td>3,000.00</td>
-<td></td>
-<td>QAS-181-R1</td>
-</tr>
-<tr>
-<td>21101 Proveedores</td>
-<td></td>
-<td>3,000.00</td>
-<td>Proveedor X</td>
-</tr>
-</tbody></table>
+<h3>Asientos (ejemplo L 1,000 con ISV)</h3>
+<p><strong>Paso 4a — Factura proveedor (FACTU):</strong> ver tabla de la sección 4.</p>
 <p><strong>Paso 4b — Aplicación fondo (MISCE):</strong></p>
 <table><thead><tr>
 <th>Cuenta</th>
@@ -320,45 +328,112 @@ a { color: #145374; text-decoration: none; }
 </tr></thead><tbody>
 <tr>
 <td>21101 Proveedores</td>
-<td>3,000.00</td>
+<td>1,000.00</td>
 <td></td>
 <td>Proveedor X</td>
 </tr>
 <tr>
-<td>21101 Proveedores*</td>
+<td>21101 / 211xx reembolso*</td>
 <td></td>
-<td>3,000.00</td>
-<td><strong>Empleado</strong></td>
+<td>1,000.00</td>
+<td><strong>Jorge</strong></td>
 </tr>
 </tbody></table>
-<p>*\* Cuenta de reembolso configurada; idealmente una CxP empleado dedicada.*</p>
-<p><strong>Paso 5 — Pago tesorería (BNK1):</strong></p>
+<p>*\* Idealmente cuenta CxP empleado dedicada.*</p>
+<p><strong>Paso 7 — Pago tesorería (BNK1) al empleado:</strong></p>
 <table><thead><tr>
 <th>Cuenta</th>
 <th>Debe</th>
 <th>Haber</th>
+<th>Partner</th>
 </tr></thead><tbody>
 <tr>
-<td>21101 Proveedores (empleado)</td>
-<td>3,000.00</td>
+<td>CxP reembolso</td>
+<td>1,000.00</td>
 <td></td>
+<td>Jorge</td>
 </tr>
 <tr>
 <td>11103 Bac Honduras</td>
 <td></td>
-<td>3,000.00</td>
+<td>1,000.00</td>
+<td>—</td>
 </tr>
 </tbody></table>
 <h3>Resultado esperado</h3>
 <ul>
-<li>Libro de compras: línea con número <code>QAS-181-R1</code> (o su correlativo real).</li>
-<li>Proveedor: saldo <strong>0</strong> (factura pagada por aplicación de fondo).</li>
-<li>Empleado: saldo <strong>0</strong> después del pago bancario.</li>
+<li>Libro de compras: línea con correlativo del documento.  </li>
+<li>Proveedor X: saldo <strong>0</strong>.  </li>
+<li>Empleado: saldo <strong>0</strong> después del pago bancario.  </li>
 <li><strong>No</strong> se usa la cuenta <strong>11203</strong> en este escenario.</li>
 </ul>
 <hr/>
-<h2>6. Escenario 2 — Anticipo cuadrado</h2>
-<p><strong>Cuándo aplica:</strong> La empresa entrega dinero <strong>antes</strong> y el empleado gasta <strong>exactamente</strong> ese monto.</p>
+<h2>6. Escenario 2 — Empresa pagó (tarjeta/banco)</h2>
+<p><strong>Cuándo aplica:</strong> La compra se pagó con <strong>tarjeta o banco de la empresa</strong>. No hay reembolso al empleado. La factura sigue a nombre de la empresa y debe ir al libro SAR.</p>
+<h3>Paso a paso</h3>
+<table><thead><tr>
+<th>Paso</th>
+<th>Quién</th>
+<th>Acción</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Empleado / Contabilidad</td>
+<td>Gasto con Pagado por = <strong>Empresa pagó (tarjeta/banco)</strong>, proveedor X, datos fiscales</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Empleado</td>
+<td>Reporte → Envía → Aprobación</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Contabilidad</td>
+<td><strong>Publica asientos</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Sistema</td>
+<td>Genera FACTU (proveedor X) en estado <strong>No pagada</strong> — <strong>sin</strong> MISCE de reembolso</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Tesorería</td>
+<td>Paga la factura desde <strong>Contabilidad → Facturas de proveedor</strong>, o concilia con el estado de cuenta de la tarjeta corporativa</td>
+</tr>
+</tbody></table>
+<h3>Asientos</h3>
+<p><strong>Capa 1 — FACTU:</strong> igual que sección 4 (gasto + ISV / CxP proveedor X).</p>
+<p><strong>Capa pago — BNK1 (o conciliación de tarjeta):</strong></p>
+<table><thead><tr>
+<th>Cuenta</th>
+<th>Debe</th>
+<th>Haber</th>
+<th>Partner</th>
+</tr></thead><tbody>
+<tr>
+<td>21101 Proveedores</td>
+<td>1,000.00</td>
+<td></td>
+<td>Proveedor X</td>
+</tr>
+<tr>
+<td>11103 Banco / CxP tarjeta</td>
+<td></td>
+<td>1,000.00</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<h3>Resultado esperado</h3>
+<ul>
+<li>Libro de compras e ISV: iguales que en reembolso.  </li>
+<li>Empleado: <strong>sin</strong> saldo por pagar.  </li>
+<li>Proveedor X: queda pendiente hasta el pago/conciliación corporativa.  </li>
+<li>No vincule este modo a un <strong>anticipo</strong> (el sistema lo bloquea).</li>
+</ul>
+<hr/>
+<h2>7. Escenario 3 — Anticipo cuadrado</h2>
+<p><strong>Cuándo aplica:</strong> La empresa entrega dinero <strong>antes</strong> y el empleado gasta <strong>exactamente</strong> ese monto. Use Pagado por = <strong>Empleado pagó (reembolso)</strong> y vincule el anticipo en el reporte.</p>
 <p><strong>Ejemplo QAS:</strong> Estuardo Madrid — anticipo L 8,000; dos gastos de L 4,000 c/u.</p>
 <h3>Paso a paso</h3>
 <table><thead><tr>
@@ -379,7 +454,7 @@ a { color: #145374; text-decoration: none; }
 <tr>
 <td>3</td>
 <td>Empleado</td>
-<td>Carga gastos y los vincula al anticipo en el reporte</td>
+<td>Carga gastos (reembolso + proveedor) y los vincula al anticipo en el reporte</td>
 </tr>
 <tr>
 <td>4</td>
@@ -396,37 +471,34 @@ a { color: #145374; text-decoration: none; }
 <img src="file:///opt/odoo/src/custom/kc_expense_fiscal_hn_v18/docs/imagenes/fig01-anticipo-empleado.png" alt="Anticipo a empleado"/>
 <p>*Figura 1 — Anticipo <code>ANT/2026/0001</code>: cuenta 11203, total gastado y saldo pendiente.*</p>
 <img src="file:///opt/odoo/src/custom/kc_expense_fiscal_hn_v18/docs/imagenes/fig02-asiento-entrega-anticipo.png" alt="Asiento entrega anticipo"/>
-<p>*Figura 2 — Asiento <code>BNK1/2026/00001</code>: salida de banco y débito a 11203.*</p>
-<h3>Asientos del escenario (anticipo L 8,000, gastos L 8,000)</h3>
-<p><strong>A. Entrega anticipo (BNK1):</strong></p>
+<p>*Figura 2 — Entrega: Dr 11203 / Cr banco.*</p>
+<h3>Asientos (por cada gasto L 4,000)</h3>
+<p><strong>Entrega anticipo:</strong></p>
 <table><thead><tr>
 <th>Cuenta</th>
 <th>Debe</th>
 <th>Haber</th>
-<th>Partner</th>
 </tr></thead><tbody>
 <tr>
 <td>11203 CxC Empleados</td>
 <td>8,000.00</td>
 <td></td>
-<td>Empleado</td>
 </tr>
 <tr>
-<td>11103 Bac Honduras</td>
+<td>11103 Banco</td>
 <td></td>
 <td>8,000.00</td>
-<td></td>
 </tr>
 </tbody></table>
-<p><strong>B. Por cada gasto — Factura proveedor (FACTU), ej. L 4,000:</strong></p>
+<p><strong>FACTU + MISCE (resumen por gasto):</strong></p>
 <table><thead><tr>
 <th>Cuenta</th>
 <th>Debe</th>
 <th>Haber</th>
 </tr></thead><tbody>
 <tr>
-<td>Cuenta gasto</td>
-<td>4,000.00</td>
+<td>Gasto (+ ISV si aplica)</td>
+<td>…</td>
 <td></td>
 </tr>
 <tr>
@@ -434,226 +506,140 @@ a { color: #145374; text-decoration: none; }
 <td></td>
 <td>4,000.00</td>
 </tr>
-</tbody></table>
-<p><strong>C. Por cada gasto — Aplicación fondo (MISCE):</strong></p>
-<table><thead><tr>
-<th>Cuenta</th>
-<th>Debe</th>
-<th>Haber</th>
-<th>Partner</th>
-</tr></thead><tbody>
 <tr>
-<td>21101 Proveedores</td>
+<td>Luego MISCE: 21101</td>
 <td>4,000.00</td>
 <td></td>
-<td>Proveedor</td>
 </tr>
 <tr>
-<td>11203 CxC Empleados</td>
+<td>11203</td>
 <td></td>
 <td>4,000.00</td>
-<td>Empleado</td>
 </tr>
 </tbody></table>
-<p><strong>D. Cierre anticipo:</strong> Sin asiento adicional si saldo = 0. Estado → <strong>Cerrado</strong>.</p>
 <h3>Resultado esperado</h3>
 <table><thead><tr>
 <th>Concepto</th>
 <th>Valor</th>
 </tr></thead><tbody>
 <tr>
-<td>Total anticipo</td>
-<td>L 8,000.00</td>
-</tr>
-<tr>
-<td>Total gastado</td>
-<td>L 8,000.00</td>
-</tr>
-<tr>
-<td>Saldo pendiente</td>
-<td><strong>L 0.00</strong></td>
-</tr>
-<tr>
 <td>Cuenta 11203 del empleado</td>
 <td><strong>0</strong></td>
 </tr>
 <tr>
 <td>Anticipo</td>
-<td><strong>Cerrado</strong></td>
+<td>Estado <strong>Cerrado</strong></td>
 </tr>
 </tbody></table>
 <hr/>
-<h2>7. Escenario 3 — Anticipo con diferencia (sobrante o faltante)</h2>
+<h2>8. Escenario 4 — Anticipo con diferencia (sobrante o faltante)</h2>
 <p><strong>Cuándo aplica:</strong> El empleado <strong>no gastó todo</strong> el anticipo (sobrante) o <strong>gastó más</strong> de lo entregado (faltante/excedido).</p>
-<h3>7A. Sobrante — entregó más de lo que gastó</h3>
-<p><strong>Ejemplo QAS:</strong> Carlos Samuel — anticipo L 10,000, un gasto L 6,000 → sobran L 4,000.</p>
+<h3>Sobrante (vuelto)</h3>
+<p>Al <strong>Liquidar anticipo</strong>, el wizard registra el vuelto a banco (Dr banco / Cr 11203) y cierra.</p>
+<blockquote class="note">El empleado debe <strong>devolver el efectivo</strong> o autorizar descuento según política interna antes de cerrar.</blockquote>
+<h3>Faltante / excedido</h3>
+<p>El MISCE puede repartir: parte contra 11203 y el excedente como CxP al empleado. Luego tesorería paga solo el excedente al empleado (misma lógica de la sección 9).</p>
 <table><thead><tr>
-<th>Paso</th>
+<th>Situación</th>
+<th>Saldo anticipo</th>
 <th>Acción</th>
 </tr></thead><tbody>
 <tr>
-<td>1–4</td>
-<td>Igual que escenario 2 (entrega, gastos, aprobación, publicación)</td>
-</tr>
-<tr>
-<td>5</td>
-<td><strong>Liquidar anticipo</strong> — el wizard muestra saldo <strong>L 4,000</strong> a favor de la empresa</td>
-</tr>
-<tr>
-<td>6</td>
-<td>Confirme cierre — el sistema genera asiento de <strong>vuelto</strong> en BNK1</td>
-</tr>
-</tbody></table>
-<p><strong>Asientos adicionales al escenario 2:</strong></p>
-<p><strong>Cierre con vuelto (BNK1), sobrante L 4,000:</strong></p>
-<table><thead><tr>
-<th>Cuenta</th>
-<th>Debe</th>
-<th>Haber</th>
-<th>Significado</th>
-</tr></thead><tbody>
-<tr>
-<td>11103 Bac Honduras</td>
-<td>4,000.00</td>
-<td></td>
-<td>Empleado devuelve efectivo al banco</td>
-</tr>
-<tr>
-<td>11203 CxC Empleados</td>
-<td></td>
-<td>4,000.00</td>
-<td>Se cancela el saldo del anticipo</td>
-</tr>
-</tbody></table>
-<blockquote class="note">El empleado debe <strong>devolver el efectivo</strong> o autorizar descuento según política interna antes de cerrar.</blockquote>
-<hr/>
-<h3>7B. Faltante (excedido) — gastó más de lo anticipado</h3>
-<p><strong>Ejemplo QAS:</strong> Carlos Samuel — anticipo L 5,000, un gasto L 7,000 → faltan L 2,000.</p>
-<p><strong>Aplicación fondo (MISCE) con split automático:</strong></p>
-<table><thead><tr>
-<th>Cuenta</th>
-<th>Debe</th>
-<th>Haber</th>
-<th>Concepto</th>
-</tr></thead><tbody>
-<tr>
-<td>21101 Proveedores</td>
-<td>7,000.00</td>
-<td></td>
-<td>Cancela deuda proveedor</td>
-</tr>
-<tr>
-<td>11203 CxC Empleados</td>
-<td></td>
-<td>5,000.00</td>
-<td>Consume todo el anticipo</td>
-</tr>
-<tr>
-<td>21101 Proveedores*</td>
-<td></td>
-<td>2,000.00</td>
-<td><strong>CxP al empleado</strong> (reembolso pendiente)</td>
-</tr>
-</tbody></table>
-<p><strong>Pago tesorería (BNK1) — solo el excedente:</strong></p>
-<table><thead><tr>
-<th>Cuenta</th>
-<th>Debe</th>
-<th>Haber</th>
-</tr></thead><tbody>
-<tr>
-<td>21101 (empleado)</td>
-<td>2,000.00</td>
-<td></td>
-</tr>
-<tr>
-<td>11103 Bac Honduras</td>
-<td></td>
-<td>2,000.00</td>
-</tr>
-</tbody></table>
-<h3>Comparativa rápida escenario 3</h3>
-<table><thead><tr>
-<th>Situación</th>
-<th>Saldo antes de cerrar</th>
-<th>Acción de cierre</th>
-<th>Asiento BNK1</th>
-</tr></thead><tbody>
-<tr>
 <td><strong>Sobrante</strong></td>
-<td>Saldo > 0 a favor empresa</td>
-<td>Cerrar anticipo</td>
-<td><strong>Entrada</strong> banco (vuelto)</td>
-</tr>
-<tr>
-<td><strong>Cuadrado</strong></td>
-<td>Saldo = 0</td>
-<td>Cerrar anticipo</td>
-<td>Ninguno</td>
+<td>Saldo > 0</td>
+<td>Vuelto a banco al liquidar</td>
 </tr>
 <tr>
 <td><strong>Excedido</strong></td>
-<td>Saldo < 0 (anticipo agotado)</td>
+<td>Anticipo agotado + CxP empleado</td>
 <td>Pagar reembolso al empleado</td>
-<td><strong>Salida</strong> banco (pago)</td>
 </tr>
 </tbody></table>
 <hr/>
-<h2>8. Checklist rápido por rol</h2>
+<h2>9. Cómo se paga el reembolso al empleado</h2>
+<p>Odoo <strong>no crea una factura “a nombre de Jorge”</strong>. Tras publicar un reembolso fiscal, el asiento MISCE deja un <strong>saldo contable a favor del empleado</strong> (partner = contacto de trabajo) en la cuenta de reembolso.</p>
+<h3>Cómo lo ve tesorería</h3>
+<ol>
+<li>Contabilidad → Proveedores → <strong>Deudas</strong> / envejecimiento, filtrando el contacto del empleado, <strong>o</strong>  </li>
+<li>Abrir la ficha del contacto de Jorge → ver deuda pendiente, <strong>o</strong>  </li>
+<li>Contabilidad → Proveedores → <strong>Pagos</strong> → partner = Jorge → Odoo propone el apunte abierto del MISCE.</li>
+</ol>
+<h3>Cómo registrar el pago</h3>
+<ol>
+<li><strong>Contabilidad → Proveedores → Pagos</strong> (partner = empleado).  </li>
+<li>Diario banco (BNK1), importe = total a reembolsar.  </li>
+<li>Conciliar el apunte “Reembolso empleado — …”.  </li>
+<li>Publicar.</li>
+</ol>
+<blockquote class="note">En reportes fiscales <strong>no</strong> use el botón <strong>Registrar pago</strong> del reporte: está bloqueado a propósito. El pago es al empleado por tesorería, no a la factura del comercio (esa ya se canceló con el MISCE).</blockquote>
+<h3>Requisitos</h3>
+<ul>
+<li>El empleado debe tener <strong>contacto de trabajo</strong>.  </li>
+<li>Ese contacto debe tener cuenta por pagar (o la compañía debe tener cuenta de reembolso configurada en Ajustes → Gastos).</li>
+</ul>
+<hr/>
+<h2>10. Checklist rápido por rol</h2>
 <h3>Empleado</h3>
 <ul>
-<li>&#9744; Pagado por = <strong>Empleado (a reembolsar)</strong></li>
-<li>&#9744; Proveedor con RTN cargado</li>
-<li>&#9744; Número de documento y fecha correctos</li>
+<li>&#9744; <strong>Proveedor</strong> siempre indicado (comercio de la factura)</li>
+<li>&#9744; <strong>Pagado por</strong> correcto: reembolso vs empresa</li>
+<li>&#9744; Número de documento, fecha y CAI (si aplica)</li>
 <li>&#9744; Adjuntar foto/PDF del documento</li>
-<li>&#9744; Si hay anticipo: seleccionarlo en el reporte de gastos</li>
+<li>&#9744; Si hay anticipo: modo reembolso + seleccionar anticipo en el reporte</li>
 </ul>
 <h3>Aprobador</h3>
 <ul>
 <li>&#9744; Monto coincide con documento adjunto</li>
+<li>&#9744; Factura a nombre de la empresa</li>
 <li>&#9744; Cuenta de gasto y analítica correctas</li>
 <li>&#9744; Tipo documento coherente (boleta vs factura CAI)</li>
 </ul>
-<h3>Contabilidad</h3>
+<h3>Contabilidad / Tesorería</h3>
 <ul>
-<li>&#9744; Publicar reporte genera FACTU + MISCE</li>
-<li>&#9744; Factura proveedor en estado <strong>Pagado</strong></li>
-<li>&#9744; Anticipo: verificar <strong>Total gastado</strong> vs <strong>Saldo pendiente</strong></li>
-<li>&#9744; Cerrar anticipo o registrar pago bancario según escenario</li>
+<li>&#9744; Publicar reporte genera FACTU (+ MISCE si es reembolso/anticipo)</li>
+<li>&#9744; Reembolso: factura proveedor <strong>Pagada</strong>; pagar CxP del <strong>empleado</strong></li>
+<li>&#9744; Empresa pagó: factura proveedor <strong>pendiente</strong>; pagar/conciliar a <strong>proveedor X</strong></li>
+<li>&#9744; Anticipo: verificar total gastado vs saldo y liquidar</li>
 <li>&#9744; Verificar línea en <strong>Libro de compras</strong> SAR</li>
 </ul>
 <hr/>
-<h2>9. Preguntas frecuentes</h2>
-<h3>¿Por qué ya no debe usarse «Pagado por Empresa»?</h3>
-<p>El flujo anterior generaba asientos directos en banco (BNK1) sin factura de proveedor, lo que impedía el libro de compras y mezclaba cuentas incorrectamente.</p>
-<img src="file:///opt/odoo/src/custom/kc_expense_fiscal_hn_v18/docs/imagenes/fig05-asiento-flujo-anterior.png" alt="Flujo anterior — no usar"/>
-<p>*Figura 5 — Ejemplo del flujo <strong>anterior</strong> (<code>BNK1/2026/00004</code>): gasto directo a 11203 sin factura FACTU. <strong>No repetir este patrón.</strong>*</p>
+<h2>11. Preguntas frecuentes</h2>
+<h3>¿Por qué el proveedor aparece en ambos modos de pago?</h3>
+<p>Porque el proveedor es el comercio de la factura fiscal. <strong>Pagado por</strong> solo indica quién desembolsó (empleado o empresa). Sin proveedor no hay FACTU ni libro SAR.</p>
+<h3>¿Qué cambió respecto a no usar nunca «Empresa»?</h3>
+<p>Antes, «Pagado por Empresa» generaba asientos de pago directo <strong>sin</strong> factura SAR. Ahora, si el gasto tiene documento fiscal, también genera <strong>FACTU</strong> al proveedor y deja la factura para pago/conciliación corporativa.</p>
+<img src="file:///opt/odoo/src/custom/kc_expense_fiscal_hn_v18/docs/imagenes/fig05-asiento-flujo-anterior.png" alt="Flujo anterior — no usar sin factura"/>
+<p>*Figura 5 — Ejemplo del flujo <strong>anterior</strong> sin FACTU. Solo aplica aún a gastos <strong>sin</strong> documento fiscal en modo empresa.*</p>
 <h3>¿Dónde veo la factura generada?</h3>
-<p>En el reporte de gastos → smart button <strong>Facturas</strong>, o en <strong>Contabilidad → Facturas de proveedor</strong> (diario FACTU).</p>
-<h3>¿Dónde veo la aplicación de fondo?</h3>
-<p>En cada línea de gasto → campo <strong>Asiento aplicación fondo</strong>, o en diario MISCE filtrando por referencia del reporte.</p>
+<p>En el reporte de gastos → smart button de movimientos/facturas, o en <strong>Contabilidad → Facturas de proveedor</strong> (diario FACTU).</p>
+<h3>¿Dónde veo la aplicación de fondo (reembolso/anticipo)?</h3>
+<p>En cada línea de gasto → campo <strong>Asiento aplicación fondo</strong>, o en diario MISCE filtrando por referencia del gasto/reporte.</p>
 <h3>¿Qué pasa si olvido el proveedor?</h3>
-<p>El sistema <strong>no permite</strong> publicar. Debe completar el proveedor antes de enviar.</p>
+<p>El sistema <strong>no permite</strong> publicar gastos con documento fiscal sin proveedor.</p>
 <h3>¿Boleta sin ISV está permitida?</h3>
 <p>Sí. Boletas y documentos OC sin impuesto son válidos; el asiento solo llevará la cuenta de gasto sin 11301.</p>
 <h3>Anticipos viejos (ej. ANT/2026/0001)</h3>
 <p>Los anticipos creados con el flujo anterior pueden tener saldos abiertos en 11203. Coordine con contabilidad para liquidarlos o migrarlos manualmente; los <strong>nuevos</strong> anticipos siguen este manual.</p>
 <hr/>
-<h2>Resumen visual de los 3 escenarios</h2>
+<h2>Resumen visual de los escenarios</h2>
 <pre>
 ESCENARIO 1 — REEMBOLSO (sin anticipo)
-  Empleado paga → Gasto → FACTU (Cr 21101 proveedor)
-                    → MISCE (Dr 21101 / Cr 21101 empleado)
-                    → BNK1  pago al empleado
+  Empleado pagó → Gasto → FACTU (Cr 21101 proveedor X)
+                     → MISCE (Dr 21101 X / Cr CxP Jorge)
+                     → BNK1  pago a Jorge
 
-ESCENARIO 2 — ANTICIPO CUADRADO
+ESCENARIO 2 — EMPRESA PAGÓ (tarjeta/banco)
+  Empresa pagó → Gasto → FACTU (Cr 21101 proveedor X)
+                     → BNK1 / tarjeta  pago a X (sin MISCE a empleado)
+
+ESCENARIO 3 — ANTICIPO CUADRADO
   BNK1 entrega → Dr 11203 / Cr banco
   Gastos → FACTU + MISCE (Dr 21101 / Cr 11203)
   Cierre → saldo 0, anticipo cerrado
 
-ESCENARIO 3 — ANTICIPO CON DIFERENCIA
+ESCENARIO 4 — ANTICIPO CON DIFERENCIA
   Sobrante:  cierre → BNK1 vuelto (Dr banco / Cr 11203)
-  Excedido:  MISCE split Cr 11203 + Cr 21101 empleado → BNK1 paga excedente
+  Excedido:  MISCE split Cr 11203 + Cr CxP empleado → BNK1 paga excedente
 </pre>
 <hr/>
 <p><strong>Soporte técnico:</strong> Kenocia — módulo <code>kc_expense_fiscal_hn_v18</code></p>

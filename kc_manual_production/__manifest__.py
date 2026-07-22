@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Planta KC',
-    'version': '18.0.1.28.3',
+    'version': '18.0.1.28.4',
     'category': 'Inventory/Inventory',
     'summary': 'Control manual de producción y consumo de materia prima sin MRP, con trazabilidad por lote',
     'description': """

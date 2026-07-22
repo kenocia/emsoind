@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import _, api, Command, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 from odoo.tools.misc import clean_context
 
 
@@ -20,6 +20,10 @@ class HrExpenseSheet(models.Model):
         string='Fondo aplicado',
         store=True,
     )
+    kc_has_fiscal_expense = fields.Boolean(
+        compute='_compute_kc_has_fiscal_expense',
+        string='Tiene gasto fiscal',
+    )
 
     @api.depends('expense_line_ids.kc_fund_move_id', 'expense_line_ids.kc_fund_move_id.state')
     def _compute_kc_fund_applied(self):
@@ -29,23 +33,64 @@ class HrExpenseSheet(models.Model):
                 fund_moves and all(move.state == 'posted' for move in fund_moves),
             )
 
-    @api.constrains('expense_line_ids', 'payment_mode')
-    def _check_kc_fiscal_payment_mode(self):
+    @api.depends(
+        'expense_line_ids.kc_document_number',
+        'expense_line_ids.kc_document_type',
+    )
+    def _compute_kc_has_fiscal_expense(self):
         for sheet in self:
-            if sheet._kc_has_fiscal_expenses() and sheet.payment_mode != 'own_account':
-                raise ValidationError(_(
-                    'Los gastos con documento fiscal deben registrarse como '
-                    '"Empleado (a reembolsar)".',
-                ))
+            sheet.kc_has_fiscal_expense = sheet._kc_has_fiscal_expenses()
 
     def _kc_has_fiscal_expenses(self):
         self.ensure_one()
         return any(expense._kc_is_fiscal_expense() for expense in self.expense_line_ids)
 
+    def _kc_is_company_fiscal(self):
+        self.ensure_one()
+        return (
+            self.payment_mode == 'company_account'
+            and self._kc_has_fiscal_expenses()
+        )
+
+    @api.depends('employee_journal_id', 'payment_method_line_id', 'payment_mode',
+                 'expense_line_ids.kc_document_number', 'expense_line_ids.kc_document_type')
+    def _compute_journal_id(self):
+        super()._compute_journal_id()
+        for sheet in self:
+            if sheet._kc_is_company_fiscal():
+                sheet.journal_id = (
+                    sheet.employee_journal_id
+                    or sheet.company_id.expense_journal_id
+                    or sheet.journal_id
+                )
+
+    @api.depends('account_move_ids.payment_state', 'account_move_ids.amount_residual')
+    def _compute_from_account_move_ids(self):
+        fiscal_company = self.filtered(lambda sheet: sheet._kc_is_company_fiscal())
+        others = self - fiscal_company
+        if others:
+            super(HrExpenseSheet, others)._compute_from_account_move_ids()
+        for sheet in fiscal_company:
+            posted = sheet.account_move_ids.filtered(lambda move: move.state == 'posted')
+            if posted:
+                sheet.amount_residual = sum(posted.mapped('amount_residual'))
+                payment_states = set(posted.mapped('payment_state'))
+                if len(payment_states) == 1:
+                    sheet.payment_state = payment_states.pop()
+                elif 'partial' in payment_states or (
+                    'paid' in payment_states and 'not_paid' in payment_states
+                ):
+                    sheet.payment_state = 'partial'
+                elif 'paid' in payment_states:
+                    sheet.payment_state = 'paid'
+                else:
+                    sheet.payment_state = 'not_paid'
+            else:
+                sheet.amount_residual = 0.0
+                sheet.payment_state = 'not_paid'
+
     def _kc_validate_expense_sheet_fiscal_rules(self):
         for sheet in self:
-            if sheet.payment_mode != 'own_account':
-                continue
             for expense in sheet.expense_line_ids:
                 if expense._kc_is_fiscal_expense() and not expense.vendor_id:
                     raise UserError(_(
@@ -53,6 +98,24 @@ class HrExpenseSheet(models.Model):
                         'tiene proveedor configurado.',
                         expense=expense.name,
                     ))
+            if (
+                sheet.payment_mode == 'company_account'
+                and sheet.kc_advance_id
+                and sheet._kc_has_fiscal_expenses()
+            ):
+                raise UserError(_(
+                    'Un gasto pagado por la empresa (tarjeta/banco) no puede '
+                    'vincularse a un anticipo. Use "Empleado pagó (reembolso)" '
+                    'para liquidar anticipos.',
+                ))
+
+    def _kc_get_purchase_journal(self):
+        self.ensure_one()
+        return (
+            self.employee_journal_id
+            or self.company_id.expense_journal_id
+            or self.journal_id
+        )
 
     def _prepare_bills_vals_for_expense(self, expense):
         """Una factura de proveedor por línea de gasto."""
@@ -64,6 +127,8 @@ class HrExpenseSheet(models.Model):
             ))
         vendor = expense.vendor_id
         move_vals = self._prepare_move_vals()
+        # Facturas de compra siempre usan fecha de factura (también en modo empresa).
+        move_vals.pop('date', None)
         invoice_date = (
             expense.kc_document_date
             or expense.date
@@ -72,7 +137,7 @@ class HrExpenseSheet(models.Model):
         )
         return {
             **move_vals,
-            'journal_id': self.journal_id.id,
+            'journal_id': self._kc_get_purchase_journal().id,
             'ref': expense.name or self.name,
             'move_type': 'in_invoice',
             'partner_id': vendor.id,
@@ -94,17 +159,10 @@ class HrExpenseSheet(models.Model):
             **expense._kc_fiscal_header_vals(),
         }
 
-    def _do_create_moves(self):
-        self._kc_validate_expense_sheet_fiscal_rules()
-        own_account_sheets = self.filtered(
-            lambda sheet: sheet.payment_mode == 'own_account',
-        )
-        company_account_sheets = self - own_account_sheets
-
-        self = self.with_context(clean_context(self.env.context))
+    def _kc_create_vendor_bills_for_sheets(self):
+        """Crea una factura proveedor por línea (reembolso o empresa fiscal)."""
         moves_sudo = self.env['account.move']
-
-        for sheet in own_account_sheets:
+        for sheet in self:
             sheet.accounting_date = (
                 sheet.accounting_date or sheet._calculate_default_accounting_date()
             )
@@ -119,10 +177,33 @@ class HrExpenseSheet(models.Model):
                         filter_xml=False,
                     )
                 moves_sudo |= move_sudo
+        return moves_sudo
 
-        if company_account_sheets:
+    def _do_create_moves(self):
+        self._kc_validate_expense_sheet_fiscal_rules()
+        own_account_sheets = self.filtered(
+            lambda sheet: sheet.payment_mode == 'own_account',
+        )
+        company_fiscal_sheets = self.filtered(
+            lambda sheet: sheet._kc_is_company_fiscal(),
+        )
+        company_other_sheets = self.filtered(
+            lambda sheet: (
+                sheet.payment_mode == 'company_account'
+                and not sheet._kc_has_fiscal_expenses()
+            ),
+        )
+
+        self = self.with_context(clean_context(self.env.context))
+        moves_sudo = self.env['account.move']
+
+        vendor_bill_sheets = own_account_sheets | company_fiscal_sheets
+        if vendor_bill_sheets:
+            moves_sudo |= vendor_bill_sheets._kc_create_vendor_bills_for_sheets()
+
+        if company_other_sheets:
             moves_sudo |= super(
-                HrExpenseSheet, company_account_sheets,
+                HrExpenseSheet, company_other_sheets,
             )._do_create_moves()
 
         return moves_sudo.sudo(self.env.su)
@@ -301,9 +382,44 @@ class HrExpenseSheet(models.Model):
                 sheet._kc_create_fund_clearing_move(invoice, expense)
 
     def action_sheet_move_post(self):
-        res = super().action_sheet_move_post()
+        fiscal_company = self.filtered(lambda sheet: sheet._kc_is_company_fiscal())
+        others = self - fiscal_company
+
+        if fiscal_company:
+            fiscal_company.filtered(
+                lambda sheet: not sheet.account_move_ids,
+            )._do_create_moves()
+            fiscal_company.account_move_ids.action_post()
+
+        res = True
+        if others:
+            res = super(HrExpenseSheet, others).action_sheet_move_post()
+
         self._kc_apply_fund_to_vendor_bills()
         return res
+
+    def action_open_account_moves(self):
+        self.ensure_one()
+        if self._kc_is_company_fiscal() or self.payment_mode == 'own_account':
+            res_model = 'account.move'
+            record_ids = self.account_move_ids
+            action = {'type': 'ir.actions.act_window', 'res_model': res_model}
+            if len(record_ids) == 1:
+                action.update({
+                    'name': record_ids.name,
+                    'view_mode': 'form',
+                    'res_id': record_ids.id,
+                    'views': [(False, 'form')],
+                })
+            else:
+                action.update({
+                    'name': _('Facturas de proveedor'),
+                    'view_mode': 'list',
+                    'domain': [('id', 'in', record_ids.ids)],
+                    'views': [(False, 'list'), (False, 'form')],
+                })
+            return action
+        return super().action_open_account_moves()
 
     def action_register_payment(self):
         for sheet in self:
@@ -312,7 +428,14 @@ class HrExpenseSheet(models.Model):
                     'Las facturas de proveedor de este reporte se pagan '
                     'automáticamente contra el anticipo o la cuenta de reembolso '
                     'del empleado. Para reembolsar al empleado use tesorería '
-                    'sobre su cuenta por pagar.',
+                    'sobre su cuenta por pagar (contacto del empleado).',
+                ))
+            if sheet._kc_is_company_fiscal():
+                raise UserError(_(
+                    'Este reporte generó facturas de proveedor pendientes. '
+                    'Páguelas desde Contabilidad → Facturas de proveedor '
+                    '(partner del comercio), o concilie con el estado de cuenta '
+                    'de la tarjeta/banco corporativo.',
                 ))
             if sheet.kc_advance_id:
                 raise UserError(_(

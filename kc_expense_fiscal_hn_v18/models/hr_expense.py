@@ -7,6 +7,19 @@ from odoo.exceptions import ValidationError
 class HrExpense(models.Model):
     _inherit = 'hr.expense'
 
+    payment_mode = fields.Selection(
+        selection=[
+            ('own_account', 'Empleado pagó (reembolso)'),
+            ('company_account', 'Empresa pagó (tarjeta/banco)'),
+        ],
+        string='Pagado por',
+        default='own_account',
+        required=True,
+        tracking=True,
+        help='Quién desembolsó al proveedor. El proveedor fiscal se elige en el '
+             'campo Proveedor (siempre obligatorio si hay boleta o factura).',
+    )
+
     kc_document_number = fields.Char(string='N° Documento / Correlativo')
     kc_document_type = fields.Selection(
         selection=[
@@ -112,6 +125,8 @@ class HrExpense(models.Model):
 
     def _prepare_move_lines_vals(self):
         vals = super()._prepare_move_lines_vals()
-        if self.payment_mode == 'own_account' and self.vendor_id:
+        if self.vendor_id and (
+            self.payment_mode == 'own_account' or self._kc_is_fiscal_expense()
+        ):
             vals['partner_id'] = self.vendor_id.id
         return vals

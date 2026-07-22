@@ -150,7 +150,8 @@
                     <t t-elif="state.isBodegaOnly">
                         <p>
                             Su ciclo: <strong>Validar OP</strong> (entra PT) y
-                            <strong>cerrar consumo diario (CMP)</strong> por línea.
+                            <strong>cerrar consumo (CMP)</strong> desde WIP
+                            (con requisas o líneas manuales).
                         </p>
                         <ol class="kc_steps">
                             <li>
@@ -160,11 +161,12 @@
                                 Revisar y pulsar <strong>Validar</strong> → PT al stock con lote.
                             </li>
                             <li>
-                                Crear/validar el <strong>consumo diario</strong> del día
-                                (Resumen → Operación o Consumo de Componentes).
+                                Crear/editar el CMP: <strong>Seleccionar requisas WIP</strong>
+                                y/o líneas manuales; confirmar y validar
+                                (WIP → Virtual Producción).
                             </li>
                             <li>
-                                Sin cierre CMP, el día queda “huérfano” y puede bloquear el siguiente.
+                                Sin cierre CMP diario, el día queda “huérfano” y puede bloquear el siguiente.
                             </li>
                         </ol>
                     </t>
@@ -504,9 +506,19 @@
 
                     <h3>Consumo de Componentes (CMP)</h3>
                     <p>
-                        Documenta salida de materiales hacia producción.
+                        Documenta la salida de materiales hacia producción
+                        (<strong>WIP-PT → Virtual Producción</strong> cuando está
+                        instalado el módulo de Requisas y hay WIP configurado).
                         El modo principal del tablero es el <strong>consumo diario</strong>.
                     </p>
+
+                    <h4>Origen del stock</h4>
+                    <ul>
+                        <li>Con <strong>WIP configurado</strong> (Ajustes → Requisas): el CMP
+                            sale siempre de <strong>WIP-PT</strong>, tenga o no requisa.</li>
+                        <li>Sin WIP: respaldo al origen del tipo de operación CMP (Bodega MP).</li>
+                        <li>El campo <em>Disponible</em> muestra solo stock en WIP (no toda la bodega).</li>
+                    </ul>
 
                     <h4>Modos</h4>
                     <table class="table table-sm table-bordered kc_perm_table">
@@ -520,7 +532,7 @@
                             </tr>
                             <tr>
                                 <td>Abastecimiento</td>
-                                <td>Desde solicitudes de compra.</td>
+                                <td>Legado / vinculados a solicitudes (si aplica).</td>
                             </tr>
                             <tr>
                                 <td>General</td>
@@ -529,22 +541,51 @@
                         </tbody>
                     </table>
 
+                    <h4>CMP con requisas (recomendado)</h4>
+                    <p>
+                        Las requisas de producción surten material a WIP (TI parcial o total).
+                        En el CMP no digite a mano lo que ya está en requisa:
+                    </p>
+                    <ol class="kc_steps">
+                        <li>Abrir o crear el CMP (diario o general) en borrador.</li>
+                        <li>Botón <strong>Seleccionar requisas WIP</strong>.</li>
+                        <li>Marcar las <strong>requisas</strong> con pendiente en WIP
+                            (aparecen aunque la entrega sea parcial).</li>
+                        <li>Revisar líneas: pedida / entregada a WIP / pendiente /
+                            <em>cantidad a consumir</em> (puede ser menor = consumo parcial).</li>
+                        <li><strong>Agregar al CMP</strong> → Confirmar → Validar.</li>
+                    </ol>
+                    <div class="kc_note_box">
+                        Pendiente consumible = entregado a WIP − ya consumido en otros CMP.
+                        Puede consumir una requisa en varios CMP a medida que llegan TI.
+                    </div>
+
+                    <h4>CMP sin requisa (manual)</h4>
+                    <p>
+                        Sigue permitido digitar líneas a mano (movimientos a WIP hechos
+                        sin requisa, ajustes, etc.). El origen sigue siendo <strong>WIP-PT</strong>.
+                        Puede mezclar en el mismo CMP líneas de requisa y líneas manuales.
+                    </p>
+
                     <h4>CMP diario — pasos</h4>
                     <ol class="kc_steps">
                         <li><strong>Resumen → Operación</strong> → Crear consumo,
                             o <strong>Consumo de Componentes → Nuevo</strong>.</li>
                         <li>Modo diario + línea + fecha.</li>
-                        <li>Materias Primas: tipo MP / Insumo / Servicio.</li>
-                        <li>Confirmar → Validar (cierra el día).</li>
+                        <li>Cargar con <strong>Seleccionar requisas WIP</strong> y/o líneas manuales
+                            (tipo MP / Insumo / Servicio).</li>
+                        <li>Confirmar → Validar (cierra el día; mueve WIP → Virtual Producción).</li>
                     </ol>
 
                     <div class="kc_alert_box">
                         <span class="kc_alert_icon">⚠</span>
                         <div>
                             <ul>
-                                <li><em>Stock insuficiente:</em> revise lote y Disponible.</li>
+                                <li><em>Stock insuficiente:</em> revise lote y Disponible (en WIP).</li>
                                 <li><em>No puede crear el de hoy:</em> cierre el CMP de ayer.</li>
                                 <li><em>Ya existe para línea/fecha:</em> solo uno diario por día.</li>
+                                <li><em>No aparecen requisas:</em> no hay pendiente en WIP
+                                    (falta TI o ya se consumió todo).</li>
                             </ul>
                         </div>
                     </div>
@@ -597,6 +638,8 @@
                         <li>Líneas de Producción: operadores y categorías PT.</li>
                         <li>Centros de Trabajo (se crea <em>General</em> por línea).</li>
                         <li>Categorías MP e INSUMOS para el CMP.</li>
+                        <li>Con Requisas: ubicación WIP-PT en Ajustes → Requisas Kenocia
+                            (origen del CMP y Disponible).</li>
                         <li>Grupos: Planificador, Operador de Producción, Bodega, Administrador.</li>
                         <li>PT con rastreo por lotes; ficha técnica o producción simple cuando aplique.</li>
                     </ol>
@@ -685,3 +728,4 @@
     </t>
 
 </templates>
+

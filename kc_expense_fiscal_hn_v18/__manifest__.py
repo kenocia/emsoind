@@ -10,7 +10,7 @@
     'website': 'https://kenocia.com/',
     'license': 'LGPL-3',
     'category': 'Human Resources/Expenses',
-    'version': '18.0.2.0.0',
+    'version': '18.0.2.1.0',
     'depends': [
         'hr_expense',
         'kc_fiscal_hn_v18',

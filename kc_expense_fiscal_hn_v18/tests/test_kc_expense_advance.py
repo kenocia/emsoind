@@ -238,6 +238,24 @@ class TestKcExpenseAdvance(TransactionCase):
             sheet.action_register_payment()
 
     @freeze_time('2022-01-15')
+    def test_company_paid_fiscal_creates_open_vendor_bill(self):
+        sheet = self._create_expense_sheet(
+            amount=500.0,
+            payment_mode='company_account',
+        )
+        self._post_expense_sheet(sheet)
+        expense = sheet.expense_line_ids
+        bill = expense.kc_vendor_bill_id
+        self.assertTrue(bill)
+        self.assertEqual(bill.move_type, 'in_invoice')
+        self.assertEqual(bill.partner_id, self.vendor)
+        self.assertEqual(bill.state, 'posted')
+        self.assertIn(bill.payment_state, ('not_paid', 'partial'))
+        self.assertFalse(expense.kc_fund_move_id)
+        with self.assertRaises(UserError):
+            sheet.action_register_payment()
+
+    @freeze_time('2022-01-15')
     def test_close_advance_balanced(self):
         advance = self._create_advance(500.0)
         advance.action_deliver()
